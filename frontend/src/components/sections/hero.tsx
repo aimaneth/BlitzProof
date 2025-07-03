@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, memo, useCallback, useRef } from "react"
 import { cn } from "@/lib/utils"
-import { animate } from "motion/react"
+import { animate } from "framer-motion"
 
 // Glowing effect component
 interface GlowingEffectProps {
