@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   },
   // Image configuration
   images: {
-    unoptimized: false,
+    unoptimized: true,
     domains: [],
     remotePatterns: [],
   },
