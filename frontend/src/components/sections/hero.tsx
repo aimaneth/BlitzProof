@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Brain, Eye, ArrowRight, Users } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { useState, useEffect, memo, useCallback, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { animate } from "motion/react"
@@ -84,7 +84,7 @@ const GlowingEffect = memo(
 
           const currentAngle =
             parseFloat(element.style.getPropertyValue("--start")) || 0;
-          let targetAngle =
+          const targetAngle =
             (180 * Math.atan2(mouseY - center[1], mouseX - center[0])) /
               Math.PI +
             90;
@@ -333,15 +333,13 @@ const TypewriterText = ({
   className = "", 
   speed = 100, 
   delay = 0,
-  cursor = true,
-  loop = true
+  cursor = true
 }: { 
   texts: string[]; 
   className?: string; 
   speed?: number; 
   delay?: number;
   cursor?: boolean;
-  loop?: boolean;
 }) => {
   const [displayText, setDisplayText] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -419,7 +417,6 @@ export function Hero() {
                   speed={80}
                   delay={2000}
                   className="text-primary"
-                  loop={true}
                 />
               </span>
             </h1>
@@ -460,16 +457,16 @@ export function Hero() {
         >
           <div className="flex items-center justify-center gap-8 sm:gap-12 lg:gap-16 opacity-60">
             {/* Partner logos */}
-            <img src="/partners/Slither.png" alt="Slither" className="h-10 w-auto sm:h-14" />
-            <img src="/partners/Mythril.png" alt="Mythril" className="h-10 w-auto sm:h-14" />
-            <img src="/partners/Echidna.png" alt="Echidna" className="h-10 w-auto sm:h-14" />
-            <img src="/partners/Manticore.png" alt="Manticore" className="h-10 w-auto sm:h-14" />
+            <Image src="/partners/Slither.png" alt="Slither" width={56} height={40} className="h-10 w-auto sm:h-14" />
+            <Image src="/partners/Mythril.png" alt="Mythril" width={56} height={40} className="h-10 w-auto sm:h-14" />
+            <Image src="/partners/Echidna.png" alt="Echidna" width={56} height={40} className="h-10 w-auto sm:h-14" />
+            <Image src="/partners/Manticore.png" alt="Manticore" width={56} height={40} className="h-10 w-auto sm:h-14" />
             <div className="h-10 sm:h-14 flex items-center justify-center">
               <span className="text-lg sm:text-xl font-bold text-gray-500">Oyente</span>
             </div>
-            <img src="/partners/Securify.png" alt="Securify" className="h-10 w-auto sm:h-16" />
-            <img src="/partners/OpenAI.png" alt="OpenAI" className="h-10 w-auto sm:h-20" />
-                    </div>
+            <Image src="/partners/Securify.png" alt="Securify" width={56} height={48} className="h-10 w-auto sm:h-16" />
+            <Image src="/partners/OpenAI.png" alt="OpenAI" width={56} height={80} className="h-10 w-auto sm:h-20" />
+          </div>
         </motion.div>
 
         {/* Scanner Preview Section */}
@@ -489,10 +486,12 @@ export function Hero() {
             <div className="absolute -top-6 -right-6 w-16 h-16 bg-primary/30 rounded-full blur-2xl z-0 pointer-events-none" />
             <div className="relative mx-auto max-w-5xl">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl z-10">
-                <img
+                <Image
                   src="/scanner-preview.png"
                   alt="Scanner Preview"
                   className="w-full h-auto rounded-2xl"
+                  width={1200}
+                  height={800}
                 />
                 {/* Stronger and higher faded bottom overlay */}
                 <div className="pointer-events-none absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />

@@ -1,9 +1,9 @@
 'use client';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
-import { ShieldCheck, Search, FileText, RefreshCw, CheckCircle, UserCheck, ArrowRight, X, Users, Brain } from 'lucide-react';
+import { ShieldCheck, Search, FileText, RefreshCw, CheckCircle, UserCheck, ArrowRight, X } from 'lucide-react';
 import { Spotlight } from '@/components/sections/hero';
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { useState, ChangeEvent, FormEvent, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout/layout';
 
 interface FormState {
@@ -155,7 +155,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
     setErrors({});
   }
 
-  function calculateSecurityScore() {
+  const calculateSecurityScore = useCallback(() => {
     let score = 50; // Base score
     let price = 0;
     let timeline = '7-10 days';
@@ -227,7 +227,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
     setEstimatedPrice(`$${price.toLocaleString()}`);
     setEstimatedTimeline(timeline);
     setRiskLevel(risk);
-  }
+  }, [securityScore]);
 
   function handleSecurityScoreChange(field: string, value: string) {
     setSecurityScore(prev => ({ ...prev, [field]: value }));
@@ -236,7 +236,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
   // Recalculate score whenever securityScore changes
   useEffect(() => {
     calculateSecurityScore();
-  }, [securityScore]);
+  }, [securityScore, calculateSecurityScore]);
 
   return (
     <Layout>
@@ -482,7 +482,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       <section className="py-20 px-4 relative z-10">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-foreground">What's Included</h2>
+            <h2 className="text-4xl font-bold mb-6 text-foreground">What&apos;s Included</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Comprehensive deliverables and expert analysis to secure your smart contracts
             </p>
@@ -615,7 +615,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
         <div className="mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4 text-foreground">Get Your Security Score</h2>
-            <p className="text-muted-foreground">Calculate your project's security risk and get an instant audit estimate</p>
+            <p className="text-muted-foreground">Calculate your project&apos;s security risk and get an instant audit estimate</p>
           </div>
           
           <Card className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-2xl rounded-2xl overflow-hidden relative z-30" style={{
@@ -737,7 +737,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4 text-foreground">Trusted by Leading Projects</h2>
-            <p className="text-muted-foreground">See how we've protected billions in digital assets</p>
+            <p className="text-muted-foreground">See how we&apos;ve protected billions in digital assets</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -752,7 +752,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     <p className="text-xs text-muted-foreground">$500M TVL</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">"BlitzProof's audit was comprehensive and professional. They found critical vulnerabilities that could have cost us millions."</p>
+                <p className="text-sm text-muted-foreground mb-4">&quot;BlitzProof&apos;s audit was comprehensive and professional. They found critical vulnerabilities that could have cost us millions.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $500M</div>
                   <div className="flex items-center text-primary">
@@ -774,7 +774,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     <p className="text-xs text-muted-foreground">$200M Volume</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">"The team was responsive and thorough. Their security recommendations were invaluable for our launch."</p>
+                <p className="text-sm text-muted-foreground mb-4">&quot;The team was responsive and thorough. Their security recommendations were invaluable for our launch.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $200M</div>
                   <div className="flex items-center text-primary">
@@ -796,7 +796,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     <p className="text-xs text-muted-foreground">$300M Assets</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">"Professional service from start to finish. Their expertise in gaming contracts is unmatched."</p>
+                <p className="text-sm text-muted-foreground mb-4">&quot;Professional service from start to finish. Their expertise in gaming contracts is unmatched.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $300M</div>
                   <div className="flex items-center text-primary">

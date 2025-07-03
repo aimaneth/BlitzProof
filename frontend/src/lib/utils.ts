@@ -10,6 +10,20 @@ export function formatAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
+export function formatBalance(balance: bigint | undefined, decimals: number = 18): string {
+  if (!balance) return "0"
+  const divisor = BigInt(10 ** decimals)
+  const whole = balance / divisor
+  const fraction = balance % divisor
+  const fractionStr = fraction.toString().padStart(decimals, '0').slice(0, 4)
+  return `${whole}.${fractionStr}`
+}
+
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text
+  return `${text.slice(0, maxLength)}...`
+}
+
 export function formatNumber(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M'

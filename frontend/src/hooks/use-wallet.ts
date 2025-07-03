@@ -39,7 +39,7 @@ export function useWallet() {
           setIsAuthenticated(true)
           console.log('✅ User authenticated with existing token')
           return
-        } catch (tokenError) {
+        } catch {
           console.log('❌ Existing token invalid, removing...')
           localStorage.removeItem('auth_token')
         }
@@ -127,6 +127,8 @@ export function useWallet() {
       handleUserRegistration()
     }
   }
+
+
 
   return {
     address,

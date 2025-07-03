@@ -13,20 +13,15 @@ import {
   FileText, 
   Clock, 
   CheckCircle, 
-  XCircle, 
-  RefreshCw,
-  User,
   BarChart3,
   TrendingUp,
   AlertTriangle,
-  Target,
   Activity,
-  Zap,
-  Eye,
   Download,
-  Share2,
   Filter,
-  Upload
+  Upload,
+  Target,
+  Eye
 } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -54,8 +49,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { isConnected, isAuthenticated, address, shortAddress } = useWallet()
-  const [scanHistory, setScanHistory] = useState<ScanHistory[]>([])
+  const { isConnected, isAuthenticated, shortAddress } = useWallet()
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | '90d'>('30d')
@@ -64,12 +58,6 @@ export default function DashboardPage() {
     if (score >= 90) return 'text-green-400'
     if (score >= 70) return 'text-yellow-400'
     return 'text-red-400'
-  }
-
-  const getScoreBg = (score: number) => {
-    if (score >= 90) return 'bg-green-500/10 border-green-500/20'
-    if (score >= 70) return 'bg-yellow-500/10 border-yellow-500/20'
-    return 'bg-red-500/10 border-red-500/20'
   }
 
   useEffect(() => {
@@ -84,11 +72,9 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       const response = await apiService.getUserScans()
-      setScanHistory(response.scans)
       
       const total = response.scans.length
       const completed = response.scans.filter((scan: ScanHistory) => scan.status === 'completed').length
-      const failed = response.scans.filter((scan: ScanHistory) => scan.status === 'failed').length
       
       const scores = response.scans
         .filter((scan: ScanHistory) => scan.status === 'completed' && scan.scan_results && typeof scan.scan_results === 'object' && 'score' in scan.scan_results)
@@ -181,24 +167,6 @@ export default function DashboardPage() {
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />
-      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />
-      case 'scanning': return <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />
-      default: return <Clock className="h-4 w-4 text-yellow-500" />
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'text-green-500'
-      case 'failed': return 'text-red-500'
-      case 'scanning': return 'text-blue-500'
-      default: return 'text-yellow-500'
-    }
-  }
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -255,8 +223,6 @@ export default function DashboardPage() {
       </div>
     )
   }
-
-
 
   if (loading) {
     return (

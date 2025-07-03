@@ -96,90 +96,111 @@ export interface CustomRule {
 }
 
 class ApiService {
-  private async request<T>(endpoint: string, options: RequestInit = {}, retries = 3): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
     
     const config: RequestInit = {
       method: 'GET',
-      mode: 'cors',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
     }
 
-    // Remove Content-Type for FormData requests
-    if (options.body instanceof FormData) {
-      const headers = config.headers as Record<string, string>
-      delete headers['Content-Type']
-    }
-
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
     const response = await fetch(url, config)
-        
-        // Handle CORS preflight
-        if (response.status === 0) {
-          throw new Error('CORS error - check server configuration')
-        }
-    
+
     if (!response.ok) {
-          const errorText = await response.text()
-          let errorData
-          try {
-            errorData = JSON.parse(errorText)
-          } catch {
-            errorData = { error: errorText || `HTTP ${response.status}` }
-          }
-          throw new Error(errorData.error || `HTTP ${response.status}`)
+      throw new Error(`Request failed: ${response.statusText}`)
     }
 
-        const contentType = response.headers.get('content-type')
-        if (contentType && contentType.includes('application/json')) {
-          return response.json()
-        } else {
-          return response.text() as T
-        }
-      } catch (error) {
-        if (attempt === retries) {
-          console.error(`API request failed after ${retries} attempts:`, error)
-          throw error
-        }
-        // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
-      }
-    }
-
-    throw new Error('Request failed after all retries')
+    return response.json()
   }
 
-  // Authentication
-  async registerUser(walletAddress: string): Promise<{ user: User; token: string }> {
+  private getAuthHeaders(): HeadersInit {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  }
+
+  async testConnection(): Promise<boolean> {
     try {
-      const result = await this.request<{ user: User; token: string }>('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ wallet_address: walletAddress }),
-    })
-      
-      // Store token if successful
-      if (result.token && typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', result.token)
-      }
-      
-      return result
-    } catch (error) {
-      console.error('Registration failed:', error)
-      throw error
+      const response = await fetch(`${API_BASE_URL}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      return response.ok
+    } catch {
+      return false
     }
   }
 
-  async getProfile(): Promise<{ user: User }> {
-    return this.request<{ user: User }>('/api/auth/profile')
+  async registerUser(address: string): Promise<{ token: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet_address: address })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Registration failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async getProfile(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error(`Profile fetch failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async scanContract(contractAddress: string, network: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/scan`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ contractAddress, network })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Scan failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async getScanHistory(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/scan/history`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error(`History fetch failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async exportScanResults(scanId: string, format: 'pdf' | 'json'): Promise<Blob> {
+    const response = await fetch(`${API_BASE_URL}/api/export/${scanId}?format=${format}`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.statusText}`)
+    }
+
+    return response.blob()
   }
 
   // Profile Management
@@ -260,30 +281,6 @@ class ApiService {
     return this.request<ScanResult>(`/api/scan/${scanId}/result`)
   }
 
-  async exportScan(scanId: string, format: 'pdf' | 'csv' | 'json', options?: { includeDetails?: boolean; includeRemediation?: boolean }): Promise<Blob> {
-    const params = new URLSearchParams({
-      format,
-      ...(options?.includeDetails && { includeDetails: 'true' }),
-      ...(options?.includeRemediation && { includeRemediation: 'true' }),
-    })
-
-    const url = `${API_BASE_URL}/api/scan/${scanId}/export?${params}`
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Export failed: ${response.statusText}`)
-    }
-
-    return response.blob()
-  }
-
   async generateShareableLink(scanId: string): Promise<{ shareableLink: string; scanId: string; message: string }> {
     return this.request<{ shareableLink: string; scanId: string; message: string }>(`/api/scan/${scanId}/share`, {
       method: 'POST',
@@ -293,15 +290,6 @@ class ApiService {
   // Health and Connection
   async healthCheck(): Promise<{ status: string; uptime: number; timestamp: string }> {
     return this.request<{ status: string; uptime: number; timestamp: string }>('/health')
-  }
-
-  async testConnection(): Promise<boolean> {
-    try {
-      await this.healthCheck()
-      return true
-    } catch {
-      return false
-    }
   }
 
   // Custom Rules Management
@@ -336,7 +324,7 @@ class ApiService {
   // Batch Scanning
   async startBatchScan(files: File[], config?: any): Promise<{ jobId: string; message: string }> {
     const formData = new FormData()
-    files.forEach((file, index) => {
+    files.forEach((file) => {
       formData.append(`contracts`, file)
     })
     if (config) {

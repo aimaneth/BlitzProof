@@ -2,37 +2,25 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "./button"
-import { Card, CardContent, CardHeader, CardTitle } from "./card"
-import { Input } from "./input"
-import { Label } from "./label"
-import { Badge } from "./badge"
-import { Switch } from "./switch"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
 import { 
   Plus, 
-  Edit, 
+  Edit,
   Trash2, 
-  Copy, 
   Eye, 
-  EyeOff, 
-  Shield, 
-  AlertTriangle, 
+  CheckCircle, 
+  XCircle,
+  AlertTriangle,
+  Shield,
   Info,
-  Save,
-  X,
-  TestTube,
-  Code,
-  Filter,
   Search,
-  Download,
-  Upload,
-  Settings,
-  Zap,
-  Target,
-  Brain,
-  FileText,
-  CheckCircle,
-  XCircle
+  X,
+  Save
 } from "lucide-react"
 import { toast } from "sonner"
 import { apiService } from "@/lib/api"
@@ -56,12 +44,10 @@ interface CustomRule {
 }
 
 interface CustomRulesManagerProps {
-  onRuleSelect?: (rule: CustomRule) => void
-  onRulesChange?: (rules: CustomRule[]) => void
-  selectedRules?: string[]
+  onRulesUpdate?: (rules: CustomRule[]) => void
 }
 
-export function CustomRulesManager({ onRuleSelect, onRulesChange, selectedRules = [] }: CustomRulesManagerProps) {
+export function CustomRulesManager({ onRulesUpdate }: CustomRulesManagerProps) {
   const [rules, setRules] = useState<CustomRule[]>([])
   const [filteredRules, setFilteredRules] = useState<CustomRule[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -196,7 +182,7 @@ export function CustomRulesManager({ onRuleSelect, onRulesChange, selectedRules 
       setShowCreateForm(false)
       resetForm()
       toast.success('Custom rule created successfully')
-      onRulesChange?.(rules)
+      onRulesUpdate?.(rules)
     } catch (error) {
       console.error('Failed to create rule:', error)
       if (error instanceof Error && error.message.includes('Cannot POST')) {
@@ -216,7 +202,7 @@ export function CustomRulesManager({ onRuleSelect, onRulesChange, selectedRules 
       setEditingRule(null)
       resetForm()
       toast.success('Custom rule updated successfully')
-      onRulesChange?.(rules)
+      onRulesUpdate?.(rules)
     } catch (error) {
       console.error('Failed to update rule:', error)
       if (error instanceof Error && error.message.includes('Cannot PUT')) {
@@ -237,7 +223,7 @@ export function CustomRulesManager({ onRuleSelect, onRulesChange, selectedRules 
       await apiService.deleteCustomRule(ruleId)
       setRules(prev => prev.filter(rule => rule.id !== ruleId))
       toast.success(`Rule "${ruleName}" deleted successfully`)
-      onRulesChange?.(rules)
+      onRulesUpdate?.(rules)
     } catch (error) {
       console.error('Failed to delete rule:', error)
       if (error instanceof Error && error.message.includes('Cannot DELETE')) {
@@ -255,7 +241,7 @@ export function CustomRulesManager({ onRuleSelect, onRulesChange, selectedRules 
     try {
       const updatedRule = await apiService.updateCustomRule(ruleId, { enabled })
       setRules(prev => prev.map(rule => rule.id === ruleId ? updatedRule : rule))
-      onRulesChange?.(rules)
+      onRulesUpdate?.(rules)
       toast.success(`Rule "${ruleName}" ${enabled ? 'enabled' : 'disabled'} successfully`)
     } catch (error) {
       console.error('Failed to toggle rule:', error)

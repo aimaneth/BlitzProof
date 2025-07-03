@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
 import { useWallet } from "@/hooks/use-wallet"
-import { useSocket } from "@/hooks/use-socket"
+import { useHydrated } from "@/hooks/use-hydrated"
 import { apiService, ScanResult } from "@/lib/api"
 import { Header } from "@/components/layout/header"
 import { ExportActions } from "@/components/ui/export-actions"
@@ -28,12 +28,6 @@ import {
   Clock,
   Bug,
   Zap,
-  Code,
-  Eye,
-  Download,
-  Share2,
-  Copy,
-  RefreshCw,
   TrendingUp,
   Target,
   Activity,
@@ -44,13 +38,13 @@ import {
   ChevronDown
 } from "lucide-react"
 import { toast } from "sonner"
-import { RemediationCard } from '@/components/ui/remediation-card'
 import { AdvancedAIDashboard } from '@/components/ui/advanced-ai-dashboard'
 import { ScanConfiguration } from '@/components/ui/scan-configuration'
 import { CustomRulesManager } from '@/components/ui/custom-rules-manager'
 import { BatchScanManager } from '@/components/ui/batch-scan-manager'
 import { TutorialOverlay, useTutorial } from '@/components/ui/tutorial-overlay'
 import { getSeverityColor, getSeverityBorderColor, sortVulnerabilitiesBySeverity } from "@/lib/utils"
+import Image from 'next/image'
 
 const networks = [
   { id: "ethereum", name: "Ethereum", icon: "/networks/ethereum.png" },
@@ -181,9 +175,9 @@ const exampleContractsByNetwork: Record<string, { name: string; address: string;
 }
 
 export default function ScannerPage() {
-  const { isConnected, shortAddress } = useWallet()
-  const { isConnected: socketConnected } = useSocket()
+  const { isConnected, shortAddress, isLoading } = useWallet()
   const { isTutorialOpen, openTutorial, closeTutorial } = useTutorial()
+  const isHydrated = useHydrated()
   const [selectedNetwork, setSelectedNetwork] = useState("ethereum")
   const [isScanning, setIsScanning] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
@@ -203,7 +197,6 @@ export default function ScannerPage() {
   
   // New enhanced features state
   const [activeTab, setActiveTab] = useState<'scanner' | 'custom-rules' | 'batch-scan'>('scanner')
-  const [selectedCustomRules, setSelectedCustomRules] = useState<string[]>([])
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false)
 
   // Close network dropdown when clicking outside
@@ -443,7 +436,7 @@ export default function ScannerPage() {
       return () => clearInterval(interval)
     })
 
-  }, [currentScanId])
+  }, [currentScanId, scanStartTime])
 
 
 
@@ -486,7 +479,7 @@ export default function ScannerPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="relative scanner-header-float">
-                    <img src="/icons/scanner.png" alt="Scanner Icon" className="h-12 w-12 relative z-10" />
+                    <Image src="/icons/scanner.png" alt="Scanner Icon" width={48} height={48} className="h-12 w-12 relative z-10" />
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg scanner-header-glow"></div>
                   </div>
                   <div>
@@ -525,16 +518,18 @@ export default function ScannerPage() {
               
               <div className="flex items-center gap-3">
                 {/* Wallet Status Indicator */}
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border backdrop-blur-sm ${
-                  isConnected 
-                    ? 'bg-green-500/10 border-green-500/20 text-green-400' 
-                    : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
-                }`}>
-                  <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                  <span className="text-sm font-medium">
-                    {isConnected ? 'Wallet Connected' : 'Wallet Required'}
-                  </span>
-                </div>
+                {isHydrated && (
+                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border backdrop-blur-sm ${
+                    isConnected 
+                      ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                      : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                  }`}>
+                    <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                    <span className="text-sm font-medium">
+                      {isConnected ? 'Wallet Connected' : 'Wallet Required'}
+                    </span>
+                  </div>
+                )}
                 
                 <Button
                   variant="outline"
@@ -601,41 +596,43 @@ export default function ScannerPage() {
             {/* Left Column - Upload & Settings */}
             <div className="lg:col-span-1 space-y-6">
               {/* User Status */}
-              {isConnected ? (
-                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      Connected User
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-muted-foreground">{shortAddress}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Your scan history will be saved to your account.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="bg-yellow-500/10 border border-yellow-500/20 shadow-lg rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-yellow-500">
-                      <User className="h-5 w-5" />
-                      Wallet Required
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        Connect your wallet to access the security scanner and save your scan history.
+              {isHydrated && (
+                isConnected ? (
+                  <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <User className="h-5 w-5" />
+                        Connected User
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm text-muted-foreground">{shortAddress}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Your scan history will be saved to your account.
                       </p>
-                      <ConnectWallet />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="bg-yellow-500/10 border border-yellow-500/20 shadow-lg rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-yellow-500">
+                        <User className="h-5 w-5" />
+                        Wallet Required
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                          Connect your wallet to access the security scanner and save your scan history.
+                        </p>
+                        <ConnectWallet />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
               )}
 
               {/* Network Selection */}
@@ -651,9 +648,11 @@ export default function ScannerPage() {
                     {/* Current Selected Network Display */}
                     <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={networks.find(n => n.id === selectedNetwork)?.icon} 
-                          alt={`${networks.find(n => n.id === selectedNetwork)?.name} logo`}
+                        <Image 
+                          src={networks.find(n => n.id === selectedNetwork)?.icon || '/networks/ethereum.png'}
+                          alt={`${networks.find(n => n.id === selectedNetwork)?.name || 'Network'} logo`}
+                          width={24}
+                          height={24}
                           className="w-6 h-6 rounded-full object-cover filter-grayscale brightness-50"
                         />
                         <div>
@@ -701,9 +700,11 @@ export default function ScannerPage() {
                                     : 'hover:bg-card/50 text-foreground'
                                 }`}
                               >
-                                <img 
-                                  src={network.icon} 
-                                  alt={`${network.name} logo`}
+                                <Image 
+                                  src={network.icon || '/networks/ethereum.png'}
+                                  alt={`${network.name || 'Network'} logo`}
+                                  width={20}
+                                  height={20}
                                   className="w-5 h-5 rounded-full object-cover filter-grayscale brightness-50"
                                 />
                                 <div className="flex-1">
@@ -916,38 +917,40 @@ export default function ScannerPage() {
                     )}
 
                     {/* Scan Button */}
-                    {!isConnected ? (
-                      <div className="space-y-3">
-                        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <User className="h-5 w-5 text-yellow-500" />
-                            <span className="text-sm font-medium text-yellow-500">Wallet Required</span>
+                    {isHydrated && (
+                      !isConnected ? (
+                        <div className="space-y-3">
+                          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                              <User className="h-5 w-5 text-yellow-500" />
+                              <span className="text-sm font-medium text-yellow-500">Wallet Required</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-3">
+                              Connect your wallet to access the security scanner
+                            </p>
+                            <ConnectWallet />
                           </div>
-                          <p className="text-xs text-muted-foreground mb-3">
-                            Connect your wallet to access the security scanner
-                          </p>
-                          <ConnectWallet />
                         </div>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={handleScan}
-                        disabled={!uploadedFile && !fetchedContract || isScanning}
-                        className="w-full"
-                        size="lg"
-                      >
-                        {isScanning ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Scanning...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4 mr-2" />
-                            Start Security Scan
-                          </>
-                        )}
-                      </Button>
+                      ) : (
+                        <Button
+                          onClick={handleScan}
+                          disabled={!uploadedFile && !fetchedContract || isScanning}
+                          className="w-full start-scan-button"
+                          size="lg"
+                        >
+                          {isScanning ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Scanning...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4 mr-2" />
+                              Start Security Scan
+                            </>
+                          )}
+                        </Button>
+                      )
                     )}
 
                     {/* Advanced Options */}
@@ -956,6 +959,7 @@ export default function ScannerPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setShowScanConfig(true)}
+                        className="scan-config-button"
                       >
                         <Settings className="h-4 w-4 mr-2" />
                         Scan Config
@@ -1010,7 +1014,7 @@ export default function ScannerPage() {
 
               {/* Scan Results */}
               {scanResults ? (
-                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
+                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl results-area">
                   <CardContent className="p-6">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -1020,7 +1024,7 @@ export default function ScannerPage() {
                       {/* Export Actions */}
                       {scanResults && currentScanId && (
                         <div className="mb-4">
-                          <ExportActions scanId={currentScanId} scanResult={scanResults} />
+                          <ExportActions scanId={currentScanId} />
                         </div>
                       )}
                       {/* Summary Stats */}
@@ -1193,7 +1197,7 @@ export default function ScannerPage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <Card className="bg-card/30 border border-white/10 shadow-lg">
+                  <Card className="bg-card/30 border border-white/10 shadow-lg results-area">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Zap className="h-5 w-5 text-primary" />
@@ -1299,7 +1303,7 @@ export default function ScannerPage() {
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Always verify contract addresses before scanning to ensure you're analyzing the correct contract.
+                            Always verify contract addresses before scanning to ensure you&apos;re analyzing the correct contract.
                           </p>
                         </div>
                         <div className="flex items-start gap-3">
@@ -1330,13 +1334,9 @@ export default function ScannerPage() {
         {/* Custom Rules Tab */}
         {activeTab === 'custom-rules' && (
           <CustomRulesManager
-            onRuleSelect={(rule) => {
-              toast.success(`Selected rule: ${rule.name}`)
-            }}
-            onRulesChange={(rules) => {
+            onRulesUpdate={(rules) => {
               console.log('Custom rules updated:', rules.length)
             }}
-            selectedRules={selectedCustomRules}
           />
         )}
 
@@ -1369,7 +1369,6 @@ export default function ScannerPage() {
                 </Button>
               </div>
               <AdvancedAIDashboard
-                scanId={currentScanId || ''}
                 vulnerabilities={scanResults.vulnerabilities}
                 aiAnalysis={scanResults.aiAnalysis || []}
                 onRefresh={() => {

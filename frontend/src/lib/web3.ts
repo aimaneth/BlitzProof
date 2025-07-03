@@ -1,29 +1,25 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { mainnet, polygon, bsc, arbitrum, optimism } from 'wagmi/chains'
+import { createConfig, http } from 'wagmi'
+import { mainnet, polygon, arbitrum, optimism } from 'wagmi/chains'
+import { metaMask, walletConnect } from 'wagmi/connectors'
 
-// For development, use a more permissive configuration
-const isDevelopment = process.env.NODE_ENV === 'development'
-
-// Check if we have a valid WalletConnect project ID
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
-const hasValidProjectId = projectId && projectId !== 'YOUR_PROJECT_ID_HERE' && projectId !== 'c4f79cc821944d9680842e34466bfbd9'
-
-// Create a more robust configuration with better error handling
-export const config = getDefaultConfig({
-  appName: 'BlitzProof - Web3 Security Platform',
-  projectId: hasValidProjectId ? projectId : 'YOUR_PROJECT_ID',
-  chains: [
-    mainnet,
-    polygon,
-    bsc,
-    arbitrum,
-    optimism,
+export const config = createConfig({
+  chains: [mainnet, polygon, arbitrum, optimism],
+  connectors: [
+    metaMask(),
+    walletConnect({
+      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+    }),
   ],
-  ssr: true,
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [arbitrum.id]: http(),
+    [optimism.id]: http(),
+  },
 })
 
 // Add a warning if WalletConnect is not properly configured
-if (!hasValidProjectId && typeof window !== 'undefined') {
+if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID && typeof window !== 'undefined') {
   console.warn('⚠️ WalletConnect not properly configured. Please:')
   console.warn('1. Go to https://cloud.walletconnect.com')
   console.warn('2. Create a new project')

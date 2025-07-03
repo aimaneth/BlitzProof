@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useWallet } from '@/hooks/use-wallet'
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useWallet } from "@/hooks/use-wallet"
 import { Shield } from 'lucide-react'
 import { ConnectWallet } from '@/components/ui/connect-wallet'
 
@@ -10,27 +11,19 @@ interface AuthGuardProps {
   fallback?: React.ReactNode
 }
 
-const protectedRoutes = ['/dashboard']
-
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
-  const { isConnected } = useWallet()
-  const [isLoading, setIsLoading] = useState(true)
+  const { isConnected, isAuthenticated } = useWallet()
+  const router = useRouter()
 
   useEffect(() => {
-    // Simple check: if wallet is connected, allow access
-    setIsLoading(false)
-  }, [isConnected])
+    if (!isConnected) {
+      router.push("/")
+    }
+  }, [isConnected, router])
 
   // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
+  if (!isConnected || !isAuthenticated) {
+    return null
   }
 
   // Show fallback if wallet not connected

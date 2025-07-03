@@ -9,17 +9,16 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { 
   Settings, 
-  Shield, 
-  Brain, 
+  Save, 
   Clock, 
-  Zap, 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle,
+  Zap,
   Target,
-  Save,
-  Plus,
-  Trash2,
-  Copy,
-  Check,
-  AlertTriangle
+  Brain,
+  Shield,
+  FolderOpen
 } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -52,38 +51,7 @@ export function ScanConfiguration({ onSave, onLoad, defaultConfig }: ScanConfigu
     isDefault: false
   })
 
-  const [savedConfigs, setSavedConfigs] = useState([
-    {
-      id: 1,
-      name: "Quick Security Check",
-      description: "Fast security analysis for basic vulnerabilities",
-      category: "basic",
-      tools: { slither: true, mythril: true, oyente: false, securify: false },
-      aiAnalysis: { enabled: true, confidenceThreshold: 0.5 },
-      isPublic: true,
-      usageCount: 1250
-    },
-    {
-      id: 2,
-      name: "Comprehensive Audit",
-      description: "Full security audit with all tools and AI analysis",
-      category: "comprehensive",
-      tools: { slither: true, mythril: true, oyente: true, securify: true },
-      aiAnalysis: { enabled: true, confidenceThreshold: 0.3, deepAnalysis: true },
-      isPublic: true,
-      usageCount: 890
-    },
-    {
-      id: 3,
-      name: "DeFi Protocol Scan",
-      description: "Specialized scan for DeFi protocols and financial contracts",
-      category: "defi",
-      tools: { slither: true, mythril: true, oyente: false, securify: false },
-      aiAnalysis: { enabled: true, defiPatterns: true, financialRiskAnalysis: true },
-      isPublic: true,
-      usageCount: 567
-    }
-  ])
+  const [savedConfigs] = useState<any[]>([])
 
   const [activeTab, setActiveTab] = useState<'tools' | 'ai' | 'advanced' | 'templates'>('tools')
   const [copiedConfig, setCopiedConfig] = useState<number | null>(null)
@@ -92,7 +60,7 @@ export function ScanConfiguration({ onSave, onLoad, defaultConfig }: ScanConfigu
     { id: 'tools', label: 'Security Tools', icon: Shield },
     { id: 'ai', label: 'AI Analysis', icon: Brain },
     { id: 'advanced', label: 'Advanced', icon: Settings },
-    { id: 'templates', label: 'Templates', icon: Copy }
+    { id: 'templates', label: 'Templates', icon: FolderOpen }
   ]
 
   const updateConfig = (path: string, value: any) => {
@@ -473,7 +441,7 @@ export function ScanConfiguration({ onSave, onLoad, defaultConfig }: ScanConfigu
 
                     <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
-                        <Check className="h-4 w-4 text-green-400" />
+                        <CheckCircle className="h-4 w-4 text-green-400" />
                         <span className="font-medium text-green-400">AI Analysis</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -552,7 +520,7 @@ export function ScanConfiguration({ onSave, onLoad, defaultConfig }: ScanConfigu
                         onClick={() => handleLoadTemplate(template)}
                         className="flex-1"
                       >
-                        <Copy className="h-4 w-4 mr-2" />
+                        <FolderOpen className="h-4 w-4 mr-2" />
                         Use Template
                       </Button>
                       <Button 
@@ -561,9 +529,9 @@ export function ScanConfiguration({ onSave, onLoad, defaultConfig }: ScanConfigu
                         onClick={() => copyTemplate(template.id)}
                       >
                         {copiedConfig === template.id ? (
-                          <Check className="h-4 w-4" />
+                          <CheckCircle className="h-4 w-4" />
                         ) : (
-                          <Copy className="h-4 w-4" />
+                          <XCircle className="h-4 w-4" />
                         )}
                       </Button>
                     </div>

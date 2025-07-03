@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 import { 
   Brain, 
   Target, 
-  AlertTriangle, 
-  CheckCircle, 
   Code, 
   Eye,
   TrendingUp,
@@ -39,14 +37,12 @@ interface AIAnalysisData {
 }
 
 interface AdvancedAIDashboardProps {
-  scanId: string
   vulnerabilities: any[]
   aiAnalysis: AIAnalysisData[]
   onRefresh?: () => void
 }
 
 export function AdvancedAIDashboard({ 
-  scanId, 
   vulnerabilities, 
   aiAnalysis, 
   onRefresh 

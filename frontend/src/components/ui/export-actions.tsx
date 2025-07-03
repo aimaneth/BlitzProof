@@ -1,29 +1,29 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, Share2, FileText, FileSpreadsheet, Code, Copy, Check } from 'lucide-react'
-import { Button } from './button'
+import { Button } from "@/components/ui/button"
+import { 
+  Share2, 
+  FileText, 
+  Check
+} from "lucide-react"
 import { apiService } from '@/lib/api'
 import { toast } from 'sonner'
 
 interface ExportActionsProps {
   scanId: string
-  scanResult: any
   className?: string
 }
 
-export function ExportActions({ scanId, scanResult, className = '' }: ExportActionsProps) {
+export function ExportActions({ scanId, className = '' }: ExportActionsProps) {
   const [isExporting, setIsExporting] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  const handleExport = async (format: 'pdf' | 'csv' | 'json') => {
+  const handleExport = async (format: 'pdf' | 'json') => {
     try {
       setIsExporting(format)
       
-      const blob = await apiService.exportScan(scanId, format, {
-        includeDetails: true,
-        includeRemediation: true
-      })
+      const blob = await apiService.exportScanResults(scanId, format)
 
       // Create download link
       const url = window.URL.createObjectURL(blob)
@@ -74,15 +74,9 @@ export function ExportActions({ scanId, scanResult, className = '' }: ExportActi
       description: 'Professional security report'
     },
     {
-      format: 'csv' as const,
-      label: 'CSV Export',
-      icon: FileSpreadsheet,
-      description: 'Spreadsheet format'
-    },
-    {
       format: 'json' as const,
       label: 'JSON Data',
-      icon: Code,
+      icon: FileText,
       description: 'Raw data format'
     }
   ]

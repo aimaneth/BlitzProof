@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Shield, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
 
@@ -24,7 +25,7 @@ export function Header() {
           <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">BlitzProof</span>
             <div className="flex items-center space-x-2">
-              <img
+              <Image
                 src="/logo.png"
                 alt="BlitzProof Logo"
                 className="h-8 w-8 rounded object-cover"
@@ -72,7 +73,7 @@ export function Header() {
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">BlitzProof</span>
               <div className="flex items-center space-x-2">
-                <img
+                <Image
                   src="/logo.png"
                   alt="BlitzProof Logo"
                   className="h-8 w-8 rounded object-cover"

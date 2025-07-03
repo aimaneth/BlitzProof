@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 const allNetworks = [
   { id: "ethereum", name: "Ethereum", icon: "/networks/ethereum.png" },
   { id: "polygon", name: "Polygon", icon: "/networks/polygon.png" },
@@ -47,9 +49,11 @@ export function SupportedNetworks() {
             {/* First set of logos */}
             {allNetworks.map((network) => (
               <div key={network.id} className="flex-shrink-0 mx-4">
-                <img 
+                <Image 
                   src={network.icon} 
                   alt={`${network.name} logo`}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover shadow-lg hover:scale-110 transition-transform duration-300 filter-grayscale brightness-50"
                 />
               </div>
@@ -57,9 +61,11 @@ export function SupportedNetworks() {
             {/* Second set for seamless loop */}
             {allNetworks.map((network) => (
               <div key={`${network.id}-duplicate-1`} className="flex-shrink-0 mx-4">
-                <img 
+                <Image 
                   src={network.icon} 
                   alt={`${network.name} logo`}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover shadow-lg hover:scale-110 transition-transform duration-300 filter-grayscale brightness-50"
                 />
               </div>
@@ -67,9 +73,11 @@ export function SupportedNetworks() {
             {/* Third set for extra smoothness */}
             {allNetworks.map((network) => (
               <div key={`${network.id}-duplicate-2`} className="flex-shrink-0 mx-4">
-                <img 
+                <Image 
                   src={network.icon} 
                   alt={`${network.name} logo`}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover shadow-lg hover:scale-110 transition-transform duration-300 filter-grayscale brightness-50"
                 />
               </div>

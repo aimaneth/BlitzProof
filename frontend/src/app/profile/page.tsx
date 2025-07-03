@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,21 +14,12 @@ import {
   User, 
   Settings, 
   Key, 
-  Shield, 
-  Bell, 
-  Download, 
   Copy, 
   RefreshCw,
   Eye,
   EyeOff,
   Save,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Activity,
-  Zap,
-  Target,
-  BarChart3
+  Target
 } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -60,7 +50,7 @@ interface ApiKey {
 }
 
 export default function ProfilePage() {
-  const { isConnected, isAuthenticated, address, shortAddress } = useWallet()
+  const { isConnected, isAuthenticated, shortAddress } = useWallet()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -107,7 +97,7 @@ export default function ProfilePage() {
   const saveProfile = async () => {
     try {
       setSaving(true)
-      const result = await apiService.updateProfile({
+      await apiService.updateProfile({
         username,
         email,
         preferences: {
@@ -138,7 +128,7 @@ export default function ProfilePage() {
 
     try {
       setCreatingApiKey(true)
-      const result = await apiService.createApiKey(newApiKeyName)
+      await apiService.createApiKey(newApiKeyName)
       
       // Refresh profile data to get updated API keys
       await fetchProfile()

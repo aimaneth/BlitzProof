@@ -12,28 +12,17 @@ import {
   Upload, 
   FileText, 
   Play, 
-  Pause, 
   Square, 
-  Download, 
   Trash2, 
-  Eye, 
   Clock, 
   CheckCircle, 
   XCircle, 
-  AlertTriangle,
-  Info,
   Settings,
   Zap,
-  Target,
-  Brain,
-  Shield,
   Activity,
-  BarChart3,
-  FileX,
   FolderOpen,
   RefreshCw,
-  Save,
-  Share2
+  BarChart3
 } from "lucide-react"
 import { toast } from "sonner"
 import { apiService } from "@/lib/api"

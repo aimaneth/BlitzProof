@@ -1,20 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './button'
 import { Card, CardContent, CardHeader, CardTitle } from './card'
 import { 
-  Upload, 
-  Target, 
-  Shield, 
-  Settings, 
-  Eye, 
   X, 
-  ArrowRight, 
-  ArrowLeft,
-  CheckCircle,
-  HelpCircle
+  ChevronLeft, 
+  ChevronRight, 
+  Eye,
+  Settings,
+  Shield,
+  Target,
+  CheckCircle
 } from 'lucide-react'
 
 interface TutorialStep {
@@ -38,7 +36,7 @@ const tutorialSteps: TutorialStep[] = [
     id: 'input-method',
     title: 'Choose Your Input Method',
     description: 'You can either upload a Solidity file or analyze a deployed contract by its address. Both methods support drag & drop!',
-    icon: <Upload className="h-6 w-6" />,
+    icon: <Shield className="h-6 w-6" />,
     target: '.input-method-toggle',
     position: 'right'
   },
@@ -46,7 +44,7 @@ const tutorialSteps: TutorialStep[] = [
     id: 'file-upload',
     title: 'File Upload',
     description: 'Drag and drop your .sol file here or click to browse. Supports files up to 10MB with real-time validation.',
-    icon: <Upload className="h-6 w-6" />,
+    icon: <Shield className="h-6 w-6" />,
     target: '.file-upload-area',
     position: 'right'
   },
@@ -76,8 +74,8 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     id: 'results',
-    title: 'View Analysis Results',
-    description: 'Review detailed vulnerability reports, security scores, and AI-generated remediation suggestions.',
+    title: 'Quick Actions & Results',
+    description: 'Use these quick actions to start scanning. After completing a scan, your detailed vulnerability reports, security scores, and AI-generated remediation suggestions will appear in this area.',
     icon: <Eye className="h-6 w-6" />,
     target: '.results-area',
     position: 'right'
@@ -120,7 +118,7 @@ function TutorialCard({
 }: TutorialCardProps) {
   const [cardPosition, setCardPosition] = useState({ top: '50%', left: '50%' })
 
-  const updateCardPosition = () => {
+  const updateCardPosition = useCallback(() => {
     if (step.target) {
       const targetElement = document.querySelector(step.target)
       if (targetElement) {
@@ -199,7 +197,7 @@ function TutorialCard({
       // Handle center positioning when there's no target element
       setCardPosition({ top: '50%', left: '50%' })
     }
-  }
+  }, [step.target, step.position]);
 
   useEffect(() => {
     // Initial update
@@ -221,7 +219,7 @@ function TutorialCard({
       window.removeEventListener('scroll', throttledUpdate)
       window.removeEventListener('resize', updateCardPosition)
     }
-  }, [step.target, step.position])
+  }, [step.target, step.position, updateCardPosition])
 
   return (
     <div 
@@ -285,7 +283,7 @@ function TutorialCard({
                 disabled={isFirstStep}
                 className="flex items-center gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" />
                 Previous
               </Button>
               
@@ -301,7 +299,7 @@ function TutorialCard({
                 ) : (
                   <>
                     Next
-                    <ArrowRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </>
                 )}
               </Button>
@@ -325,84 +323,19 @@ function TutorialCard({
   )
 }
 
-// Tutorial Highlight Component
-interface TutorialHighlightProps {
-  target: string
-  position?: 'top' | 'bottom' | 'left' | 'right' | 'center'
-}
 
-function TutorialHighlight({ target, position = 'bottom' }: TutorialHighlightProps) {
-  const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({})
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const updateHighlight = () => {
-      const targetElement = document.querySelector(target)
-      if (targetElement) {
-        const rect = targetElement.getBoundingClientRect()
-        const padding = 12 // Slightly more padding for better visibility
-        
-        setHighlightStyle({
-          position: 'fixed',
-          top: rect.top - padding,
-          left: rect.left - padding,
-          width: rect.width + (padding * 2),
-          height: rect.height + (padding * 2),
-          zIndex: 10000,
-          pointerEvents: 'none'
-        })
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
-      }
-    }
-
-    // Initial update with a small delay to ensure DOM is ready
-    const timer = setTimeout(updateHighlight, 100)
-
-    // Update on window resize
-    window.addEventListener('resize', updateHighlight)
-    window.addEventListener('scroll', updateHighlight)
-
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updateHighlight)
-      window.removeEventListener('scroll', updateHighlight)
-    }
-  }, [target])
-
-  if (!isVisible) return null
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      style={highlightStyle}
-      className="border-4 border-primary rounded-lg bg-transparent backdrop-blur-none ring-4 ring-primary/20 shadow-2xl"
-    />
-  )
-}
 
 export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
   const [currentStep, setCurrentStep] = useState(0)
-  const [hasSeenTutorial, setHasSeenTutorial] = useState(false)
   const [highlightMask, setHighlightMask] = useState<React.CSSProperties>({})
 
-  useEffect(() => {
-    const seen = localStorage.getItem('blitzproof-tutorial-seen')
-    if (seen === 'true') {
-      setHasSeenTutorial(true)
-    }
-  }, [])
+
 
   // Reset tutorial state when opened
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(0)
-      setHasSeenTutorial(false) // Allow tutorial to show even if previously seen
-              localStorage.setItem('blitzproof-tutorial-current-step', '0')
+      localStorage.setItem('blitzproof-tutorial-current-step', '0')
     }
   }, [isOpen])
 
@@ -572,13 +505,11 @@ export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
 
   const completeTutorial = () => {
     localStorage.setItem('blitzproof-tutorial-seen', 'true')
-    setHasSeenTutorial(true)
     onClose()
   }
 
   const skipTutorial = () => {
     localStorage.setItem('blitzproof-tutorial-seen', 'true')
-    setHasSeenTutorial(true)
     onClose()
   }
 

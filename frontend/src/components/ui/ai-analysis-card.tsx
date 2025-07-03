@@ -6,17 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { 
   Brain, 
-  Zap, 
   Target, 
-  AlertTriangle, 
-  CheckCircle, 
   Code, 
-  Copy,
   Eye,
   EyeOff,
+  Copy,
   TrendingUp,
   Clock,
-  Shield
+  Activity
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { getSeverityBadgeVariant } from "@/lib/utils"
@@ -140,7 +137,7 @@ export function AIAnalysisCard({ vulnerability }: AIAnalysisProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary" />
+                  <Activity className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">AI-Powered Remediation</span>
                 </div>
                 <Button
