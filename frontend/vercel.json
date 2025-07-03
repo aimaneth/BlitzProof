@@ -19,5 +19,11 @@
     "app/api/**/*.ts": {
       "maxDuration": 30
     }
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID": "@walletconnect_project_id",
+      "NEXT_PUBLIC_FRONTEND_URL": "@frontend_url"
+    }
   }
 } 
