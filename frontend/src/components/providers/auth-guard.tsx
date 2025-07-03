@@ -21,11 +21,6 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
     }
   }, [isConnected, router])
 
-  // Show loading state
-  if (!isConnected || !isAuthenticated) {
-    return null
-  }
-
   // Show fallback if wallet not connected
   if (!isConnected) {
     return fallback || (
