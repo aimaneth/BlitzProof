@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   env: {
     PORT: '3002',
   },
+  // Image configuration
+  images: {
+    unoptimized: false,
+    domains: [],
+    remotePatterns: [],
+  },
   // Handle SSR issues with wallet libraries
   experimental: {
     esmExternals: 'loose',

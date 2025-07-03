@@ -3,6 +3,7 @@
 import { useAccount, useBalance, useDisconnect } from "wagmi"
 import { useEffect, useState, useCallback } from "react"
 import { apiService } from "@/lib/api"
+import { useHydrated } from "./use-hydrated"
 
 export function useWallet() {
   const { address, isConnected } = useAccount()
@@ -12,6 +13,7 @@ export function useWallet() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const isHydrated = useHydrated()
 
   const shortAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -30,18 +32,20 @@ export function useWallet() {
         throw new Error('Backend server is not available. Please check if the backend is running.')
       }
 
-      // Check if user already has a token
-      const existingToken = localStorage.getItem('auth_token')
-      if (existingToken) {
-        // Verify token is still valid
-        try {
-          await apiService.getProfile()
-          setIsAuthenticated(true)
-          console.log('✅ User authenticated with existing token')
-          return
-        } catch {
-          console.log('❌ Existing token invalid, removing...')
-          localStorage.removeItem('auth_token')
+      // Check if user already has a token (only after hydration)
+      if (isHydrated) {
+        const existingToken = localStorage.getItem('auth_token')
+        if (existingToken) {
+          // Verify token is still valid
+          try {
+            await apiService.getProfile()
+            setIsAuthenticated(true)
+            console.log('✅ User authenticated with existing token')
+            return
+          } catch {
+            console.log('❌ Existing token invalid, removing...')
+            localStorage.removeItem('auth_token')
+          }
         }
       }
 
@@ -55,7 +59,9 @@ export function useWallet() {
           const response = await apiService.registerUser(address)
           
           if (response.token) {
-            localStorage.setItem('auth_token', response.token)
+            if (isHydrated) {
+              localStorage.setItem('auth_token', response.token)
+            }
             setIsAuthenticated(true)
             console.log('✅ User registered and authenticated successfully')
             return
@@ -83,12 +89,14 @@ export function useWallet() {
       setError(errorMessage)
       setIsAuthenticated(false)
       
-      // Clear any invalid tokens
-      localStorage.removeItem('auth_token')
+      // Clear any invalid tokens (only after hydration)
+      if (isHydrated) {
+        localStorage.removeItem('auth_token')
+      }
     } finally {
       setIsLoading(false)
     }
-  }, [address])
+  }, [address, isHydrated])
 
   // Handle wallet connection and user registration
   useEffect(() => {
@@ -99,12 +107,12 @@ export function useWallet() {
       console.log('🔌 Wallet disconnected, clearing authentication...')
       setIsAuthenticated(false)
       setError(null)
-      // Clear auth token when wallet disconnects
-      if (typeof window !== 'undefined') {
+      // Clear auth token when wallet disconnects (only after hydration)
+      if (isHydrated) {
         localStorage.removeItem('auth_token')
       }
     }
-  }, [isConnected, address, handleUserRegistration])
+  }, [isConnected, address, handleUserRegistration, isHydrated])
 
   // Handle balance errors gracefully
   useEffect(() => {
@@ -115,7 +123,9 @@ export function useWallet() {
 
   const handleDisconnect = () => {
     console.log('👋 User disconnecting...')
-    localStorage.removeItem('auth_token')
+    if (isHydrated) {
+      localStorage.removeItem('auth_token')
+    }
     setIsAuthenticated(false)
     setError(null)
     disconnect()
@@ -127,8 +137,6 @@ export function useWallet() {
       handleUserRegistration()
     }
   }
-
-
 
   return {
     address,

@@ -137,22 +137,13 @@ interface DualModeImageProps {
 }
 
 const DualModeImage = ({ darkSrc, lightSrc, alt, width, height, className }: DualModeImageProps) => (
-    <>
-        <Image
-            src={darkSrc}
-            className={cn('hidden dark:block rounded-t-lg object-cover object-[-20%_0%] w-full h-full', className)}
-            alt={`${alt} dark`}
-            width={width}
-            height={height}
-        />
-        <Image
-            src={lightSrc}
-            className={cn('shadow dark:hidden rounded-t-lg object-cover object-[-20%_0%] w-full h-full', className)}
-            alt={`${alt} light`}
-            width={width}
-            height={height}
-        />
-    </>
+    <Image
+        src={darkSrc}
+        className={cn('rounded-t-lg object-cover object-[-20%_0%] w-full h-full', className)}
+        alt={alt}
+        width={width}
+        height={height}
+    />
 )
 
 interface CircleConfig {

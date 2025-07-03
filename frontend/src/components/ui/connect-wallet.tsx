@@ -2,11 +2,23 @@
 
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useWallet } from "@/hooks/use-wallet"
+import { useHydrated } from "@/hooks/use-hydrated"
 import { Button } from "./button"
 import { Loader2, User, LogOut } from "lucide-react"
 
 export function ConnectWallet() {
   const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWallet()
+  const isHydrated = useHydrated()
+
+  // Show loading state during hydration to prevent mismatch
+  if (!isHydrated) {
+    return (
+      <Button variant="outline" disabled>
+        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        Loading...
+      </Button>
+    )
+  }
 
   if (isLoading) {
     return (
