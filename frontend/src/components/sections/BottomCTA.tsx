@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export function BottomCTA() {
     return (
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
+        <section className="bg-background py-16 md:py-32">
             <div className="mx-auto max-w-2xl px-6 lg:max-w-5xl">
                 <Card className="group relative rounded-none shadow-zinc-950/5 bg-gradient-to-br from-black/60 via-black/40 to-black/80 dark:from-black/60 dark:via-black/40 dark:to-black/80 border border-white/10 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>

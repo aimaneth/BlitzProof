@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export function Stats() {
     return (
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
+        <section className="bg-background py-16 md:py-32">
             <div className="mx-auto max-w-2xl px-6 lg:max-w-5xl">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-semibold mb-4">Trusted by Developers Worldwide</h2>
