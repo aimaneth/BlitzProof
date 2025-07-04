@@ -240,3 +240,8 @@
 .animate-seamless-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Prevent body scroll when mobile menu is open */
+body.menu-open {
+  overflow: hidden;
+}
