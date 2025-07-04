@@ -802,6 +802,22 @@ export default function ScannerPage() {
                             className="hidden"
                             id="file-upload"
                           />
+                          {/* Hidden file input for quick upload button */}
+                          <input
+                            type="file"
+                            accept=".sol"
+                            onChange={(e) => {
+                              handleFileUpload(e)
+                              // Automatically switch to file input method when file is selected
+                              setInputMethod("file")
+                              // Show success message for quick upload
+                              if (e.target.files?.[0]) {
+                                toast.success(`File "${e.target.files[0].name}" uploaded successfully!`)
+                              }
+                            }}
+                            className="hidden"
+                            id="quick-upload-input"
+                          />
                           <label htmlFor="file-upload">
                             <Button variant="outline" size="sm" asChild className="cursor-pointer hover:bg-primary/10">
                               <span className="flex items-center gap-1 sm:gap-2">
@@ -1212,7 +1228,13 @@ export default function ScannerPage() {
                         <Button 
                           variant="outline" 
                           className="h-12 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 hover:bg-primary/10"
-                          onClick={() => setInputMethod("file")}
+                          onClick={() => {
+                            // Trigger file input directly
+                            const fileInput = document.getElementById('quick-upload-input') as HTMLInputElement
+                            if (fileInput) {
+                              fileInput.click()
+                            }
+                          }}
                         >
                           <Upload className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
                           <span className="text-xs sm:text-sm font-medium">Upload Contract</span>
