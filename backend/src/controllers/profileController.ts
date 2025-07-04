@@ -32,7 +32,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
     // Get API keys
     const apiKeysResult = await pool.query(
-      'SELECT id, name, key, created_at, last_used, permissions FROM api_keys WHERE user_id = $1 ORDER BY created_at DESC',
+      'SELECT id, name, key_hash, created_at, last_used, permissions FROM api_keys WHERE user_id = $1 ORDER BY created_at DESC',
       [req.user.userId]
     )
 
@@ -52,7 +52,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
       api_keys: apiKeysResult.rows.map(key => ({
         id: key.id,
         name: key.name,
-        key: key.key,
+        key: key.key_hash, // Use key_hash as the key value
         created_at: key.created_at,
         last_used: key.last_used,
         permissions: key.permissions || []
@@ -60,6 +60,11 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     })
   } catch (error) {
     console.error('Get profile error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      userId: req.user?.userId
+    })
     res.status(500).json({ error: 'Internal server error' })
   }
 }
@@ -187,7 +192,7 @@ export const createApiKey = async (req: AuthRequest, res: Response): Promise<voi
 
     // Store API key in database
     const result = await pool.query(
-      'INSERT INTO api_keys (user_id, name, key, permissions) VALUES ($1, $2, $3, $4) RETURNING *',
+      'INSERT INTO api_keys (user_id, name, key_hash, permissions) VALUES ($1, $2, $3, $4) RETURNING *',
       [req.user.userId, name, apiKey, permissions]
     )
 
@@ -196,7 +201,7 @@ export const createApiKey = async (req: AuthRequest, res: Response): Promise<voi
       api_key: {
         id: result.rows[0].id,
         name: result.rows[0].name,
-        key: result.rows[0].key,
+        key: result.rows[0].key_hash, // Use key_hash as the key value
         created_at: result.rows[0].created_at,
         permissions: result.rows[0].permissions
       }

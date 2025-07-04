@@ -113,6 +113,44 @@ app.get('/health', (req, res) => {
   })
 })
 
+// Database health check
+app.get('/health/db', async (req, res) => {
+  try {
+    const pool = require('./config/database').default
+    const result = await pool.query('SELECT NOW() as current_time, version() as db_version')
+    
+    // Check if key tables exist
+    const tablesCheck = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_name IN ('users', 'api_keys', 'scans')
+    `)
+    
+    const existingTables = tablesCheck.rows.map((row: any) => row.table_name)
+    
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      current_time: result.rows[0].current_time,
+      db_version: result.rows[0].db_version,
+      tables: {
+        users: existingTables.includes('users'),
+        api_keys: existingTables.includes('api_keys'),
+        scans: existingTables.includes('scans'),
+        all_tables: existingTables
+      }
+    })
+  } catch (error) {
+    console.error('Database health check failed:', error)
+    res.status(500).json({
+      status: 'error',
+      database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
 // Favicon route to prevent 404 errors
 app.get('/favicon.ico', (req, res) => {
   res.status(204).end()
