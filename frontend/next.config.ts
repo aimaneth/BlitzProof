@@ -10,10 +10,14 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     domains: [],
     remotePatterns: [],
+    // Disable image optimization completely for static images
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Handle SSR issues with wallet libraries
   experimental: {
-    esmExternals: 'loose',
+    // Remove esmExternals as it's causing issues
   },
   // Handle browser-only APIs
   webpack: (config, { isServer }) => {
@@ -32,6 +36,14 @@ const nextConfig: NextConfig = {
       net: false,
       tls: false,
       crypto: false,
+      stream: false,
+      url: false,
+      zlib: false,
+      http: false,
+      https: false,
+      assert: false,
+      os: false,
+      path: false,
     };
     
     return config;
@@ -54,6 +66,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Output configuration for static export
+  output: 'standalone',
+  // Disable static optimization for pages that need dynamic content
+  trailingSlash: false,
 };
 
 export default nextConfig;

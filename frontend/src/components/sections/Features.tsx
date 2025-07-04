@@ -23,7 +23,6 @@ export function Features() {
                             <div className="aspect-[76/59] p-1 px-6 rounded-t-lg overflow-hidden">
                                 <DualModeImage
                                     darkSrc="/features/scan.png"
-                                    lightSrc="/features/scan.png"
                                     alt="smart contract scanning illustration"
                                     width={1207}
                                     height={929}
@@ -46,7 +45,6 @@ export function Features() {
                                 <div className="aspect-[4/3] border overflow-hidden">
                                     <DualModeImage
                                         darkSrc="/features/monitoring.png"
-                                        lightSrc="/features/monitoring.png"
                                         alt="real-time monitoring illustration"
                                         width={1207}
                                         height={929}
@@ -129,14 +127,13 @@ const CardHeading = ({ icon: Icon, title, description }: CardHeadingProps) => (
 
 interface DualModeImageProps {
     darkSrc: string
-    lightSrc: string
     alt: string
     width: number
     height: number
     className?: string
 }
 
-const DualModeImage = ({ darkSrc, lightSrc, alt, width, height, className }: DualModeImageProps) => (
+const DualModeImage = ({ darkSrc, alt, width, height, className }: DualModeImageProps) => (
     <Image
         src={darkSrc}
         className={cn('rounded-t-lg object-cover object-[-20%_0%] w-full h-full', className)}

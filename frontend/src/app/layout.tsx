@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientRoot from "./client-root";
+import "@/lib/polyfills";
 
 const inter = Inter({ subsets: ["latin"] });
 

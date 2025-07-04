@@ -175,7 +175,7 @@ const exampleContractsByNetwork: Record<string, { name: string; address: string;
 }
 
 export default function ScannerPage() {
-  const { isConnected, shortAddress, isLoading } = useWallet()
+  const { isConnected, shortAddress } = useWallet()
   const { isTutorialOpen, openTutorial, closeTutorial } = useTutorial()
   const isHydrated = useHydrated()
   const [selectedNetwork, setSelectedNetwork] = useState("ethereum")

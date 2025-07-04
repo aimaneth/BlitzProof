@@ -12,7 +12,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
-  const { isConnected, isAuthenticated } = useWallet()
+  const { isConnected } = useWallet()
   const router = useRouter()
 
   useEffect(() => {
