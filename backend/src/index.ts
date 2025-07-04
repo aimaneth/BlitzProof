@@ -95,16 +95,8 @@ app.use(securityHeaders)
 app.use(metricsMiddleware)
 app.use(morgan('dev'))
 
-// JSON parsing middleware - exclude multipart requests
-app.use((req, res, next) => {
-  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
-    // Skip JSON parsing for multipart requests
-    next()
-  } else {
-    // Parse JSON for other requests
-    express.json({ limit: '50mb' })(req, res, next)
-  }
-})
+// Remove global JSON parser to prevent conflicts with multipart requests
+// JSON parsing will be applied per-route where needed
 
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 

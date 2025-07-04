@@ -4,6 +4,9 @@ import { authenticateToken } from '../middleware/auth'
 
 const router = express.Router()
 
+// Add JSON parsing for auth routes
+router.use(express.json({ limit: '50mb' }))
+
 router.post('/register', registerUser)
 router.get('/profile', authenticateToken, getProfile)
 

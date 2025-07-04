@@ -4,6 +4,9 @@ import { authenticateToken } from '../middleware/auth'
 
 const router = express.Router()
 
+// Add JSON parsing for custom rules routes
+router.use(express.json({ limit: '50mb' }))
+
 // Get all custom rules (user's rules + public rules)
 router.get('/', authenticateToken, async (req, res) => {
   try {

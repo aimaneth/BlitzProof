@@ -6,8 +6,9 @@ import scanService from '../services/scanService'
 
 const router = express.Router()
 
+// Add JSON parsing only for the address route (not for upload)
+router.post('/address', express.json({ limit: '50mb' }), optionalAuth, scanContractAddress)
 router.post('/upload', optionalAuth, upload.single('contract'), uploadContract)
-router.post('/address', optionalAuth, scanContractAddress)
 router.get('/status/:scanId', async (req, res, next) => {
   try {
     console.log('🔍 STATUS ROUTE HIT with scanId:', req.params.scanId)
