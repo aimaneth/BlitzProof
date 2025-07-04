@@ -3,7 +3,7 @@ services:
     name: blitzproof-backend
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci --only=production && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -18,4 +18,14 @@ services:
       - key: FRONTEND_URL
         sync: false
       - key: REDIS_URL
-        value: redis://localhost:6379 
+        sync: false
+      - key: ETHERSCAN_API_KEY
+        sync: false
+      - key: POLYGONSCAN_API_KEY
+        sync: false
+      - key: BSCSCAN_API_KEY
+        sync: false
+      - key: ARBISCAN_API_KEY
+        sync: false
+      - key: OPTIMISM_API_KEY
+        sync: false 
