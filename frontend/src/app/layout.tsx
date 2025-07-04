@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientRoot from "./client-root";
 import "@/lib/polyfills";
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

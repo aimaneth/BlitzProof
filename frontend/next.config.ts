@@ -1,48 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  env: {
-    PORT: '3002',
-  },
   // Image configuration
   images: {
     unoptimized: true,
-    domains: [],
-    remotePatterns: [],
   },
-  // Handle SSR issues with wallet libraries
-  experimental: {
-    // Remove esmExternals as it's causing issues
-  },
-  // Handle browser-only APIs
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Don't attempt to load browser-only modules on the server
-      config.externals.push({
-        'indexeddb': 'commonjs indexeddb',
-        'localforage': 'commonjs localforage',
-      });
-    }
-    
-    // Handle polyfills for browser APIs
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-      crypto: false,
-      stream: false,
-      url: false,
-      zlib: false,
-      http: false,
-      https: false,
-      assert: false,
-      os: false,
-      path: false,
-    };
-    
-    return config;
+  // Ensure static assets are served
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: '/:path*',
+      },
+    ];
   },
   // Security headers
   async headers() {
@@ -62,8 +32,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Disable static optimization for pages that need dynamic content
-  trailingSlash: false,
 };
 
 export default nextConfig;
