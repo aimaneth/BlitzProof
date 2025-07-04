@@ -87,10 +87,10 @@ export function CustomRulesManager({ onRulesUpdate }: CustomRulesManagerProps) {
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(rule => 
-        rule.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rule.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rule.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        rule.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        (rule.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (rule.description?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (rule.category?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        rule.tags.some(tag => (tag?.toLowerCase() || '').includes(searchTerm.toLowerCase()))
       )
     }
 

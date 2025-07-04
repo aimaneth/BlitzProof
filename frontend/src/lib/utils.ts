@@ -34,7 +34,8 @@ export function formatNumber(num: number): string {
   return num.toString()
 }
 
-export function getSeverityColor(severity: string): string {
+export function getSeverityColor(severity: string | undefined | null): string {
+  if (!severity) return 'text-gray-500'
   switch (severity.toLowerCase()) {
     case 'critical':
       return 'text-red-500'
@@ -51,7 +52,8 @@ export function getSeverityColor(severity: string): string {
   }
 }
 
-export function getSeverityBgColor(severity: string): string {
+export function getSeverityBgColor(severity: string | undefined | null): string {
+  if (!severity) return 'bg-gray-500/10 border-gray-500/20'
   switch (severity.toLowerCase()) {
     case 'critical':
       return 'bg-red-500/10 border-red-500/20'
@@ -68,7 +70,8 @@ export function getSeverityBgColor(severity: string): string {
   }
 }
 
-export function getSeverityBorderColor(severity: string): string {
+export function getSeverityBorderColor(severity: string | undefined | null): string {
+  if (!severity) return 'border-l-gray-500'
   switch (severity.toLowerCase()) {
     case 'critical':
       return 'border-l-red-500'
@@ -85,7 +88,8 @@ export function getSeverityBorderColor(severity: string): string {
   }
 }
 
-export function getSeverityBadgeVariant(severity: string): 'destructive' | 'secondary' | 'outline' | 'default' {
+export function getSeverityBadgeVariant(severity: string | undefined | null): 'destructive' | 'secondary' | 'outline' | 'default' {
+  if (!severity) return 'default'
   switch (severity.toLowerCase()) {
     case 'critical':
     case 'high':
@@ -100,7 +104,8 @@ export function getSeverityBadgeVariant(severity: string): 'destructive' | 'seco
   }
 }
 
-export function getSeverityIcon(severity: string): string {
+export function getSeverityIcon(severity: string | undefined | null): string {
+  if (!severity) return 'Info'
   switch (severity.toLowerCase()) {
     case 'critical':
     case 'high':
@@ -115,10 +120,12 @@ export function getSeverityIcon(severity: string): string {
   }
 }
 
-export function sortVulnerabilitiesBySeverity<T extends { severity: string }>(vulnerabilities: T[]): T[] {
+export function sortVulnerabilitiesBySeverity<T extends { severity: string | undefined | null }>(vulnerabilities: T[]): T[] {
   const severityOrder = { critical: 4, high: 3, medium: 2, low: 1, info: 0 }
   return vulnerabilities.sort((a, b) => {
-    return (severityOrder[b.severity.toLowerCase() as keyof typeof severityOrder] || 0) - 
-           (severityOrder[a.severity.toLowerCase() as keyof typeof severityOrder] || 0)
+    const aSeverity = a.severity?.toLowerCase() || 'info'
+    const bSeverity = b.severity?.toLowerCase() || 'info'
+    return (severityOrder[bSeverity as keyof typeof severityOrder] || 0) - 
+           (severityOrder[aSeverity as keyof typeof severityOrder] || 0)
   })
 } 
