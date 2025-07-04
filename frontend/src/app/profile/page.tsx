@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
-import { Header } from "@/components/layout/header"
+import { Layout } from "@/components/layout/layout"
 import { useWallet } from "@/hooks/use-wallet"
 import { apiService } from "@/lib/api"
 import { 
@@ -175,8 +175,7 @@ export default function ProfilePage() {
   // Wallet connection check
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <Layout>
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
           <div className="text-center max-w-md mx-auto">
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-8">
@@ -193,7 +192,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     )
   }
 
@@ -210,8 +209,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <Layout>
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Enhanced Header with Sleek Background */}
         <div className="relative mb-8 overflow-hidden rounded-2xl">
@@ -534,6 +532,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   )
 } 

@@ -9,7 +9,7 @@ import { ConnectWallet } from "@/components/ui/connect-wallet"
 import { useWallet } from "@/hooks/use-wallet"
 import { useHydrated } from "@/hooks/use-hydrated"
 import { apiService, ScanResult } from "@/lib/api"
-import { Header } from "@/components/layout/header"
+import { Layout } from "@/components/layout/layout"
 import { ExportActions } from "@/components/ui/export-actions"
 import { VulnerabilityFilters } from "@/components/ui/vulnerability-filters"
 import { 
@@ -454,8 +454,7 @@ export default function ScannerPage() {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <Layout>
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Enhanced Header with Sleek Background */}
         <div className="relative mb-8 overflow-hidden rounded-2xl">
@@ -1417,6 +1416,6 @@ export default function ScannerPage() {
       
       {/* Tutorial Overlay */}
       <TutorialOverlay isOpen={isTutorialOpen} onClose={closeTutorial} />
-    </div>
+    </Layout>
   )
 } 

@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
-import { Header } from "@/components/layout/header"
+import { Layout } from "@/components/layout/layout"
 import { useWallet } from "@/hooks/use-wallet"
 import { apiService, ScanHistory } from "@/lib/api"
 import { 
@@ -180,8 +180,7 @@ export default function DashboardPage() {
   // Wallet connection and authentication checks
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <Layout>
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
           <div className="text-center max-w-md mx-auto">
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-8">
@@ -198,15 +197,14 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     )
   }
 
   // Show loading while authenticating
   if (isConnected && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <Layout>
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
           <div className="text-center max-w-md mx-auto">
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-8">
@@ -220,7 +218,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     )
   }
 
@@ -236,8 +234,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <Layout>
       <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
         {/* Enhanced Header with Sleek Background */}
         <div className="relative mb-8 overflow-hidden rounded-2xl">
@@ -639,6 +636,6 @@ export default function DashboardPage() {
           </>
         )}
       </div>
-    </div>
+    </Layout>
   )
 } 
