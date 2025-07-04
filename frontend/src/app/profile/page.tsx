@@ -178,12 +178,12 @@ export default function ProfilePage() {
       <Layout>
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
           <div className="text-center max-w-md mx-auto">
-            <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-8">
-              <User className="h-16 w-16 text-primary mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-foreground mb-3">
+            <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6 sm:p-8">
+              <User className="h-12 w-12 sm:h-16 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-3">
                 Connect Your Wallet
               </h2>
-              <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+              <p className="text-muted-foreground mb-6 sm:mb-8 text-sm leading-relaxed">
                 Connect your wallet to access your profile and manage your account settings.
               </p>
               <Button className="w-full">
@@ -201,8 +201,8 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading profile...</p>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-3 sm:mb-4" />
+          <p className="text-muted-foreground text-sm sm:text-base">Loading profile...</p>
         </div>
       </div>
     )
@@ -210,67 +210,67 @@ export default function ProfilePage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8 lg:px-8">
         {/* Enhanced Header with Sleek Background */}
-        <div className="relative mb-8 overflow-hidden rounded-2xl">
+        <div className="relative mb-6 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl">
           {/* Background Elements */}
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
           
           {/* Animated Background Patterns */}
           <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+            <div className="absolute top-0 left-0 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute bottom-0 left-1/4 w-56 sm:w-80 h-56 sm:h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
           </div>
           
           {/* Grid Pattern Overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
           
           {/* Content */}
-          <div className="relative z-10 p-8 rounded-2xl border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
+          <div className="relative z-10 p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                   <div className="relative">
-                    <User className="h-12 w-12 text-primary relative z-10" />
+                    <User className="h-8 w-8 sm:h-12 sm:w-12 text-primary relative z-10" />
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg"></div>
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold gradient-text-subtle">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text-subtle">
                       Profile Settings
                     </h1>
-                    <div className="h-1 w-24 bg-gradient-to-r from-primary to-blue-500 rounded-full mt-2"></div>
+                    <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-primary to-blue-500 rounded-full mt-1 sm:mt-2"></div>
                   </div>
                 </div>
                 
-                <p className="text-xl text-muted-foreground mb-6 max-w-2xl">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-4 sm:mb-6 max-w-2xl">
                   Manage your account settings, API keys, and scan preferences
                 </p>
                 
-                <div className="flex items-center gap-8 text-sm">
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-green-500/20 rounded-full">
-                      <User className="h-4 w-4 text-green-400" />
+                      <User className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
                     </div>
-                    <span className="text-white/80 font-medium">Account</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">Account</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-blue-500/20 rounded-full">
-                      <Key className="h-4 w-4 text-blue-400" />
+                      <Key className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
                     </div>
-                    <span className="text-white/80 font-medium">API Keys</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">API Keys</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-purple-500/20 rounded-full">
-                      <Settings className="h-4 w-4 text-purple-400" />
+                      <Settings className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
                     </div>
-                    <span className="text-white/80 font-medium">Preferences</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">Preferences</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Button 
                   onClick={saveProfile} 
                   disabled={saving}
@@ -278,13 +278,13 @@ export default function ProfilePage() {
                 >
                   {saving ? (
                     <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                      <span className="text-xs sm:text-sm">Saving...</span>
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                      <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="text-xs sm:text-sm">Save Changes</span>
                     </>
                   )}
                 </Button>
@@ -293,41 +293,41 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Profile Overview */}
           <div className="lg:col-span-1">
-            <Card className="bg-card/50 backdrop-blur-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="bg-card/50 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   Profile Overview
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="h-10 w-10 text-primary" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-foreground">{username || "Anonymous"}</h3>
-                  <p className="text-sm text-muted-foreground">{shortAddress}</p>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">{username || "Anonymous"}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground break-all">{shortAddress}</p>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Member since</span>
-                    <span className="text-sm font-medium">{formatDate(profile?.user.created_at || "")}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Member since</span>
+                    <span className="text-xs sm:text-sm font-medium">{formatDate(profile?.user.created_at || "")}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total scans</span>
-                    <Badge variant="secondary">{profile?.stats.scan_count || 0}</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Total scans</span>
+                    <Badge variant="secondary" className="text-xs">{profile?.stats.scan_count || 0}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Vulnerabilities found</span>
-                    <Badge variant="destructive">{profile?.stats.total_vulnerabilities || 0}</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Vulnerabilities found</span>
+                    <Badge variant="destructive" className="text-xs">{profile?.stats.total_vulnerabilities || 0}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Average score</span>
-                    <Badge variant="outline">{profile?.stats.average_score || 0}/100</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">Average score</span>
+                    <Badge variant="outline" className="text-xs">{profile?.stats.average_score || 0}/100</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -335,51 +335,53 @@ export default function ProfilePage() {
           </div>
 
           {/* Settings */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Basic Information */}
-            <Card className="bg-card/50 backdrop-blur-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="bg-card/50 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   Basic Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div>
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username" className="text-sm">Username</Label>
                   <Input
                     id="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter your username"
+                    className="text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-sm">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
+                    className="text-sm"
                   />
                 </div>
               </CardContent>
             </Card>
 
             {/* Scan Preferences */}
-            <Card className="bg-card/50 backdrop-blur-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+            <Card className="bg-card/50 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5" />
                   Scan Preferences
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive email notifications when scans complete</p>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                  <div className="flex-1">
+                    <Label htmlFor="notifications" className="text-sm">Email Notifications</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Receive email notifications when scans complete</p>
                   </div>
                   <Switch
                     id="notifications"
@@ -387,10 +389,10 @@ export default function ProfilePage() {
                     onCheckedChange={setNotificationsEnabled}
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="auto-export">Auto Export</Label>
-                    <p className="text-sm text-muted-foreground">Automatically export scan results</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                  <div className="flex-1">
+                    <Label htmlFor="auto-export" className="text-sm">Auto Export</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Automatically export scan results</p>
                   </div>
                   <Switch
                     id="auto-export"
@@ -399,7 +401,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="timeout">Scan Timeout (seconds)</Label>
+                  <Label htmlFor="timeout" className="text-sm">Scan Timeout (seconds)</Label>
                   <Input
                     id="timeout"
                     type="number"
@@ -407,15 +409,16 @@ export default function ProfilePage() {
                     onChange={(e) => setScanTimeout(parseInt(e.target.value) || 300)}
                     min="60"
                     max="1800"
+                    className="text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="network">Default Network</Label>
+                  <Label htmlFor="network" className="text-sm">Default Network</Label>
                   <select
                     id="network"
                     value={defaultNetwork}
                     onChange={(e) => setDefaultNetwork(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-md"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm"
                   >
                     <option value="ethereum">Ethereum</option>
                     <option value="polygon">Polygon</option>
@@ -428,34 +431,36 @@ export default function ProfilePage() {
             </Card>
 
             {/* API Keys */}
-            <Card className="bg-card/50 backdrop-blur-sm rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="h-5 w-5" />
+            <Card className="bg-card/50 backdrop-blur-sm rounded-xl sm:rounded-2xl">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Key className="h-4 w-4 sm:h-5 sm:w-5" />
                   API Keys
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 {/* Create new API key */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder="API key name"
                     value={newApiKeyName}
                     onChange={(e) => setNewApiKeyName(e.target.value)}
+                    className="text-sm"
                   />
                   <Button 
                     onClick={createApiKey} 
                     disabled={creatingApiKey || !newApiKeyName.trim()}
+                    className="text-xs sm:text-sm"
                   >
                     {creatingApiKey ? (
                       <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Creating...
+                        <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                        <span className="text-xs sm:text-sm">Creating...</span>
                       </>
                     ) : (
                       <>
-                        <Key className="h-4 w-4 mr-2" />
-                        Create Key
+                        <Key className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="text-xs sm:text-sm">Create Key</span>
                       </>
                     )}
                   </Button>
@@ -464,37 +469,40 @@ export default function ProfilePage() {
                 {/* API Keys List */}
                 <div className="space-y-3">
                   {profile?.api_keys.map((apiKey) => (
-                    <div key={apiKey.id} className="border border-border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <h4 className="font-medium">{apiKey.name}</h4>
-                          <p className="text-sm text-muted-foreground">
+                    <div key={apiKey.id} className="border border-border rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-2">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm sm:text-base">{apiKey.name}</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             Created {formatDate(apiKey.created_at)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setShowApiKey(showApiKey === apiKey.id ? null : apiKey.id)}
+                            className="h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3"
                           >
                             {showApiKey === apiKey.id ? (
-                              <EyeOff className="h-4 w-4" />
+                              <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" />
                             ) : (
-                              <Eye className="h-4 w-4" />
+                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                             )}
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => copyToClipboard(apiKey.key)}
+                            className="h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3"
                           >
-                            <Copy className="h-4 w-4" />
+                            <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                           <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => deleteApiKey(apiKey.id)}
+                            className="h-8 sm:h-9 text-xs"
                           >
                             Delete
                           </Button>
@@ -506,12 +514,12 @@ export default function ProfilePage() {
                           <Input
                             value={apiKey.key}
                             readOnly
-                            className="font-mono text-sm"
+                            className="font-mono text-xs sm:text-sm"
                           />
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-2">
                         {apiKey.permissions.map((permission) => (
                           <Badge key={permission} variant="secondary" className="text-xs">
                             {permission}

@@ -6,8 +6,8 @@ import Image from 'next/image'
 
 export function Features() {
     return (
-        <section className="bg-background py-16 md:py-32">
-            <div className="mx-auto max-w-2xl px-6 lg:max-w-5xl">
+        <section className="bg-background py-12 sm:py-16 md:py-32">
+            <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-5xl">
                 <div className="mx-auto grid gap-4 lg:grid-cols-2">
                     <FeatureCard>
                         <CardHeader className="pb-3">
@@ -56,10 +56,10 @@ export function Features() {
                         </CardContent>
                     </FeatureCard>
 
-                    <FeatureCard className="p-6 lg:col-span-2">
-                        <p className="mx-auto my-6 max-w-md text-balance text-center text-2xl font-semibold">Multi-tool integration with leading security frameworks.</p>
+                    <FeatureCard className="p-4 sm:p-6 lg:col-span-2">
+                        <p className="mx-auto my-4 sm:my-6 max-w-md text-balance text-center text-lg sm:text-xl lg:text-2xl font-semibold px-4">Multi-tool integration with leading security frameworks.</p>
 
-                        <div className="flex justify-center gap-6 overflow-hidden">
+                        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 overflow-hidden px-4">
                             <CircularUI
                                 label="Slither"
                                 circles={[{ pattern: 'border' }, { pattern: 'border' }]}
@@ -116,12 +116,12 @@ interface CardHeadingProps {
 }
 
 const CardHeading = ({ icon: Icon, title, description }: CardHeadingProps) => (
-    <div className="p-6">
-        <span className="text-muted-foreground flex items-center gap-2">
+    <div className="p-4 sm:p-6">
+        <span className="text-muted-foreground flex items-center gap-2 text-sm sm:text-base">
             <Icon className="size-4" />
             {title}
         </span>
-        <p className="mt-8 text-2xl font-semibold">{description}</p>
+        <p className="mt-6 sm:mt-8 text-lg sm:text-xl lg:text-2xl font-semibold">{description}</p>
     </div>
 )
 

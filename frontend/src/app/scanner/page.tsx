@@ -455,77 +455,80 @@ export default function ScannerPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8 lg:px-8">
         {/* Enhanced Header with Sleek Background */}
-        <div className="relative mb-8 overflow-hidden rounded-2xl">
+        <div className="relative mb-6 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl">
           {/* Background Elements */}
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
           
           {/* Animated Background Patterns */}
           <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+            <div className="absolute top-0 left-0 w-48 sm:w-72 h-48 sm:h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute bottom-0 left-1/4 w-56 sm:w-80 h-56 sm:h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
           </div>
           
           {/* Grid Pattern Overlay */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
           
           {/* Content */}
-          <div className="relative z-10 p-8 rounded-2xl border border-white/10 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
+          <div className="relative z-10 p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl border border-white/10 backdrop-blur-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                   <div className="relative scanner-header-float">
-                    <Image src="/icons/scanner.png" alt="Scanner Icon" width={48} height={48} className="h-12 w-12 relative z-10" />
+                    <Image src="/icons/scanner.png" alt="Scanner Icon" width={48} height={48} className="h-8 w-8 sm:h-12 sm:w-12 relative z-10" />
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg scanner-header-glow"></div>
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold gradient-text-subtle">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text-subtle">
                       Smart Contract Scanner
                     </h1>
-                    <div className="h-1 w-24 bg-gradient-to-r from-primary to-blue-500 rounded-full mt-2 scanner-header-glow"></div>
+                    <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-primary to-blue-500 rounded-full mt-1 sm:mt-2 scanner-header-glow"></div>
                   </div>
                 </div>
                 
-                <p className="text-xl text-muted-foreground mb-6 max-w-2xl">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-4 sm:mb-6 max-w-2xl">
                   Advanced security analysis powered by Slither and AI-driven vulnerability detection
                 </p>
                 
-                <div className="flex items-center gap-8 text-sm">
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-red-500/20 rounded-full">
-                      <Bug className="h-4 w-4 text-red-400" />
+                      <Bug className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
                     </div>
-                    <span className="text-white/80 font-medium">Vulnerability Detection</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">Vulnerability Detection</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-yellow-500/20 rounded-full">
-                      <Zap className="h-4 w-4 text-yellow-400" />
+                      <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
                     </div>
-                    <span className="text-white/80 font-medium">Real-time Analysis</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">Real-time Analysis</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 bg-white/5 px-3 sm:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                     <div className="p-1 bg-blue-500/20 rounded-full">
-                      <Target className="h-4 w-4 text-blue-400" />
+                      <Target className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
                     </div>
-                    <span className="text-white/80 font-medium">Multi-chain Support</span>
+                    <span className="text-white/80 font-medium text-xs sm:text-sm">Multi-chain Support</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {/* Wallet Status Indicator */}
                 {isHydrated && (
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border backdrop-blur-sm ${
+                  <div className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg border backdrop-blur-sm ${
                     isConnected 
                       ? 'bg-green-500/10 border-green-500/20 text-green-400' 
                       : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
                   }`}>
                     <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                    <span className="text-sm font-medium">
+                    <span className="text-xs sm:text-sm font-medium hidden sm:inline">
                       {isConnected ? 'Wallet Connected' : 'Wallet Required'}
+                    </span>
+                    <span className="text-xs sm:hidden">
+                      {isConnected ? 'Connected' : 'Required'}
                     </span>
                   </div>
                 )}
@@ -534,10 +537,10 @@ export default function ScannerPage() {
                   variant="outline"
                   size="sm"
                   onClick={openTutorial}
-                  className="flex items-center gap-2 bg-white/5 border-white/20 text-white/80 hover:bg-white/10 hover:border-white/30 backdrop-blur-sm"
+                  className="flex items-center gap-1 sm:gap-2 bg-white/5 border-white/20 text-white/80 hover:bg-white/10 hover:border-white/30 backdrop-blur-sm"
                 >
-                  <HelpCircle className="h-4 w-4" />
-                  Help
+                  <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Help</span>
                 </Button>
               </div>
             </div>
@@ -545,69 +548,69 @@ export default function ScannerPage() {
         </div>
 
         {/* Enhanced Features Tab Navigation */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 p-2 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2 bg-white/5 rounded-lg sm:rounded-xl border border-white/10 backdrop-blur-sm overflow-x-auto">
             <Button
               variant={activeTab === 'scanner' ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab('scanner')}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'scanner' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Shield className="h-4 w-4" />
-              Scanner
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm">Scanner</span>
             </Button>
             <Button
               variant={activeTab === 'custom-rules' ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab('custom-rules')}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'custom-rules' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              <BookOpen className="h-4 w-4" />
-              Custom Rules
+              <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm">Custom Rules</span>
             </Button>
             <Button
               variant={activeTab === 'batch-scan' ? "default" : "ghost"}
               size="sm"
               onClick={() => setActiveTab('batch-scan')}
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'batch-scan' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Layers className="h-4 w-4" />
-              Batch Scan
+              <Layers className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm">Batch Scan</span>
             </Button>
           </div>
         </div>
 
         {/* Tab Content */}
         {activeTab === 'scanner' && (
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
             {/* Left Column - Upload & Settings */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-1 space-y-4 sm:space-y-6">
               {/* User Status */}
               {isHydrated && (
                 isConnected ? (
-                  <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                  <Card className="bg-card/30 border border-white/10 shadow-lg rounded-xl sm:rounded-2xl">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                        <User className="h-4 w-4 sm:h-5 sm:w-5" />
                         Connected User
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center space-x-2">
                         <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm text-muted-foreground">{shortAddress}</span>
+                        <span className="text-xs sm:text-sm text-muted-foreground break-all">{shortAddress}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
                         Your scan history will be saved to your account.
@@ -615,16 +618,16 @@ export default function ScannerPage() {
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-yellow-500/10 border border-yellow-500/20 shadow-lg rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-yellow-500">
-                        <User className="h-5 w-5" />
+                  <Card className="bg-yellow-500/10 border border-yellow-500/20 shadow-lg rounded-xl sm:rounded-2xl">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-yellow-500 text-sm sm:text-base">
+                        <User className="h-4 w-4 sm:h-5 sm:w-5" />
                         Wallet Required
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Connect your wallet to access the security scanner and save your scan history.
                         </p>
                         <ConnectWallet />
@@ -635,27 +638,27 @@ export default function ScannerPage() {
               )}
 
               {/* Network Selection */}
-              <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Network className="h-5 w-5" />
+              <Card className="bg-card/30 border border-white/10 shadow-lg rounded-xl sm:rounded-2xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Network className="h-4 w-4 sm:h-5 sm:w-5" />
                     Target Network
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {/* Current Selected Network Display */}
-                    <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between p-2 sm:p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <Image 
                           src={networks.find(n => n.id === selectedNetwork)?.icon || '/networks/ethereum.png'}
                           alt={`${networks.find(n => n.id === selectedNetwork)?.name || 'Network'} logo`}
                           width={24}
                           height={24}
-                          className="w-6 h-6 rounded-full object-cover filter-grayscale brightness-50"
+                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover filter-grayscale brightness-50"
                         />
                         <div>
-                          <p className="font-medium text-foreground">
+                          <p className="font-medium text-foreground text-sm sm:text-base">
                             {networks.find(n => n.id === selectedNetwork)?.name}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -678,7 +681,7 @@ export default function ScannerPage() {
                       >
                         <span className="flex items-center gap-2">
                           <Network className="h-4 w-4" />
-                          Change Network
+                          <span className="text-xs sm:text-sm">Change Network</span>
                         </span>
                         <ChevronDown className={`h-4 w-4 transition-transform ${showNetworkDropdown ? 'rotate-180' : ''}`} />
                       </Button>
@@ -693,7 +696,7 @@ export default function ScannerPage() {
                                   setSelectedNetwork(network.id)
                                   setShowNetworkDropdown(false)
                                 }}
-                                className={`w-full flex items-center gap-3 p-2 rounded-md text-left transition-colors ${
+                                className={`w-full flex items-center gap-2 sm:gap-3 p-2 rounded-md text-left transition-colors ${
                                   selectedNetwork === network.id 
                                     ? 'bg-primary/20 text-primary' 
                                     : 'hover:bg-card/50 text-foreground'
@@ -704,16 +707,16 @@ export default function ScannerPage() {
                                   alt={`${network.name || 'Network'} logo`}
                                   width={20}
                                   height={20}
-                                  className="w-5 h-5 rounded-full object-cover filter-grayscale brightness-50"
+                                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover filter-grayscale brightness-50"
                                 />
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">{network.name}</p>
-                                  <p className="text-xs text-muted-foreground">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-xs sm:text-sm truncate">{network.name}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
                                     {explorerInfo[network.id]?.name}
                                   </p>
                                 </div>
                                 {selectedNetwork === network.id && (
-                                  <CheckCircle className="h-4 w-4 text-primary" />
+                                  <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                                 )}
                               </button>
                             ))}
@@ -726,25 +729,25 @@ export default function ScannerPage() {
               </Card>
 
               {/* Unified Contract Input & Security Analysis */}
-              <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
+              <Card className="bg-card/30 border border-white/10 shadow-lg rounded-xl sm:rounded-2xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Security Analysis
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Input Method Toggle */}
-                    <div className="flex items-center gap-2 p-1 bg-card rounded-lg input-method-toggle">
+                    <div className="flex items-center gap-1 sm:gap-2 p-1 bg-card rounded-lg input-method-toggle">
                       <Button
                         variant={inputMethod === "file" ? "default" : "ghost"}
                         size="sm"
                         onClick={() => handleInputMethodChange("file")}
                         className="flex-1"
                       >
-                        <Upload className="h-4 w-4 mr-2" />
-                        File Upload
+                        <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="text-xs sm:text-sm">File Upload</span>
                       </Button>
                       <Button
                         variant={inputMethod === "address" ? "default" : "ghost"}
@@ -752,8 +755,8 @@ export default function ScannerPage() {
                         onClick={() => handleInputMethodChange("address")}
                         className="flex-1"
                       >
-                        <Target className="h-4 w-4 mr-2" />
-                        Contract Address
+                        <Target className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="text-xs sm:text-sm">Contract Address</span>
                       </Button>
                     </div>
 
@@ -761,7 +764,7 @@ export default function ScannerPage() {
                     {inputMethod === "file" && (
                       <div className="space-y-4">
                         <div 
-                          className="border-2 border-dashed border-primary/30 rounded-lg p-6 text-center hover:border-primary/50 transition-colors relative group file-upload-area"
+                          className="border-2 border-dashed border-primary/30 rounded-lg p-4 sm:p-6 text-center hover:border-primary/50 transition-colors relative group file-upload-area"
                           onDragOver={(e) => {
                             e.preventDefault()
                             e.currentTarget.classList.add('border-primary', 'bg-primary/5')
@@ -782,14 +785,14 @@ export default function ScannerPage() {
                             }
                           }}
                         >
-                          <Upload className="mx-auto h-12 w-12 text-primary mb-3 group-hover:scale-110 transition-transform" />
-                          <p className="text-base font-medium text-foreground mb-1">
+                          <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-primary mb-2 sm:mb-3 group-hover:scale-110 transition-transform" />
+                          <p className="text-sm sm:text-base font-medium text-foreground mb-1">
                             Upload Solidity Contract
                           </p>
-                          <p className="text-sm text-muted-foreground mb-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                             Supports .sol files up to 10MB
                           </p>
-                          <p className="text-xs text-primary/70 mb-4">
+                          <p className="text-xs text-primary/70 mb-3 sm:mb-4">
                             Drag & drop your .sol file here, or click to browse
                           </p>
                           <input
@@ -800,10 +803,10 @@ export default function ScannerPage() {
                             id="file-upload"
                           />
                           <label htmlFor="file-upload">
-                            <Button variant="outline" size="lg" asChild className="cursor-pointer hover:bg-primary/10">
-                              <span className="flex items-center gap-2">
-                                <Upload className="h-4 w-4" />
-                                Choose File
+                            <Button variant="outline" size="sm" asChild className="cursor-pointer hover:bg-primary/10">
+                              <span className="flex items-center gap-1 sm:gap-2">
+                                <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="text-xs sm:text-sm">Choose File</span>
                               </span>
                             </Button>
                           </label>
@@ -813,19 +816,19 @@ export default function ScannerPage() {
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg"
+                            className="flex items-center justify-between p-2 sm:p-3 bg-primary/10 border border-primary/20 rounded-lg"
                           >
-                            <div className="flex items-center gap-3">
-                              <FileText className="h-5 w-5 text-primary" />
-                              <div>
-                                <p className="font-medium text-foreground">{uploadedFile.name}</p>
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-foreground text-sm sm:text-base truncate">{uploadedFile.name}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {(uploadedFile.size / 1024).toFixed(1)} KB • Ready for analysis
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                               <span className="text-xs text-green-600 font-medium">Loaded</span>
                             </div>
                           </motion.div>
@@ -836,43 +839,43 @@ export default function ScannerPage() {
                     {/* Contract Address Section */}
                     {inputMethod === "address" && (
                       <div className="space-y-4">
-                        <div className="border-2 border-dashed border-primary/30 rounded-lg p-6 text-center">
-                          <Target className="mx-auto h-12 w-12 text-primary mb-3" />
-                          <p className="text-base font-medium text-foreground mb-1">
+                        <div className="border-2 border-dashed border-primary/30 rounded-lg p-4 sm:p-6 text-center">
+                          <Target className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-primary mb-2 sm:mb-3" />
+                          <p className="text-sm sm:text-base font-medium text-foreground mb-1">
                             Enter Contract Address
                           </p>
-                          <p className="text-sm text-muted-foreground mb-4">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                             Paste a deployed contract address to analyze
                           </p>
-                          <div className="max-w-md mx-auto space-y-3">
+                          <div className="w-full space-y-3">
                             <input
                               type="text"
                               placeholder="0x..."
                               value={contractAddress}
                               onChange={(e) => handleAddressChange(e.target.value)}
-                              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 contract-address-input"
+                              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 contract-address-input text-sm sm:text-base"
                             />
                             <Button
                               onClick={validateAndFetchContract}
                               disabled={!contractAddress || isValidatingAddress}
                               className="w-full"
-                              size="lg"
+                              size="sm"
                             >
                               {isValidatingAddress ? (
                                 <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Validating...
+                                  <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                                  <span className="text-xs sm:text-sm">Validating...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Search className="h-4 w-4 mr-2" />
-                                  Fetch Contract
+                                  <Search className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                  <span className="text-xs sm:text-sm">Fetch Contract</span>
                                 </>
                               )}
                             </Button>
                             
                             {/* Example Contracts */}
-                            <div className="mt-4">
+                            <div className="mt-3 sm:mt-4">
                               <p className="text-xs text-muted-foreground mb-2">Try these verified contracts:</p>
                               <div className="space-y-2">
                                 {(exampleContractsByNetwork[selectedNetwork] || []).map((contract) => (
@@ -881,9 +884,9 @@ export default function ScannerPage() {
                                     onClick={() => handleAddressChange(contract.address)}
                                     className="w-full text-left p-2 text-xs bg-card/50 rounded border border-border hover:bg-card transition-colors"
                                   >
-                                    <div className="font-medium text-foreground">{contract.name}</div>
-                                    <div className="text-muted-foreground">{contract.address.slice(0, 8)}...{contract.address.slice(-6)}</div>
-                                    <div className="text-muted-foreground italic">{contract.description}</div>
+                                    <div className="font-medium text-foreground text-xs">{contract.name}</div>
+                                    <div className="text-muted-foreground text-xs">{contract.address.slice(0, 8)}...{contract.address.slice(-6)}</div>
+                                    <div className="text-muted-foreground italic text-xs">{contract.description}</div>
                                   </button>
                                 ))}
                               </div>
@@ -895,19 +898,19 @@ export default function ScannerPage() {
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg"
+                            className="flex items-center justify-between p-2 sm:p-3 bg-primary/10 border border-primary/20 rounded-lg"
                           >
-                            <div className="flex items-center gap-3">
-                              <FileText className="h-5 w-5 text-primary" />
-                              <div>
-                                <p className="font-medium text-foreground">{fetchedContract.name}</p>
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-foreground text-sm sm:text-base truncate">{fetchedContract.name}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {fetchedContract.address.slice(0, 8)}...{fetchedContract.address.slice(-6)} • Ready for analysis
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                               <span className="text-xs text-green-600 font-medium">Loaded</span>
                             </div>
                           </motion.div>
@@ -919,10 +922,10 @@ export default function ScannerPage() {
                     {isHydrated && (
                       !isConnected ? (
                         <div className="space-y-3">
-                          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center">
+                          <div className="p-3 sm:p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg sm:rounded-xl text-center">
                             <div className="flex items-center justify-center gap-2 mb-2">
-                              <User className="h-5 w-5 text-yellow-500" />
-                              <span className="text-sm font-medium text-yellow-500">Wallet Required</span>
+                              <User className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
+                              <span className="text-xs sm:text-sm font-medium text-yellow-500">Wallet Required</span>
                             </div>
                             <p className="text-xs text-muted-foreground mb-3">
                               Connect your wallet to access the security scanner
@@ -935,17 +938,17 @@ export default function ScannerPage() {
                           onClick={handleScan}
                           disabled={!uploadedFile && !fetchedContract || isScanning}
                           className="w-full start-scan-button"
-                          size="lg"
+                          size="sm"
                         >
                           {isScanning ? (
                             <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Scanning...
+                              <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 animate-spin" />
+                              <span className="text-xs sm:text-sm">Scanning...</span>
                             </>
                           ) : (
                             <>
-                              <Play className="h-4 w-4 mr-2" />
-                              Start Security Scan
+                              <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                              <span className="text-xs sm:text-sm">Start Security Scan</span>
                             </>
                           )}
                         </Button>
@@ -953,24 +956,25 @@ export default function ScannerPage() {
                     )}
 
                     {/* Advanced Options */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowScanConfig(true)}
-                        className="scan-config-button"
+                        className="scan-config-button flex-1"
                       >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Scan Config
+                        <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="text-xs sm:text-sm">Scan Config</span>
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowAdvancedAI(true)}
                         disabled={!scanResults}
+                        className="flex-1"
                       >
-                        <Brain className="h-4 w-4 mr-2" />
-                        AI Analysis
+                        <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="text-xs sm:text-sm">AI Analysis</span>
                       </Button>
                     </div>
                   </div>
@@ -979,15 +983,15 @@ export default function ScannerPage() {
             </div>
 
             {/* Right Column - Results & Dashboard */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Progress Indicator */}
               {isScanning && currentProgress && (
-                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
+                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-xl sm:rounded-2xl">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="space-y-3 sm:space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-foreground">Scan Progress</h3>
-                        <span className="text-sm text-muted-foreground">{currentProgress.progress}%</span>
+                        <h3 className="text-base sm:text-lg font-semibold text-foreground">Scan Progress</h3>
+                        <span className="text-xs sm:text-sm text-muted-foreground">{currentProgress.progress}%</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
                         <div
@@ -995,7 +999,7 @@ export default function ScannerPage() {
                           style={{ width: `${currentProgress.progress}%` }}
                         />
                       </div>
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">{currentProgress.status}</span>
                         {currentProgress.step && (
                           <span className="text-primary">{currentProgress.step}</span>
@@ -1013,85 +1017,85 @@ export default function ScannerPage() {
 
               {/* Scan Results */}
               {scanResults ? (
-                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-2xl results-area">
-                  <CardContent className="p-6">
+                <Card className="bg-card/30 border border-white/10 shadow-lg rounded-xl sm:rounded-2xl results-area">
+                  <CardContent className="p-4 sm:p-6">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="space-y-6"
+                      className="space-y-4 sm:space-y-6"
                     >
                       {/* Export Actions */}
                       {scanResults && currentScanId && (
-                        <div className="mb-4">
+                        <div className="mb-3 sm:mb-4">
                           <ExportActions scanId={currentScanId} />
                         </div>
                       )}
                       {/* Summary Stats */}
-                      <div className="grid grid-cols-4 gap-4 mb-8">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.1 }}
-                          className="text-center p-6 bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20 rounded-xl"
+                          className="text-center p-3 sm:p-6 bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20 rounded-lg sm:rounded-xl"
                         >
-                          <XCircle className="h-8 w-8 mx-auto mb-3 text-red-500" />
-                          <div className="text-3xl font-bold text-red-500 mb-1">{scanResults.summary.high}</div>
-                          <div className="text-sm text-muted-foreground">Critical</div>
+                          <XCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-red-500" />
+                          <div className="text-xl sm:text-3xl font-bold text-red-500 mb-1">{scanResults.summary.high}</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground">Critical</div>
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.2 }}
-                          className="text-center p-6 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-xl"
+                          className="text-center p-3 sm:p-6 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-lg sm:rounded-xl"
                         >
-                          <AlertTriangle className="h-8 w-8 mx-auto mb-3 text-yellow-500" />
-                          <div className="text-3xl font-bold text-yellow-500 mb-1">{scanResults.summary.medium}</div>
-                          <div className="text-sm text-muted-foreground">Medium</div>
+                          <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-yellow-500" />
+                          <div className="text-xl sm:text-3xl font-bold text-yellow-500 mb-1">{scanResults.summary.medium}</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground">Medium</div>
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.3 }}
-                          className="text-center p-6 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-xl"
+                          className="text-center p-3 sm:p-6 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-lg sm:rounded-xl"
                         >
-                          <CheckCircle className="h-8 w-8 mx-auto mb-3 text-blue-500" />
-                          <div className="text-3xl font-bold text-blue-500 mb-1">{scanResults.summary.low}</div>
-                          <div className="text-sm text-muted-foreground">Low</div>
+                          <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-blue-500" />
+                          <div className="text-xl sm:text-3xl font-bold text-blue-500 mb-1">{scanResults.summary.low}</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground">Low</div>
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.4 }}
-                          className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl"
+                          className="text-center p-3 sm:p-6 bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-lg sm:rounded-xl"
                         >
-                          <TrendingUp className="h-8 w-8 mx-auto mb-3 text-primary" />
-                          <div className="text-3xl font-bold text-primary mb-1">{scanResults.score}%</div>
-                          <div className="text-sm text-muted-foreground">Score</div>
+                          <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary" />
+                          <div className="text-xl sm:text-3xl font-bold text-primary mb-1">{scanResults.score}%</div>
+                          <div className="text-xs sm:text-sm text-muted-foreground">Score</div>
                         </motion.div>
                       </div>
 
                       {/* Analysis Summary */}
-                      <div className="p-6 bg-card/50 rounded-xl border border-border/50">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-foreground">Analysis Summary</h3>
+                      <div className="p-4 sm:p-6 bg-card/50 rounded-lg sm:rounded-xl border border-border/50">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <h3 className="text-base sm:text-lg font-semibold text-foreground">Analysis Summary</h3>
                           <span className="text-xs text-muted-foreground">
                             {scanResults.vulnerabilities.length} total findings
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="flex items-center gap-3">
-                            <Shield className="h-5 w-5 text-primary" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                             <div>
-                              <p className="text-sm font-medium text-foreground">Security Rating</p>
+                              <p className="text-xs sm:text-sm font-medium text-foreground">Security Rating</p>
                               <p className="text-xs text-muted-foreground">
                                 {scanResults.score >= 80 ? 'Excellent' : scanResults.score >= 60 ? 'Good' : scanResults.score >= 40 ? 'Fair' : 'Poor'}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <Clock className="h-5 w-5 text-muted-foreground" />
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                             <div>
-                              <p className="text-sm font-medium text-foreground">Scan Duration</p>
+                              <p className="text-xs sm:text-sm font-medium text-foreground">Scan Duration</p>
                               <p className="text-xs text-muted-foreground">
                                 {scanStartTime ? Math.round((new Date().getTime() - scanStartTime.getTime()) / 1000) : 0}s
                               </p>
@@ -1104,35 +1108,35 @@ export default function ScannerPage() {
                       <VulnerabilityFilters
                         vulnerabilities={scanResults.vulnerabilities}
                         onFilteredVulnerabilities={setFilteredVulnerabilities}
-                        className="mb-6"
+                        className="mb-4 sm:mb-6"
                       />
 
                       {/* Vulnerability List */}
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         {sortVulnerabilitiesBySeverity(filteredVulnerabilities.length > 0 ? filteredVulnerabilities : scanResults.vulnerabilities).map((result) => (
                           <motion.div
                             key={result.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`relative p-4 pl-6 bg-card/30 rounded-xl shadow-lg border-l-4 ${getSeverityBorderColor(result.severity)} mb-2 group transition-all duration-200`}
+                            className={`relative p-3 sm:p-4 pl-4 sm:pl-6 bg-card/30 rounded-lg sm:rounded-xl shadow-lg border-l-4 ${getSeverityBorderColor(result.severity)} mb-2 group transition-all duration-200`}
                           >
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-start gap-2 sm:gap-3">
                               <div className={`mt-1 ${getSeverityColor(result.severity)}`}>
                                 {getSeverityIcon(result.severity)}
                               </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="font-semibold text-foreground">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                                  <h4 className="font-semibold text-foreground text-sm sm:text-base">
                                     {result.title}
                                   </h4>
-                                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${getSeverityColor(result.severity)} bg-white/10 flex items-center gap-1`}>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getSeverityColor(result.severity)} bg-white/10 flex items-center gap-1 w-fit`}>
                                     {getSeverityIcon(result.severity)} {result.severity.toUpperCase()}
                                   </span>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-2">
+                                <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                                   {result.description}
                                 </p>
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-muted-foreground">
                                   <span>Line {result.line}</span>
                                   <span>File: {result.file}</span>
                                 </div>
@@ -1149,46 +1153,46 @@ export default function ScannerPage() {
                 </Card>
               ) : (
                 /* Dashboard Content when no scan results */
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Welcome & Quick Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <Card className="bg-gradient-to-br from-primary/10 to-blue-500/5 border border-primary/20 shadow-lg">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div className="p-2 bg-primary/20 rounded-lg">
-                            <Shield className="h-6 w-6 text-primary" />
+                            <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                           </div>
                           <div>
-                            <p className="text-sm text-muted-foreground">Total Scans</p>
-                            <p className="text-2xl font-bold text-foreground">1,247</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Total Scans</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">1,247</p>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                     
                     <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20 shadow-lg">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div className="p-2 bg-green-500/20 rounded-lg">
-                            <CheckCircle className="h-6 w-6 text-green-500" />
+                            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                           </div>
                           <div>
-                            <p className="text-sm text-muted-foreground">Secure Contracts</p>
-                            <p className="text-2xl font-bold text-foreground">892</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Secure Contracts</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">892</p>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 shadow-lg">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
+                    <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 shadow-lg sm:col-span-2 lg:col-span-1">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div className="p-2 bg-orange-500/20 rounded-lg">
-                            <AlertTriangle className="h-6 w-6 text-orange-500" />
+                            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" />
                           </div>
                           <div>
-                            <p className="text-sm text-muted-foreground">Vulnerabilities Found</p>
-                            <p className="text-2xl font-bold text-foreground">355</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Vulnerabilities Found</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">355</p>
                           </div>
                         </div>
                       </CardContent>
@@ -1197,45 +1201,45 @@ export default function ScannerPage() {
 
                   {/* Quick Actions */}
                   <Card className="bg-card/30 border border-white/10 shadow-lg results-area">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-primary" />
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                        <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                         Quick Actions
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <Button 
                           variant="outline" 
-                          className="h-16 flex flex-col items-center justify-center gap-2 hover:bg-primary/10"
+                          className="h-12 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 hover:bg-primary/10"
                           onClick={() => setInputMethod("file")}
                         >
-                          <Upload className="h-6 w-6 text-primary" />
-                          <span className="text-sm font-medium">Upload Contract</span>
+                          <Upload className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+                          <span className="text-xs sm:text-sm font-medium">Upload Contract</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-16 flex flex-col items-center justify-center gap-2 hover:bg-primary/10"
+                          className="h-12 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 hover:bg-primary/10"
                           onClick={() => setInputMethod("address")}
                         >
-                          <Target className="h-6 w-6 text-primary" />
-                          <span className="text-sm font-medium">Scan Address</span>
+                          <Target className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+                          <span className="text-xs sm:text-sm font-medium">Scan Address</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-16 flex flex-col items-center justify-center gap-2 hover:bg-primary/10"
+                          className="h-12 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 hover:bg-primary/10"
                           onClick={() => setActiveTab('custom-rules')}
                         >
-                          <BookOpen className="h-6 w-6 text-primary" />
-                          <span className="text-sm font-medium">Custom Rules</span>
+                          <BookOpen className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+                          <span className="text-xs sm:text-sm font-medium">Custom Rules</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-16 flex flex-col items-center justify-center gap-2 hover:bg-primary/10"
+                          className="h-12 sm:h-16 flex flex-col items-center justify-center gap-1 sm:gap-2 hover:bg-primary/10"
                           onClick={() => setActiveTab('batch-scan')}
                         >
-                          <Layers className="h-6 w-6 text-primary" />
-                          <span className="text-sm font-medium">Batch Scan</span>
+                          <Layers className="h-4 w-4 sm:h-6 sm:w-6 text-primary" />
+                          <span className="text-xs sm:text-sm font-medium">Batch Scan</span>
                         </Button>
                       </div>
                     </CardContent>
@@ -1243,45 +1247,45 @@ export default function ScannerPage() {
 
                   {/* Recent Activity */}
                   <Card className="bg-card/30 border border-white/10 shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Activity className="h-5 w-5 text-primary" />
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                        <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                         Recent Activity
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 p-3 bg-card/50 rounded-lg">
-                          <div className="p-2 bg-green-500/20 rounded-full">
-                            <CheckCircle className="h-4 w-4 text-green-500" />
+                      <div className="space-y-3 sm:space-y-4">
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
+                          <div className="p-1.5 sm:p-2 bg-green-500/20 rounded-full">
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-foreground">USDT Token Analysis</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">USDT Token Analysis</p>
                             <p className="text-xs text-muted-foreground">Completed 2 minutes ago</p>
                           </div>
-                          <Badge variant="outline" className="text-green-500 border-green-500/30">Secure</Badge>
+                          <Badge variant="outline" className="text-green-500 border-green-500/30 text-xs">Secure</Badge>
                         </div>
                         
-                        <div className="flex items-center gap-3 p-3 bg-card/50 rounded-lg">
-                          <div className="p-2 bg-yellow-500/20 rounded-full">
-                            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
+                          <div className="p-1.5 sm:p-2 bg-yellow-500/20 rounded-full">
+                            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-foreground">DeFi Protocol Scan</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">DeFi Protocol Scan</p>
                             <p className="text-xs text-muted-foreground">Completed 15 minutes ago</p>
                           </div>
-                          <Badge variant="outline" className="text-yellow-500 border-yellow-500/30">3 Issues</Badge>
+                          <Badge variant="outline" className="text-yellow-500 border-yellow-500/30 text-xs">3 Issues</Badge>
                         </div>
                         
-                        <div className="flex items-center gap-3 p-3 bg-card/50 rounded-lg">
-                          <div className="p-2 bg-red-500/20 rounded-full">
-                            <XCircle className="h-4 w-4 text-red-500" />
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
+                          <div className="p-1.5 sm:p-2 bg-red-500/20 rounded-full">
+                            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-foreground">NFT Contract Analysis</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">NFT Contract Analysis</p>
                             <p className="text-xs text-muted-foreground">Completed 1 hour ago</p>
                           </div>
-                          <Badge variant="outline" className="text-red-500 border-red-500/30">Critical</Badge>
+                          <Badge variant="outline" className="text-red-500 border-red-500/30 text-xs">Critical</Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -1289,35 +1293,35 @@ export default function ScannerPage() {
 
                   {/* Security Tips */}
                   <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/5 border border-blue-500/20 shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Brain className="h-5 w-5 text-blue-500" />
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                        <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                         Security Tips
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-3">
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-start gap-2 sm:gap-3">
                           <div className="p-1 bg-blue-500/20 rounded-full mt-0.5">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             Always verify contract addresses before scanning to ensure you&apos;re analyzing the correct contract.
                           </p>
                         </div>
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2 sm:gap-3">
                           <div className="p-1 bg-blue-500/20 rounded-full mt-0.5">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             Use custom rules to detect project-specific vulnerabilities and patterns.
                           </p>
                         </div>
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2 sm:gap-3">
                           <div className="p-1 bg-blue-500/20 rounded-full mt-0.5">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             Review high and medium severity findings first, as they pose the greatest security risks.
                           </p>
                         </div>
@@ -1354,11 +1358,11 @@ export default function ScannerPage() {
 
       {/* Advanced AI Dashboard Modal */}
       {showAdvancedAI && scanResults && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Advanced AI Analysis</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground">Advanced AI Analysis</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1383,11 +1387,11 @@ export default function ScannerPage() {
 
       {/* Scan Configuration Modal */}
       {showScanConfig && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Scan Configuration</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-2xl font-bold text-foreground">Scan Configuration</h2>
                 <Button
                   variant="ghost"
                   size="sm"

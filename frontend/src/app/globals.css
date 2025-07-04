@@ -218,7 +218,7 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-33.333%));
+    transform: translateX(calc(-50%));
   }
 }
 
@@ -231,7 +231,7 @@
 }
 
 .animate-seamless-scroll {
-  animation: seamless-scroll 60s linear infinite;
+  animation: seamless-scroll 15s linear infinite;
   will-change: transform;
 }
 

@@ -245,10 +245,10 @@ const [riskLevel, setRiskLevel] = useState('Medium');
         <Spotlight />
       {/* Modal Form */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <form
             onSubmit={handleSubmit}
-            className="relative w-full max-w-lg bg-black border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-8 text-left animate-fade-in max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg bg-black border border-white/10 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-left animate-fade-in max-h-[90vh] overflow-y-auto"
             style={{
               animation: 'fadeIn .2s',
               boxShadow: '0 0 32px 0 rgba(80, 120, 255, 0.25), 0 0 0 4px rgba(80,120,255,0.10)',
@@ -256,21 +256,21 @@ const [riskLevel, setRiskLevel] = useState('Medium');
               outlineOffset: '-4px',
             }}
           >
-            <button type="button" onClick={closeModal} className="absolute top-4 right-4 text-muted-foreground hover:text-primary">
-              <X className="h-6 w-6" />
+            <button type="button" onClick={closeModal} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-muted-foreground hover:text-primary">
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-primary">Start Your Security Journey</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 lg:mb-6 text-primary pr-8">Start Your Security Journey</h2>
             {submitted ? (
-              <div className="text-center py-12">
-                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-primary" />
-                <div className="text-lg font-semibold mb-2 text-foreground">Thank you!</div>
-                <div className="text-muted-foreground">We received your request and will contact you soon.</div>
-                <button type="button" onClick={closeModal} className="mt-8 px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors">Close</button>
+              <div className="text-center py-8 sm:py-12">
+                <CheckCircle className="mx-auto mb-4 h-10 w-10 sm:h-12 sm:w-12 text-primary" />
+                <div className="text-base sm:text-lg font-semibold mb-2 text-foreground">Thank you!</div>
+                <div className="text-sm sm:text-base text-muted-foreground">We received your request and will contact you soon.</div>
+                <button type="button" onClick={closeModal} className="mt-6 sm:mt-8 px-4 sm:px-6 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm sm:text-base">Close</button>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 mb-3">
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="block mb-1 text-xs font-medium text-foreground">Project/Company Name<span className="text-primary">*</span></label>
                     <input name="project" value={form.project} onChange={handleChange} className="w-full rounded-lg bg-background border border-white/10 px-3 py-2 text-foreground focus:outline-none focus:border-primary text-sm" />
                     {errors.project && <div className="text-red-500 text-xs mt-1">{errors.project}</div>}
@@ -318,7 +318,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                   <label className="block mb-1 text-xs font-medium text-foreground">Additional Notes</label>
                   <textarea name="notes" value={form.notes} onChange={handleChange} rows={2} className="w-full rounded-lg bg-background border border-white/10 px-3 py-2 text-foreground focus:outline-none focus:border-primary text-sm" />
                 </div>
-                <button type="submit" className="w-full py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-base">Submit Request</button>
+                <button type="submit" className="w-full py-2 sm:py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-sm sm:text-base">Submit Request</button>
               </>
             )}
           </form>
@@ -326,37 +326,37 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       )}
 
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 relative z-10">
+      <section className="pt-16 sm:pt-20 pb-12 sm:pb-16 px-4 relative z-10">
         <div className="mx-auto max-w-6xl text-center relative z-20">
-          <h1 className="text-5xl font-bold mb-6 text-foreground bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-foreground bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             Professional Smart Contract Security
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
             BlitzProof delivers enterprise-grade smart contract audits and verification services. 
             Protect your blockchain applications with our comprehensive security solutions.
           </p>
           
           {/* Security Metrics */}
-          <div className="grid grid-cols-3 gap-6 mb-8 max-w-2xl mx-auto">
-            <div className="bg-black/60 border border-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-primary">500+</div>
-              <div className="text-sm text-muted-foreground">Contracts Audited</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+            <div className="bg-black/60 border border-white/10 rounded-xl p-4 sm:p-6">
+              <div className="text-xl sm:text-2xl font-bold text-primary">500+</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Contracts Audited</div>
             </div>
-            <div className="bg-black/60 border border-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-primary">$2B+</div>
-              <div className="text-sm text-muted-foreground">Assets Protected</div>
+            <div className="bg-black/60 border border-white/10 rounded-xl p-4 sm:p-6">
+              <div className="text-xl sm:text-2xl font-bold text-primary">$2B+</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Assets Protected</div>
             </div>
-            <div className="bg-black/60 border border-white/10 rounded-xl p-4">
-              <div className="text-2xl font-bold text-primary">99.8%</div>
-              <div className="text-sm text-muted-foreground">Success Rate</div>
+            <div className="bg-black/60 border border-white/10 rounded-xl p-4 sm:p-6">
+              <div className="text-xl sm:text-2xl font-bold text-primary">99.8%</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Success Rate</div>
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-30">
-            <button onClick={() => setModalOpen(true)} className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 relative z-40">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center relative z-30 px-4">
+            <button onClick={() => setModalOpen(true)} className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 relative z-40 text-sm sm:text-base">
               Start Your Audit
             </button>
-            <Link href="/scanner" className="px-8 py-4 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/5 transition-all relative z-40">
+            <Link href="/scanner" className="px-6 sm:px-8 py-3 sm:py-4 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/5 transition-all relative z-40 text-sm sm:text-base">
               Try Free Scanner
             </Link>
           </div>
@@ -364,59 +364,59 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* What is a Smart Contract Audit? */}
-      <section className="py-20 px-4 relative z-10">
+      <section className="py-12 sm:py-20 px-4 relative z-10">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-foreground">What is a Smart Contract Audit?</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-foreground">What is a Smart Contract Audit?</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
               A comprehensive security assessment of your blockchain codebase to identify vulnerabilities, 
               logic errors, and security risks before deployment.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16">
             {/* Left Column - Visual */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-8 h-full">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-4">
-                    <ShieldCheck className="h-6 w-6 text-primary" />
+              <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 h-full">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                    <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground">Security First</h3>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Security First</h3>
                 </div>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
                   Smart contract audits are essential for protecting user funds, ensuring compliance, 
                   and building trust in your project. Our expert team uses advanced tools and manual 
                   analysis to identify potential vulnerabilities.
                 </p>
                 
                 {/* Key Benefits */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-start">
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
                       <CheckCircle className="h-3 w-3 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Prevent Exploits</h4>
-                      <p className="text-sm text-muted-foreground">Identify and fix vulnerabilities before they can be exploited</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Prevent Exploits</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Identify and fix vulnerabilities before they can be exploited</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
                       <CheckCircle className="h-3 w-3 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Build Trust</h4>
-                      <p className="text-sm text-muted-foreground">Demonstrate security commitment to users and investors</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Build Trust</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Demonstrate security commitment to users and investors</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
                       <CheckCircle className="h-3 w-3 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Ensure Compliance</h4>
-                      <p className="text-sm text-muted-foreground">Meet industry standards and regulatory requirements</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Ensure Compliance</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Meet industry standards and regulatory requirements</p>
                     </div>
                   </div>
                 </div>
@@ -425,50 +425,50 @@ const [riskLevel, setRiskLevel] = useState('Medium');
             
             {/* Right Column - Process */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-8 h-full">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-4">
-                    <Search className="h-6 w-6 text-primary" />
+              <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 h-full">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                    <Search className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground">Our Process</h3>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Our Process</h3>
                 </div>
                 
                 {/* Process Steps */}
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1 text-sm font-bold text-primary-foreground">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 text-xs sm:text-sm font-bold text-primary-foreground">
                       1
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Automated Analysis</h4>
-                      <p className="text-sm text-muted-foreground">Advanced scanning tools analyze your contracts for known vulnerabilities</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Automated Analysis</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Advanced scanning tools analyze your contracts for known vulnerabilities</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1 text-sm font-bold text-primary-foreground">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 text-xs sm:text-sm font-bold text-primary-foreground">
                       2
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Manual Review</h4>
-                      <p className="text-sm text-muted-foreground">Expert security specialists perform deep manual analysis</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Manual Review</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Expert security specialists perform deep manual analysis</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1 text-sm font-bold text-primary-foreground">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 text-xs sm:text-sm font-bold text-primary-foreground">
                       3
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Detailed Reporting</h4>
-                      <p className="text-sm text-muted-foreground">Comprehensive findings with severity ratings and remediation steps</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Detailed Reporting</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Comprehensive findings with severity ratings and remediation steps</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-4 mt-1 text-sm font-bold text-primary-foreground">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center mr-3 sm:mr-4 mt-1 text-xs sm:text-sm font-bold text-primary-foreground">
                       4
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Verification</h4>
-                      <p className="text-sm text-muted-foreground">On-chain verification and public certification for transparency</p>
+                      <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Verification</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">On-chain verification and public certification for transparency</p>
                     </div>
                   </div>
                 </div>
@@ -479,128 +479,128 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* What's Included */}
-      <section className="py-20 px-4 relative z-10">
+      <section className="py-12 sm:py-20 px-4 relative z-10">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6 text-foreground">What&apos;s Included</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-foreground">What&apos;s Included</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
               Comprehensive deliverables and expert analysis to secure your smart contracts
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Deliverables */}
-            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-8 group hover:border-primary/30 transition-all duration-300">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-4">
-                  <FileText className="h-6 w-6 text-primary" />
+            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 group hover:border-primary/30 transition-all duration-300">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Deliverables</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">Deliverables</h3>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Comprehensive Report</h4>
-                    <p className="text-sm text-muted-foreground">Detailed PDF and web-based audit report</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Comprehensive Report</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Detailed PDF and web-based audit report</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Severity Rankings</h4>
-                    <p className="text-sm text-muted-foreground">Prioritized findings with clear recommendations</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Severity Rankings</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Prioritized findings with clear recommendations</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Remediation Support</h4>
-                    <p className="text-sm text-muted-foreground">Step-by-step guidance and re-audit services</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Remediation Support</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Step-by-step guidance and re-audit services</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Public Verification</h4>
-                    <p className="text-sm text-muted-foreground">On-chain verification and public certification badge</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Public Verification</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">On-chain verification and public certification badge</p>
                   </div>
                 </div>
               </div>
             </div>
             
             {/* Sample Findings */}
-            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-8 group hover:border-primary/30 transition-all duration-300">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-4">
-                  <Search className="h-6 w-6 text-primary" />
+            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 group hover:border-primary/30 transition-all duration-300">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                  <Search className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Sample Findings</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">Sample Findings</h3>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Reentrancy Attacks</h4>
-                    <p className="text-sm text-muted-foreground">Critical vulnerability allowing fund theft</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Reentrancy Attacks</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Critical vulnerability allowing fund theft</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Access Control</h4>
-                    <p className="text-sm text-muted-foreground">Unauthorized function access risks</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Access Control</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Unauthorized function access risks</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Arithmetic Issues</h4>
-                    <p className="text-sm text-muted-foreground">Overflow/underflow vulnerabilities</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Arithmetic Issues</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Overflow/underflow vulnerabilities</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Logic Errors</h4>
-                    <p className="text-sm text-muted-foreground">Business logic and gas inefficiencies</p>
+                    <h4 className="font-semibold text-foreground mb-1 text-sm sm:text-base">Logic Errors</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Business logic and gas inefficiencies</p>
                   </div>
                 </div>
               </div>
             </div>
             
             {/* Certification */}
-            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-8 group hover:border-primary/30 transition-all duration-300">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-4">
-                  <ShieldCheck className="h-6 w-6 text-primary" />
+            <div className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 sm:p-8 group hover:border-primary/30 transition-all duration-300">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                  <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">Certification</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">Certification</h3>
               </div>
               
-              <div className="space-y-6">
-                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-primary">Audit Badge</span>
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-xs sm:text-sm font-semibold text-primary">Audit Badge</span>
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   </div>
                   <p className="text-xs text-muted-foreground">Public verification badge for transparency</p>
                 </div>
                 
-                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-primary">On-Chain Proof</span>
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-xs sm:text-sm font-semibold text-primary">On-Chain Proof</span>
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   </div>
                   <p className="text-xs text-muted-foreground">Immutable verification on blockchain</p>
                 </div>
                 
-                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-primary">Marketing Support</span>
-                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-xs sm:text-sm font-semibold text-primary">Marketing Support</span>
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   </div>
                   <p className="text-xs text-muted-foreground">Optional public disclosure assistance</p>
                 </div>
@@ -611,11 +611,11 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* Security Score Calculator */}
-      <section className="py-16 px-4 relative z-20">
+      <section className="py-12 sm:py-16 px-4 relative z-20">
         <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 text-foreground">Get Your Security Score</h2>
-            <p className="text-muted-foreground">Calculate your project&apos;s security risk and get an instant audit estimate</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-foreground">Get Your Security Score</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Calculate your project&apos;s security risk and get an instant audit estimate</p>
           </div>
           
           <Card className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-2xl rounded-2xl overflow-hidden relative z-30" style={{
@@ -623,15 +623,15 @@ const [riskLevel, setRiskLevel] = useState('Medium');
             outline: '1px solid rgba(80, 120, 255, 0.2)',
             outlineOffset: '-2px'
           }}>
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <CardContent className="p-4 sm:p-6 lg:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                 <div>
-                  <h3 className="text-xl font-semibold mb-4 text-primary">Project Assessment</h3>
+                  <h3 className="text-lg sm:text-xl font-semibold mb-4 text-primary">Project Assessment</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-2 text-foreground">Contract Complexity</label>
                       <select 
-                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40"
+                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40 text-sm"
                         value={securityScore.complexity}
                         onChange={(e) => handleSecurityScoreChange('complexity', e.target.value)}
                         style={{ position: 'relative', zIndex: 50 }}
@@ -645,7 +645,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     <div>
                       <label className="block text-sm font-medium mb-2 text-foreground">Asset Value</label>
                       <select 
-                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40"
+                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40 text-sm"
                         value={securityScore.assetValue}
                         onChange={(e) => handleSecurityScoreChange('assetValue', e.target.value)}
                         style={{ position: 'relative', zIndex: 50 }}
@@ -659,7 +659,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     <div>
                       <label className="block text-sm font-medium mb-2 text-foreground">Deployment Timeline</label>
                       <select 
-                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40"
+                        className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary relative z-40 text-sm"
                         value={securityScore.timeline}
                         onChange={(e) => handleSecurityScoreChange('timeline', e.target.value)}
                         style={{ position: 'relative', zIndex: 50 }}
@@ -674,14 +674,14 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                 </div>
                 
                 <div className="text-center">
-                  <div className="relative bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-6 mb-4 overflow-hidden">
+                  <div className="relative bg-gradient-to-br from-black/80 to-black/40 border border-white/10 rounded-2xl p-4 sm:p-6 mb-4 overflow-hidden">
                     {/* Animated background glow */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-50"></div>
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary/60 to-primary/20"></div>
                     
-                    <div className="relative z-10 flex items-center justify-between">
+                    <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
                       {/* Score Circle */}
-                      <div className="relative w-20 h-20">
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20">
                         <div className="absolute inset-0 rounded-full border-3 border-white/10"></div>
                         <div 
                           className="absolute inset-0 rounded-full border-3 border-transparent border-t-primary border-r-primary transition-all duration-1000 ease-out"
@@ -692,16 +692,16 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                         ></div>
                         <div className="absolute inset-1.5 rounded-full bg-black/60 flex items-center justify-center">
                           <div className="text-center">
-                            <div className="text-xl font-bold text-primary">{calculatedScore}</div>
+                            <div className="text-lg sm:text-xl font-bold text-primary">{calculatedScore}</div>
                             <div className="text-xs text-muted-foreground">/100</div>
                           </div>
                         </div>
                       </div>
                       
                       {/* Score Info */}
-                      <div className="flex-1 ml-6 text-left">
-                        <div className="text-lg font-semibold text-foreground mb-1">Security Score</div>
-                        <div className="text-sm text-muted-foreground mb-3">
+                      <div className="flex-1 text-center sm:text-left">
+                        <div className="text-base sm:text-lg font-semibold text-foreground mb-1">Security Score</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-3">
                           {riskLevel === 'Low' ? '🟢 Low Risk' : 
                            riskLevel === 'Medium' ? '🟡 Medium Risk' : 
                            '🔴 High Risk'}
@@ -709,11 +709,11 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                         
                         {/* Compact Details */}
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="text-muted-foreground">Timeline:</span>
                             <span className="text-foreground font-medium">{estimatedTimeline}</span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
                             <span className="text-muted-foreground">Price:</span>
                             <span className="text-primary font-bold">{estimatedPrice}</span>
                           </div>
@@ -722,7 +722,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                     </div>
                   </div>
                   
-                  <button onClick={() => setModalOpen(true)} className="w-full px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl font-semibold hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                  <button onClick={() => setModalOpen(true)} className="w-full px-4 sm:px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl font-semibold hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm sm:text-base">
                     Get Detailed Quote
                   </button>
                 </div>
@@ -733,30 +733,30 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* Client Success Stories */}
-      <section className="py-16 px-4 bg-black/20">
+      <section className="py-12 sm:py-16 px-4 bg-black/20">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 text-foreground">Trusted by Leading Projects</h2>
-            <p className="text-muted-foreground">See how we&apos;ve protected billions in digital assets</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-foreground">Trusted by Leading Projects</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">See how we&apos;ve protected billions in digital assets</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
             <Card className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-xl rounded-xl overflow-hidden group hover:border-primary/30 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-primary font-bold text-lg">D</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-primary font-bold text-base sm:text-lg">D</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">DeFi Protocol</h4>
+                    <h4 className="font-semibold text-foreground text-sm sm:text-base">DeFi Protocol</h4>
                     <p className="text-xs text-muted-foreground">$500M TVL</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">&quot;BlitzProof&apos;s audit was comprehensive and professional. They found critical vulnerabilities that could have cost us millions.&quot;</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">&quot;BlitzProof&apos;s audit was comprehensive and professional. They found critical vulnerabilities that could have cost us millions.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $500M</div>
                   <div className="flex items-center text-primary">
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="text-xs">Verified</span>
                   </div>
                 </div>
@@ -764,21 +764,21 @@ const [riskLevel, setRiskLevel] = useState('Medium');
             </Card>
             
             <Card className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-xl rounded-xl overflow-hidden group hover:border-primary/30 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-primary font-bold text-lg">N</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-primary font-bold text-base sm:text-lg">N</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">NFT Marketplace</h4>
+                    <h4 className="font-semibold text-foreground text-sm sm:text-base">NFT Marketplace</h4>
                     <p className="text-xs text-muted-foreground">$200M Volume</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">&quot;The team was responsive and thorough. Their security recommendations were invaluable for our launch.&quot;</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">&quot;The team was responsive and thorough. Their security recommendations were invaluable for our launch.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $200M</div>
                   <div className="flex items-center text-primary">
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="text-xs">Verified</span>
                   </div>
                 </div>
@@ -786,21 +786,21 @@ const [riskLevel, setRiskLevel] = useState('Medium');
             </Card>
             
             <Card className="bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-xl rounded-xl overflow-hidden group hover:border-primary/30 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-primary font-bold text-lg">G</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-3">
+                    <span className="text-primary font-bold text-base sm:text-lg">G</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">Gaming Platform</h4>
+                    <h4 className="font-semibold text-foreground text-sm sm:text-base">Gaming Platform</h4>
                     <p className="text-xs text-muted-foreground">$300M Assets</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">&quot;Professional service from start to finish. Their expertise in gaming contracts is unmatched.&quot;</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">&quot;Professional service from start to finish. Their expertise in gaming contracts is unmatched.&quot;</p>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Protected: $300M</div>
                   <div className="flex items-center text-primary">
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     <span className="text-xs">Verified</span>
                   </div>
                 </div>
@@ -813,103 +813,103 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* Supported Networks */}
-      <section className="py-12 px-4">
+      <section className="py-8 sm:py-12 px-4">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-4 text-foreground">Supported Networks</h2>
-          <p className="text-muted-foreground mb-6">We support all major EVM and non-EVM blockchains, including:</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Ethereum</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">BNB Chain</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Polygon</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Arbitrum</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Optimism</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Avalanche</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Fantom</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Solana</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Aptos</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Sui</span>
-            <span className="px-4 py-2 rounded-lg bg-black/60 border border-white/10 text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">And more...</span>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-foreground">Supported Networks</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 px-4">We support all major EVM and non-EVM blockchains, including:</p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 px-4">
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Ethereum</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">BNB Chain</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Polygon</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Arbitrum</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Optimism</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Avalanche</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Fantom</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Solana</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Aptos</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">Sui</span>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-black/60 border border-white/10 text-xs sm:text-sm text-foreground hover:border-primary/50 transition-colors cursor-pointer">And more...</span>
           </div>
         </div>
       </section>
 
       {/* Services Cards */}
-      <section className="py-16 px-4">
+      <section className="py-12 sm:py-16 px-4">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Our Core Services</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-foreground">Our Core Services</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             <Card className="group relative bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-2xl rounded-2xl hover:border-primary/50 transition-all duration-300 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-10 relative z-10">
+              <CardContent className="p-6 sm:p-8 lg:p-10 relative z-10">
                 <div className="flex items-center mb-4">
-                  <div className="p-3 bg-primary/20 rounded-xl mr-4">
-                    <ShieldCheck className="h-8 w-8 text-primary" />
+                  <div className="p-2 sm:p-3 bg-primary/20 rounded-xl mr-3 sm:mr-4">
+                    <ShieldCheck className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-primary">Smart Contract Audit</h3>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">Smart Contract Audit</h3>
                 </div>
-                <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
                   Comprehensive security analysis combining automated tools with expert manual review. 
                   Identify vulnerabilities, optimize gas usage, and ensure your contracts are production-ready.
                 </p>
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Automated Scanning
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Manual Review
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Gas Optimization
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Detailed Reports
                   </div>
                 </div>
-                <button onClick={() => setModalOpen(true)} className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors group">
+                <button onClick={() => setModalOpen(true)} className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors group text-sm sm:text-base">
                   Request Audit
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </CardContent>
             </Card>
 
             <Card className="group relative bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-2xl rounded-2xl hover:border-primary/50 transition-all duration-300 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-10 relative z-10">
+              <CardContent className="p-6 sm:p-8 lg:p-10 relative z-10">
                 <div className="flex items-center mb-4">
-                  <div className="p-3 bg-primary/20 rounded-xl mr-4">
-                    <CheckCircle className="h-8 w-8 text-primary" />
+                  <div className="p-2 sm:p-3 bg-primary/20 rounded-xl mr-3 sm:mr-4">
+                    <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-primary">Contract Verification</h3>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">Contract Verification</h3>
                 </div>
-                <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
                   On-chain verification and public certification of your smart contracts. 
                   Build user trust with transparent security attestations and verified source code.
                 </p>
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Source Verification
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Security Certificates
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Explorer Integration
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary mr-2" />
                     Public Reports
                   </div>
                 </div>
-                <button onClick={() => setModalOpen(true)} className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors group">
+                <button onClick={() => setModalOpen(true)} className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors group text-sm sm:text-base">
                   Verify Contract
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </CardContent>
             </Card>
@@ -918,11 +918,11 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* Audit Process */}
-      <section className="py-16 px-4 bg-black/20">
+      <section className="py-12 sm:py-16 px-4 bg-black/20">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6 text-foreground">Our Proven Audit Process</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-foreground">Our Proven Audit Process</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
               Six comprehensive steps ensuring your smart contracts meet the highest security standards
             </p>
           </div>
@@ -952,7 +952,7 @@ const [riskLevel, setRiskLevel] = useState('Medium');
             </div>
 
             {/* Mobile Process Flow */}
-            <div className="lg:hidden space-y-4">
+            <div className="lg:hidden space-y-3 sm:space-y-4">
               {auditSteps.map((step, i) => (
                 <div key={i} className="relative">
                   <div className="bg-gradient-to-br from-black/60 to-black/40 border border-white/10 rounded-xl p-4 hover:border-primary/30 transition-all duration-300 group">
@@ -979,33 +979,31 @@ const [riskLevel, setRiskLevel] = useState('Medium');
         </div>
       </section>
 
-
-
       {/* FAQ */}
-      <section className="py-12 px-4 relative z-10">
+      <section className="py-8 sm:py-12 px-4 relative z-10">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold mb-4 text-foreground text-center">Frequently Asked Questions</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-foreground text-center">Frequently Asked Questions</h2>
           <div className="divide-y divide-white/10 bg-black/60 border border-white/10 rounded-xl">
             {faqData.map((item, i) => (
               <div key={item.q}>
                 <button
                   className={
-                    `w-full flex justify-between items-center p-4 text-left font-semibold text-primary cursor-pointer focus:outline-none transition-colors ${openFaq === i ? 'bg-primary/5' : ''}`
+                    `w-full flex justify-between items-center p-3 sm:p-4 text-left font-semibold text-primary cursor-pointer focus:outline-none transition-colors text-sm sm:text-base ${openFaq === i ? 'bg-primary/5' : ''}`
                   }
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   aria-expanded={openFaq === i}
                   aria-controls={`faq-panel-${i}`}
                 >
-                  <span>{item.q}</span>
-                  <span className={`ml-4 transition-transform ${openFaq === i ? 'rotate-90' : ''}`}>▶</span>
+                  <span className="pr-4">{item.q}</span>
+                  <span className={`ml-4 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-90' : ''}`}>▶</span>
                 </button>
                 <div
                   id={`faq-panel-${i}`}
-                  className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 py-2 px-4' : 'max-h-0 py-0 px-4'}`}
+                  className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 py-2 px-3 sm:px-4' : 'max-h-0 py-0 px-3 sm:px-4'}`}
                   style={{ color: 'var(--tw-prose-body)', background: openFaq === i ? 'rgba(255,255,255,0.01)' : 'transparent' }}
                   aria-hidden={openFaq !== i}
                 >
-                  <p className="text-muted-foreground text-sm">{item.a}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{item.a}</p>
                 </div>
               </div>
             ))}
@@ -1014,33 +1012,33 @@ const [riskLevel, setRiskLevel] = useState('Medium');
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 px-4 relative z-10">
+      <section className="py-12 sm:py-20 px-4 relative z-10">
         <div className="mx-auto max-w-2xl">
           <Card className="group relative bg-gradient-to-br from-black/80 to-black/40 border border-white/10 shadow-2xl rounded-3xl overflow-hidden">
             {/* Background Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             
-            <CardContent className="p-12 relative z-10 text-center">
+            <CardContent className="p-6 sm:p-8 lg:p-12 relative z-10 text-center">
               {/* Icon */}
-              <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <ShieldCheck className="h-8 w-8 text-primary" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <ShieldCheck className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
               
               {/* Main Content */}
-              <h3 className="text-3xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 text-foreground">
                 Ready to Secure Your Smart Contracts?
               </h3>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
                 Get started with a free consultation today.
               </p>
               
               {/* Action Button */}
               <button 
                 onClick={() => setModalOpen(true)} 
-                className="inline-flex items-center px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </CardContent>
           </Card>
