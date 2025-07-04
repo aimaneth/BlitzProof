@@ -1,5 +1,6 @@
 import { Vulnerability } from '../types/scan'
 import pool from '../config/database'
+import OpenAI from 'openai'
 
 interface AIAnalysisResult {
   confidence: number
@@ -63,6 +64,21 @@ interface MLPrediction {
 }
 
 class AIAnalysisService {
+  private openai: OpenAI | null = null
+  
+  constructor() {
+    // Initialize OpenAI client if API key is available
+    const apiKey = process.env.OPENAI_API_KEY
+    if (apiKey && apiKey !== 'your-openai-api-key-here') {
+      this.openai = new OpenAI({
+        apiKey: apiKey,
+      })
+      console.log('✅ OpenAI client initialized')
+    } else {
+      console.log('⚠️ OpenAI API key not found, using mock AI analysis')
+    }
+  }
+
   private patterns: VulnerabilityPattern[] = [
     {
       name: 'Reentrancy Attack',
@@ -339,6 +355,11 @@ class AIAnalysisService {
       return results
     } catch (error) {
       console.error('AI Analysis error:', error)
+      // Use real AI if available, otherwise fallback to mock
+      if (this.openai) {
+        console.log('Retrying with real AI analysis...')
+        return await this.performRealAIAnalysis(vulnerabilities, contractCode)
+      }
       return this.getMockAIAnalysis(vulnerabilities)
     }
   }
@@ -413,23 +434,186 @@ class AIAnalysisService {
     }
   }
 
+  private async performRealAIAnalysis(vulnerabilities: Vulnerability[], contractCode?: string): Promise<any[]> {
+    if (!this.openai) {
+      return this.getMockAIAnalysis(vulnerabilities)
+    }
+
+    try {
+      const prompt = this.buildComprehensiveAnalysisPrompt(vulnerabilities, contractCode)
+      
+      const completion = await this.openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert smart contract security analyst. Provide comprehensive analysis of multiple vulnerabilities with detailed insights, risk assessments, and remediation strategies.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
+        temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
+      })
+
+      const aiResponse = completion.choices[0]?.message?.content || ''
+      
+      return [
+        {
+          type: 'ai-analysis',
+          timestamp: new Date().toISOString(),
+          model: process.env.OPENAI_MODEL || 'gpt-4',
+          insights: this.parseComprehensiveAIResponse(aiResponse, vulnerabilities),
+          recommendations: this.extractRecommendations(aiResponse),
+          riskLevel: this.calculateOverallRiskLevel(vulnerabilities)
+        }
+      ]
+    } catch (error) {
+      console.error('Real AI analysis failed:', error)
+      return this.getMockAIAnalysis(vulnerabilities)
+    }
+  }
+
+  private buildComprehensiveAnalysisPrompt(vulnerabilities: Vulnerability[], contractCode?: string): string {
+    const vulnerabilityDetails = vulnerabilities.map(v => `
+- ${v.title} (${v.severity} severity)
+  Type: ${v.category}
+  Description: ${v.description}
+  Line: ${v.line}
+  Recommendation: ${v.recommendation}
+`).join('\n')
+
+    return `
+Analyze these smart contract vulnerabilities:
+
+Vulnerabilities Found:
+${vulnerabilityDetails}
+
+${contractCode ? `Contract Code Context:\n${contractCode.substring(0, 1500)}` : ''}
+
+Please provide:
+1. Overall security assessment
+2. Risk prioritization
+3. Comprehensive remediation strategy
+4. Best practices for prevention
+5. Confidence level for each vulnerability
+
+Format your response as JSON with the following structure:
+{
+  "overallAssessment": "comprehensive analysis",
+  "riskPrioritization": ["high", "medium", "low"],
+  "remediationStrategy": "detailed strategy",
+  "bestPractices": ["practice1", "practice2"],
+  "vulnerabilityInsights": [
+    {
+      "id": 1,
+      "analysis": "detailed analysis",
+      "confidence": 0.85
+    }
+  ]
+}
+`
+  }
+
+  private parseComprehensiveAIResponse(response: string, vulnerabilities: Vulnerability[]): any[] {
+    try {
+      const parsed = JSON.parse(response)
+      return vulnerabilities.map((v, index) => ({
+        vulnerabilityId: v.id,
+        analysis: {
+          severity: v.severity,
+          impact: this.assessImpact(v),
+          exploitability: this.assessExploitability(v),
+          aiInsights: parsed.vulnerabilityInsights?.[index]?.analysis || `AI analysis of ${v.category} vulnerability`,
+          confidence: parsed.vulnerabilityInsights?.[index]?.confidence || 0.8
+        }
+      }))
+    } catch {
+      // Fallback if JSON parsing fails
+      return vulnerabilities.map(v => ({
+        vulnerabilityId: v.id,
+        analysis: {
+          severity: v.severity,
+          impact: this.assessImpact(v),
+          exploitability: this.assessExploitability(v),
+          aiInsights: [`AI analysis of ${v.category} vulnerability`],
+          confidence: 0.8
+        }
+      }))
+    }
+  }
+
+  private extractRecommendations(response: string): string[] {
+    try {
+      const parsed = JSON.parse(response)
+      return parsed.bestPractices || ['Implement security best practices', 'Conduct thorough testing']
+    } catch {
+      return ['Implement security best practices', 'Conduct thorough testing']
+    }
+  }
+
   private async analyzeVulnerabilityWithAI(vulnerability: Vulnerability, contractCode?: string): Promise<any> {
-    // Enhanced AI analysis for individual vulnerabilities
-    const context = contractCode ? `Contract context: ${contractCode.substring(0, 500)}...` : ''
-    
-    return {
-      vulnerabilityId: vulnerability.id,
-      analysis: {
-        severity: vulnerability.severity,
-        impact: this.assessImpact(vulnerability),
-        exploitability: this.assessExploitability(vulnerability),
-        context: context,
-        aiInsights: [
-          `This ${vulnerability.category} vulnerability has ${vulnerability.severity} severity`,
-          `Potential impact on contract security and user funds`,
-          `Recommended immediate action: ${vulnerability.recommendation}`
-        ]
+    if (!this.openai) {
+      // Fallback to mock analysis if OpenAI is not available
+      const context = contractCode ? `Contract context: ${contractCode.substring(0, 500)}...` : ''
+      return {
+        vulnerabilityId: vulnerability.id,
+        analysis: {
+          severity: vulnerability.severity,
+          impact: this.assessImpact(vulnerability),
+          exploitability: this.assessExploitability(vulnerability),
+          context: context,
+          aiInsights: [
+            `This ${vulnerability.category} vulnerability has ${vulnerability.severity} severity`,
+            `Potential impact on contract security and user funds`,
+            `Recommended immediate action: ${vulnerability.recommendation}`
+          ]
+        }
       }
+    }
+
+    try {
+      // Real AI analysis using OpenAI
+      const prompt = this.buildVulnerabilityAnalysisPrompt(vulnerability, contractCode)
+      
+      const completion = await this.openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert smart contract security analyst. Analyze vulnerabilities and provide detailed insights, risk assessments, and remediation advice.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
+        temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
+      })
+
+      const aiResponse = completion.choices[0]?.message?.content || ''
+      
+      return {
+        vulnerabilityId: vulnerability.id,
+        analysis: {
+          severity: vulnerability.severity,
+          impact: this.assessImpact(vulnerability),
+          exploitability: this.assessExploitability(vulnerability),
+          context: contractCode ? `Contract context: ${contractCode.substring(0, 200)}...` : '',
+          aiInsights: this.parseAIResponse(aiResponse),
+          enhancedDescription: this.extractEnhancedDescription(aiResponse),
+          smartRemediation: this.extractRemediation(aiResponse),
+          confidence: this.calculateConfidence(aiResponse),
+          riskScore: this.calculateRiskScore(vulnerability)
+        }
+      }
+    } catch (error) {
+      console.error('OpenAI API error:', error)
+      // Fallback to mock analysis on error
+      return this.getMockVulnerabilityAnalysis(vulnerability, contractCode)
     }
   }
 
@@ -648,6 +832,100 @@ class AIAnalysisService {
     // Mock exploitability assessment
     const exploitabilities = ['very-high', 'high', 'medium', 'low', 'very-low']
     return exploitabilities[Math.floor(Math.random() * exploitabilities.length)]
+  }
+
+  private buildVulnerabilityAnalysisPrompt(vulnerability: Vulnerability, contractCode?: string): string {
+    return `
+Analyze this smart contract vulnerability:
+
+Vulnerability Details:
+- Type: ${vulnerability.category}
+- Severity: ${vulnerability.severity}
+- Title: ${vulnerability.title}
+- Description: ${vulnerability.description}
+- Line: ${vulnerability.line}
+- File: ${vulnerability.file}
+- Recommendation: ${vulnerability.recommendation}
+
+${contractCode ? `Contract Code Context:\n${contractCode.substring(0, 1000)}` : ''}
+
+Please provide:
+1. Enhanced description of the vulnerability
+2. Detailed risk assessment
+3. Step-by-step remediation steps
+4. Code examples for fixes
+5. Best practices to prevent similar issues
+6. Confidence level (0-1) for your analysis
+
+Format your response as JSON with the following structure:
+{
+  "enhancedDescription": "detailed explanation",
+  "riskAssessment": "risk analysis",
+  "remediation": "step-by-step fixes",
+  "codeExamples": ["example1", "example2"],
+  "bestPractices": ["practice1", "practice2"],
+  "confidence": 0.85
+}
+`
+  }
+
+  private parseAIResponse(response: string): string[] {
+    try {
+      const parsed = JSON.parse(response)
+      return [
+        parsed.enhancedDescription || 'AI analysis completed',
+        parsed.riskAssessment || 'Risk assessment provided',
+        parsed.remediation ? `Remediation: ${parsed.remediation}` : 'Remediation steps available'
+      ]
+    } catch {
+      // If JSON parsing fails, split the response into insights
+      return response.split('\n').filter(line => line.trim().length > 0).slice(0, 3)
+    }
+  }
+
+  private extractEnhancedDescription(response: string): string {
+    try {
+      const parsed = JSON.parse(response)
+      return parsed.enhancedDescription || 'Enhanced AI analysis'
+    } catch {
+      return 'Enhanced AI analysis of vulnerability'
+    }
+  }
+
+  private extractRemediation(response: string): string {
+    try {
+      const parsed = JSON.parse(response)
+      return parsed.remediation || 'Review and fix the identified issue'
+    } catch {
+      return 'Review and fix the identified issue'
+    }
+  }
+
+  private calculateConfidence(response: string): number {
+    try {
+      const parsed = JSON.parse(response)
+      return parsed.confidence || 0.8
+    } catch {
+      return 0.8 // Default confidence
+    }
+  }
+
+  private getMockVulnerabilityAnalysis(vulnerability: Vulnerability, contractCode?: string): any {
+    const context = contractCode ? `Contract context: ${contractCode.substring(0, 500)}...` : ''
+    return {
+      vulnerabilityId: vulnerability.id,
+      analysis: {
+        severity: vulnerability.severity,
+        impact: this.assessImpact(vulnerability),
+        exploitability: this.assessExploitability(vulnerability),
+        context: context,
+        aiInsights: [
+          `This ${vulnerability.category} vulnerability has ${vulnerability.severity} severity`,
+          `Potential impact on contract security and user funds`,
+          `Recommended immediate action: ${vulnerability.recommendation}`
+        ]
+      }
+    }
   }
 
   private getMockAIAnalysis(vulnerabilities: Vulnerability[]): any[] {
