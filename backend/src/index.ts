@@ -31,6 +31,9 @@ const allowedOrigins = [
   'http://localhost:3003',
   'http://localhost:3004',
   'http://localhost:3005',
+  'https://blitzproof.vercel.app',
+  'https://www.blitzproof.xyz',
+  'https://blitzproof.xyz',
   process.env.FRONTEND_URL
 ].filter(Boolean)
 
@@ -50,7 +53,11 @@ const corsOptions = {
     }
     
     // Allow specific production domains if needed
-    if (process.env.NODE_ENV === 'production' && origin.includes('yourdomain.com')) {
+    if (process.env.NODE_ENV === 'production' && (
+      origin.includes('blitzproof.vercel.app') ||
+      origin.includes('blitzproof.xyz') ||
+      origin.includes('vercel.app')
+    )) {
       return callback(null, true)
     }
     
