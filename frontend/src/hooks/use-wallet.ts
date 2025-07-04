@@ -100,6 +100,9 @@ export function useWallet() {
 
   // Handle wallet connection and user registration
   useEffect(() => {
+    // Only proceed if hydrated to prevent hydration mismatches
+    if (!isHydrated) return
+    
     if (isConnected && address) {
       console.log('🔗 Wallet connected, starting authentication...')
       handleUserRegistration()
@@ -108,9 +111,7 @@ export function useWallet() {
       setIsAuthenticated(false)
       setError(null)
       // Clear auth token when wallet disconnects (only after hydration)
-      if (isHydrated) {
-        localStorage.removeItem('auth_token')
-      }
+      localStorage.removeItem('auth_token')
     }
   }, [isConnected, address, handleUserRegistration, isHydrated])
 

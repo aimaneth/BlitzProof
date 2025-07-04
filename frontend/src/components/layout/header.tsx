@@ -53,6 +53,12 @@ function MobileMenu({
 
   // Custom mobile wallet component
   const MobileWalletConnect = () => {
+    const handleConnect = () => {
+      if (isHydrated && openConnectModal) {
+        openConnectModal()
+      }
+    }
+
     if (!isHydrated) {
       return (
         <div className="bg-gradient-to-r from-muted/20 to-muted/10 border border-border/50 rounded-xl p-4">
@@ -121,11 +127,12 @@ function MobileMenu({
 
     return (
       <Button 
-        onClick={openConnectModal}
-        className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground font-medium rounded-xl shadow-lg shadow-primary/25"
+        onClick={handleConnect}
+        disabled={!isHydrated}
+        className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground font-medium rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50"
       >
         <Wallet className="h-4 w-4 mr-2" />
-        Connect Wallet
+        {isHydrated ? 'Connect Wallet' : 'Loading...'}
       </Button>
     )
   }
