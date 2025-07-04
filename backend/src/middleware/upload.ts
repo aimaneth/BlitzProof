@@ -36,6 +36,17 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
   }
 }
 
+// Add error handling to multer
+const multerErrorHandler = (err: any, req: any, res: any, next: any) => {
+  console.log('❌ Multer error:', err)
+  if (err instanceof multer.MulterError) {
+    console.log('📋 Multer error code:', err.code)
+    console.log('📋 Multer error field:', err.field)
+    console.log('📋 Multer error message:', err.message)
+  }
+  next(err)
+}
+
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,

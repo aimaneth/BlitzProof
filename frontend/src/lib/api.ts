@@ -100,13 +100,21 @@ class ApiService {
     const url = `${API_BASE_URL}${endpoint}`
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
     
+    // Don't set Content-Type for FormData - let the browser set it automatically
+    const isFormData = options.body instanceof FormData
+    const defaultHeaders: Record<string, string> = {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(options.headers as Record<string, string>),
+    }
+    
+    // Only add Content-Type for non-FormData requests
+    if (!isFormData) {
+      defaultHeaders['Content-Type'] = 'application/json'
+    }
+    
     const config: RequestInit = {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
+      headers: defaultHeaders,
       ...options,
     }
 

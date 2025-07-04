@@ -8,7 +8,38 @@ const router = express.Router()
 
 // Add JSON parsing only for the address route (not for upload)
 router.post('/address', express.json({ limit: '50mb' }), optionalAuth, scanContractAddress)
-router.post('/upload', optionalAuth, upload.single('contract'), uploadContract)
+
+// Test endpoint for debugging
+router.post('/test-upload', upload.single('test'), (req: any, res: any) => {
+  console.log('🧪 Test upload endpoint hit')
+  console.log('📁 Test file:', req.file)
+  console.log('📋 Test body:', req.body)
+  res.json({ 
+    success: true, 
+    file: req.file ? 'File received' : 'No file',
+    body: req.body 
+  })
+})
+
+// Add debugging middleware for upload route
+router.post('/upload', (req: any, res: any, next: any) => {
+  console.log('🔍 Upload route hit')
+  console.log('📋 Request headers:', req.headers)
+  console.log('📋 Request method:', req.method)
+  console.log('📋 Content-Type:', req.headers['content-type'])
+  console.log('📋 Request body keys:', Object.keys(req.body))
+  console.log('📋 Request files:', req.files)
+  next()
+}, optionalAuth, upload.single('contract'), (err: any, req: any, res: any, next: any) => {
+  if (err) {
+    console.log('❌ Upload middleware error:', err)
+    return res.status(400).json({ error: err.message })
+  }
+  console.log('✅ Multer processing completed')
+  console.log('📁 File after multer:', req.file)
+  console.log('📋 Body after multer:', req.body)
+  next()
+}, uploadContract)
 router.get('/status/:scanId', async (req, res, next) => {
   try {
     console.log('🔍 STATUS ROUTE HIT with scanId:', req.params.scanId)
