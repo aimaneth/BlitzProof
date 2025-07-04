@@ -34,6 +34,7 @@ const allowedOrigins = [
   'https://blitzproof.vercel.app',
   'https://www.blitzproof.xyz',
   'https://blitzproof.xyz',
+  'https://blitzproof-backend.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean)
 
@@ -56,7 +57,9 @@ const corsOptions = {
     if (process.env.NODE_ENV === 'production' && (
       origin.includes('blitzproof.vercel.app') ||
       origin.includes('blitzproof.xyz') ||
-      origin.includes('vercel.app')
+      origin.includes('vercel.app') ||
+      origin.includes('blitzproof-backend.onrender.com') ||
+      origin.includes('onrender.com')
     )) {
       return callback(null, true)
     }
@@ -108,6 +111,11 @@ app.get('/health', (req, res) => {
       currentOrigin: req.headers.origin
     }
   })
+})
+
+// Favicon route to prevent 404 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end()
 })
 
 // Metrics endpoint
