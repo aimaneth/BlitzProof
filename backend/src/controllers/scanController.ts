@@ -11,13 +11,22 @@ import { remediationService } from '../services/remediationService'
 
 export const uploadContract = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log('🔍 Upload contract request received')
+    console.log('📁 Request file:', req.file)
+    console.log('📋 Request body:', req.body)
+    console.log('📋 Request headers:', req.headers)
+    
     if (!req.file) {
+      console.log('❌ No file uploaded')
       res.status(400).json({ error: 'No file uploaded' })
       return
     }
 
     const { network } = req.body
+    console.log('🌐 Network from body:', network)
+    
     if (!network) {
+      console.log('❌ Network is required')
       res.status(400).json({ error: 'Network is required' })
       return
     }

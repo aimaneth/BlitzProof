@@ -19,10 +19,19 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  console.log('🔍 File upload attempt:', {
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+    size: file.size,
+    fieldname: file.fieldname
+  })
+  
   // Only allow .sol files
   if (file.mimetype === 'text/plain' || file.originalname.endsWith('.sol')) {
+    console.log('✅ File accepted:', file.originalname)
     cb(null, true)
   } else {
+    console.log('❌ File rejected:', file.originalname, 'mimetype:', file.mimetype)
     cb(new Error('Only .sol files are allowed'))
   }
 }

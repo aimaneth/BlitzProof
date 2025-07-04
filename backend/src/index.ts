@@ -94,7 +94,18 @@ app.use(helmet({
 app.use(securityHeaders)
 app.use(metricsMiddleware)
 app.use(morgan('dev'))
-app.use(express.json({ limit: '50mb' }))
+
+// JSON parsing middleware - exclude multipart requests
+app.use((req, res, next) => {
+  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+    // Skip JSON parsing for multipart requests
+    next()
+  } else {
+    // Parse JSON for other requests
+    express.json({ limit: '50mb' })(req, res, next)
+  }
+})
+
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
 // Preflight handling
