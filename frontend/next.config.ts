@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     domains: [],
     remotePatterns: [],
-    // Disable image optimization completely for static images
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Handle SSR issues with wallet libraries
   experimental: {
@@ -66,8 +62,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // Output configuration for static export
-  output: 'standalone',
   // Disable static optimization for pages that need dynamic content
   trailingSlash: false,
 };
