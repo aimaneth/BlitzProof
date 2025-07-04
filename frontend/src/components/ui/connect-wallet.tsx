@@ -13,7 +13,7 @@ export function ConnectWallet() {
   // Show loading state during hydration to prevent mismatch
   if (!isHydrated) {
     return (
-      <Button variant="outline" disabled>
+      <Button variant="outline" disabled className="h-9 px-3 text-sm">
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
         Loading...
       </Button>
@@ -22,7 +22,7 @@ export function ConnectWallet() {
 
   if (isLoading) {
     return (
-      <Button variant="outline" disabled>
+      <Button variant="outline" disabled className="h-9 px-3 text-sm">
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
         Connecting...
       </Button>
@@ -32,17 +32,28 @@ export function ConnectWallet() {
   if (isConnected && isAuthenticated) {
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg">
-          <User className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">{shortAddress}</span>
-          <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+        <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg min-w-0">
+          <User className="h-4 w-4 text-primary flex-shrink-0" />
+          <span className="text-sm font-medium truncate max-w-20 sm:max-w-32">{shortAddress}</span>
+          <div className="h-2 w-2 bg-green-500 rounded-full flex-shrink-0"></div>
         </div>
-        <Button variant="outline" size="sm" onClick={disconnect}>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={disconnect}
+          className="h-9 px-2 sm:px-3"
+          aria-label="Disconnect wallet"
+        >
           <LogOut className="h-4 w-4" />
+          <span className="hidden sm:inline ml-1">Disconnect</span>
         </Button>
       </div>
     )
   }
 
-  return <ConnectButton />
+  return (
+    <div className="[&_.rainbow-kit-connect]:!h-9 [&_.rainbow-kit-connect]:!px-3 [&_.rainbow-kit-connect]:!text-sm">
+      <ConnectButton />
+    </div>
+  )
 } 
