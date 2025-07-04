@@ -134,9 +134,17 @@ app.set('io', io)
 // Initialize database and start server
 async function startServer() {
   try {
-    // Connect to Redis
-    await redisClient.connect()
-    console.log('✅ Redis connected')
+    // Connect to Redis (optional)
+    let redisConnected = false
+    try {
+      await redisClient.connect()
+      console.log('✅ Redis connected')
+      redisConnected = true
+    } catch (redisError) {
+      const errorMessage = redisError instanceof Error ? redisError.message : 'Unknown error'
+      console.warn('⚠️ Redis connection failed, running without Redis:', errorMessage)
+      console.log('ℹ️ Some features may be limited without Redis')
+    }
 
     // Initialize database
     await initializeDatabase()
@@ -147,6 +155,7 @@ async function startServer() {
       console.log(`🚀 Backend API running on port ${PORT}`)
       console.log(`📊 Health check: http://localhost:${PORT}/health`)
       console.log(`🌐 CORS enabled for origins:`, allowedOrigins)
+      console.log(`🔴 Redis status: ${redisConnected ? 'Connected' : 'Not available'}`)
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)
