@@ -363,7 +363,7 @@ const TypewriterText = ({
         setTextIndex(prev => (prev + 1) % texts.length)
         setCurrentIndex(0)
         setDisplayText("")
-      }, 2000) // Pause for 2 seconds before switching
+      }, 1000) // Pause for 1 second before switching
       return () => clearTimeout(pauseTimeout)
     }
   }, [currentIndex, textIndex, texts, speed])
@@ -415,7 +415,7 @@ export function Hero() {
                     "Static Analysis"
                   ]}
                   speed={80}
-                  delay={2000}
+                  delay={500}
                   className="text-primary"
                 />
               </span>
@@ -424,7 +424,7 @@ export function Hero() {
               className="mt-6 text-lg leading-8 text-muted-foreground"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 3.5 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
             >
               Comprehensive web3 security platform that combines traditional static analysis 
               with cutting-edge AI to detect vulnerabilities before they become exploits.
@@ -433,7 +433,7 @@ export function Hero() {
               className="mt-10 flex items-center justify-center gap-x-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 4.0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
             >
               <Button asChild size="lg" className="group">
                 <Link href="/scanner">
@@ -452,7 +452,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 4.2 }}
+          transition={{ duration: 0.6, delay: 1.6 }}
           className="mx-auto mt-16 max-w-4xl"
         >
           <div className="flex items-center justify-center gap-8 sm:gap-12 lg:gap-16 opacity-60">
@@ -473,7 +473,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 4.4 }}
+          transition={{ duration: 0.8, delay: 2.0 }}
           className="mx-auto mt-20 max-w-6xl"
         >
           <div className="relative">
