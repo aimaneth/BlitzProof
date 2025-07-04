@@ -7,16 +7,29 @@ import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
+import { useWallet } from "@/hooks/use-wallet"
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard" },
+// Navigation items that are always visible
+const publicNavigation = [
   { name: "Services", href: "/services" },
   { name: "Scanner", href: "/scanner" },
+]
+
+// Navigation items that require authentication
+const authenticatedNavigation = [
+  { name: "Dashboard", href: "/dashboard" },
   { name: "Profile", href: "/profile" },
 ]
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isConnected, isAuthenticated } = useWallet()
+  
+  // Show authenticated navigation only when user is connected and authenticated
+  const navigation = [
+    ...publicNavigation,
+    ...(isConnected && isAuthenticated ? authenticatedNavigation : [])
+  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

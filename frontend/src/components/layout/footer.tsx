@@ -2,8 +2,14 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { useWallet } from "@/hooks/use-wallet"
 
 export function Footer() {
+  const { isConnected, isAuthenticated } = useWallet()
+  
+  // Show authenticated links only when user is connected and authenticated
+  const showAuthenticatedLinks = isConnected && isAuthenticated
+  
   return (
     <footer className="border-t border-border py-8">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -25,9 +31,11 @@ export function Footer() {
             <Link href="/services" className="hover:text-foreground transition-colors">
               Services
             </Link>
-            <Link href="/dashboard" className="hover:text-foreground transition-colors">
-              Dashboard
-            </Link>
+            {showAuthenticatedLinks && (
+              <Link href="/dashboard" className="hover:text-foreground transition-colors">
+                Dashboard
+              </Link>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} BlitzProof Security
