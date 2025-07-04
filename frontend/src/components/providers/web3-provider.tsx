@@ -23,8 +23,17 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     },
   }))
 
+  const [isClient, setIsClient] = useState(false)
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   // Debug wallet detection
   useEffect(() => {
+    if (!isClient) return
+    
     // Use a timeout to ensure this runs after hydration
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined') {
@@ -42,7 +51,19 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [isClient])
+
+  // Show loading state during SSR to prevent hydration mismatch
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Initializing Web3...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <WagmiProvider config={config}>

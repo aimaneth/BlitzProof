@@ -328,20 +328,26 @@ function TutorialCard({
 export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [highlightMask, setHighlightMask] = useState<React.CSSProperties>({})
+  const [isClient, setIsClient] = useState(false)
+
+  // Ensure client-side rendering to prevent hydration mismatches
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
 
 
   // Reset tutorial state when opened
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isClient) {
       setCurrentStep(0)
       localStorage.setItem('blitzproof-tutorial-current-step', '0')
     }
-  }, [isOpen])
+  }, [isOpen, isClient])
 
   // Update localStorage when step changes
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isClient) {
               localStorage.setItem('blitzproof-tutorial-current-step', currentStep.toString())
       // Dispatch custom event for same-tab communication
       window.dispatchEvent(new CustomEvent('tutorial-step-change', { detail: currentStep }))
@@ -445,6 +451,8 @@ export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
 
   // Update highlight mask when step changes
   useEffect(() => {
+    if (!isClient) return
+    
     const updateHighlightMask = () => {
       const step = tutorialSteps[currentStep]
       if (step.target) {
@@ -487,7 +495,7 @@ export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
       window.removeEventListener('scroll', updateHighlightMask)
       window.removeEventListener('resize', updateHighlightMask)
     }
-  }, [currentStep])
+  }, [currentStep, isClient])
 
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -504,12 +512,16 @@ export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
   }
 
   const completeTutorial = () => {
-    localStorage.setItem('blitzproof-tutorial-seen', 'true')
+    if (isClient) {
+      localStorage.setItem('blitzproof-tutorial-seen', 'true')
+    }
     onClose()
   }
 
   const skipTutorial = () => {
-    localStorage.setItem('blitzproof-tutorial-seen', 'true')
+    if (isClient) {
+      localStorage.setItem('blitzproof-tutorial-seen', 'true')
+    }
     onClose()
   }
 
@@ -517,7 +529,8 @@ export function TutorialOverlay({ isOpen, onClose }: TutorialOverlayProps) {
   const isFirstStep = currentStep === 0
   const isLastStep = currentStep === tutorialSteps.length - 1
 
-  if (!isOpen) return null
+  // Don't render during SSR to prevent hydration mismatch
+  if (!isClient || !isOpen) return null
 
   return (
     <AnimatePresence>
