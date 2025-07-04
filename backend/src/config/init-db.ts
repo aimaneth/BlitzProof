@@ -292,30 +292,36 @@ export async function initializeDatabase() {
   try {
     // First, connect to default postgres database to create our database
     const defaultPool = new Pool({
-      connectionString: process.env.DATABASE_URL?.replace('/blitzproof', '/postgres'),
+      connectionString: process.env.DATABASE_URL?.replace('/blitzproof_db', '/postgres'),
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
+      ssl: {
+        rejectUnauthorized: false
+      }
     })
 
-    // Check if blitzproof database exists, if not create it
-    const result = await defaultPool.query('SELECT 1 FROM pg_database WHERE datname = $1', ['blitzproof'])
+    // Check if blitzproof_db database exists, if not create it
+    const result = await defaultPool.query('SELECT 1 FROM pg_database WHERE datname = $1', ['blitzproof_db'])
     if (result.rows.length === 0) {
-      console.log('Creating database blitzproof...')
-      await defaultPool.query('CREATE DATABASE blitzproof')
-      console.log('Database blitzproof created successfully')
+      console.log('Creating database blitzproof_db...')
+      await defaultPool.query('CREATE DATABASE blitzproof_db')
+      console.log('Database blitzproof_db created successfully')
     } else {
-      console.log('Database blitzproof already exists')
+      console.log('Database blitzproof_db already exists')
     }
 
     await defaultPool.end()
 
-    // Now connect to the blitzproof database and create tables
+    // Now connect to the blitzproof_db database and create tables
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
+      ssl: {
+        rejectUnauthorized: false
+      }
     })
 
     // First, create tables without indexes
