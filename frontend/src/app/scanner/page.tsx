@@ -11,6 +11,7 @@ import { useHydrated } from "@/hooks/use-hydrated"
 import { apiService, ScanResult } from "@/lib/api"
 import { Layout } from "@/components/layout/layout"
 import { ExportActions } from "@/components/ui/export-actions"
+import { EnhancedExportActions } from "@/components/ui/enhanced-export-actions"
 import { VulnerabilityFilters } from "@/components/ui/vulnerability-filters"
 import { 
   Upload, 
@@ -1052,7 +1053,7 @@ export default function ScannerPage() {
                       {/* Export Actions */}
                       {scanResults && currentScanId && (
                         <div className="mb-3 sm:mb-4">
-                          <ExportActions scanId={currentScanId} />
+                          <EnhancedExportActions scanId={currentScanId} />
                         </div>
                       )}
                       {/* Summary Stats */}

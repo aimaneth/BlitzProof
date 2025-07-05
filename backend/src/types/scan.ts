@@ -19,6 +19,11 @@ export interface ScanResult {
   status: 'pending' | 'scanning' | 'completed' | 'failed';
   scanDate: Date;
   vulnerabilities: Vulnerability[];
+  aiAnalysis?: any[];
+  customRules?: any[];
+  tools?: any[];
+  score?: number;
+  totalTime?: number;
   summary?: {
     totalVulnerabilities: number;
     criticalCount: number;

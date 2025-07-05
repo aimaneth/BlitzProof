@@ -364,6 +364,11 @@ class ApiService {
   async getBatchScanResults(jobId: string): Promise<{ results: any[]; summary: any }> {
     return this.request<{ results: any[]; summary: any }>(`/api/batch-scan/${jobId}/results`)
   }
+
+  // Enhanced Export
+  async getExportTemplates(): Promise<{ templates: any[] }> {
+    return this.request<{ templates: any[] }>('/api/export/templates')
+  }
 }
 
 export const apiService = new ApiService() 
