@@ -110,6 +110,14 @@ app.get('/health', (req, res) => {
 // Database health check
 app.get('/health/db', async (req, res) => {
   try {
+    if (!process.env.DATABASE_URL) {
+      return res.json({
+        status: 'warning',
+        database: 'not_configured',
+        message: 'DATABASE_URL not set'
+      })
+    }
+
     const pool = require('./config/database').default
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version')
     
@@ -191,9 +199,22 @@ async function startServer() {
       console.log('ℹ️ Some features may be limited without Redis')
     }
 
-    // Initialize database
-    await initializeDatabase()
-    console.log('✅ Database initialized')
+    // Initialize database (optional)
+    let dbConnected = false
+    try {
+      if (process.env.DATABASE_URL) {
+        await initializeDatabase()
+        console.log('✅ Database initialized')
+        dbConnected = true
+      } else {
+        console.warn('⚠️ DATABASE_URL not set, running without database')
+        console.log('ℹ️ Some features may be limited without database')
+      }
+    } catch (dbError) {
+      const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error'
+      console.warn('⚠️ Database initialization failed, running without database:', errorMessage)
+      console.log('ℹ️ Some features may be limited without database')
+    }
 
     const PORT = process.env.PORT || 4000
     server.listen(PORT, () => {
@@ -201,6 +222,7 @@ async function startServer() {
       console.log(`📊 Health check: http://localhost:${PORT}/health`)
       console.log(`🌐 CORS enabled for origins:`, allowedOrigins)
       console.log(`🔴 Redis status: ${redisConnected ? 'Connected' : 'Not available'}`)
+      console.log(`🗄️ Database status: ${dbConnected ? 'Connected' : 'Not available'}`)
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)
