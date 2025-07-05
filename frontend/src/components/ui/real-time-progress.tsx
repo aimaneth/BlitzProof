@@ -51,15 +51,19 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
       // Determine WebSocket URL based on environment
       let wsUrl: string
       if (process.env.NODE_ENV === 'production') {
-        // In production, use the same host as the current page but with WebSocket protocol
+        // In production, connect to the backend URL (Render)
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const host = window.location.host
-        wsUrl = `${protocol}//${host}`
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'blitzproof-backend.onrender.com'
+        // Remove https:// prefix if present
+        const cleanBackendUrl = backendUrl.replace(/^https?:\/\//, '')
+        wsUrl = `${protocol}//${cleanBackendUrl}`
       } else {
         // In development, use localhost
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const host = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:4000'
-        wsUrl = `${protocol}//${host}`
+        const host = process.env.NEXT_PUBLIC_API_URL || 'localhost:4000'
+        // Remove https:// prefix if present
+        const cleanHost = host.replace(/^https?:\/\//, '')
+        wsUrl = `${protocol}//${cleanHost}`
       }
 
       console.log('🔌 Attempting WebSocket connection to:', wsUrl)

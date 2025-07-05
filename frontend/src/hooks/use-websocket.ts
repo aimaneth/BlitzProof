@@ -47,9 +47,23 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       return
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:4000'
-    const wsUrl = `${protocol}//${host}`
+    // Determine WebSocket URL based on environment
+    let wsUrl: string
+    if (process.env.NODE_ENV === 'production') {
+      // In production, connect to the backend URL (Render)
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'blitzproof-backend.onrender.com'
+      // Remove https:// prefix if present
+      const cleanBackendUrl = backendUrl.replace(/^https?:\/\//, '')
+      wsUrl = `${protocol}//${cleanBackendUrl}`
+    } else {
+      // In development, use localhost
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const host = process.env.NEXT_PUBLIC_API_URL || 'localhost:4000'
+      // Remove https:// prefix if present
+      const cleanHost = host.replace(/^https?:\/\//, '')
+      wsUrl = `${protocol}//${cleanHost}`
+    }
 
     try {
       const ws = new WebSocket(wsUrl)
