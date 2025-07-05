@@ -21,6 +21,29 @@ import remediationRoutes from './routes/remediation'
 
 dotenv.config()
 
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error)
+  process.exit(1)
+})
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason)
+  process.exit(1)
+})
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🔄 SIGTERM received, shutting down gracefully...')
+  process.exit(0)
+})
+
+process.on('SIGINT', () => {
+  console.log('🔄 SIGINT received, shutting down gracefully...')
+  process.exit(0)
+})
+
 const app = express()
 const server = createServer(app)
 
@@ -187,12 +210,24 @@ app.get('/ws', (req, res) => {
 // Initialize database and start server
 async function startServer() {
   try {
+    console.log('🚀 Starting BlitzProof backend...')
+    
+    // Set a timeout for startup
+    const startupTimeout = setTimeout(() => {
+      console.error('❌ Startup timeout reached')
+      process.exit(1)
+    }, 30000) // 30 seconds timeout
+
     // Connect to Redis (optional)
     let redisConnected = false
     try {
-      await redisClient.connect()
-      console.log('✅ Redis connected')
-      redisConnected = true
+      if (process.env.REDIS_URL) {
+        await redisClient.connect()
+        console.log('✅ Redis connected')
+        redisConnected = true
+      } else {
+        console.log('ℹ️ REDIS_URL not set, skipping Redis connection')
+      }
     } catch (redisError) {
       const errorMessage = redisError instanceof Error ? redisError.message : 'Unknown error'
       console.warn('⚠️ Redis connection failed, running without Redis:', errorMessage)
@@ -207,14 +242,16 @@ async function startServer() {
         console.log('✅ Database initialized')
         dbConnected = true
       } else {
-        console.warn('⚠️ DATABASE_URL not set, running without database')
-        console.log('ℹ️ Some features may be limited without database')
+        console.log('ℹ️ DATABASE_URL not set, running without database')
       }
     } catch (dbError) {
       const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error'
       console.warn('⚠️ Database initialization failed, running without database:', errorMessage)
       console.log('ℹ️ Some features may be limited without database')
     }
+
+    // Clear startup timeout
+    clearTimeout(startupTimeout)
 
     const PORT = process.env.PORT || 4000
     server.listen(PORT, () => {
@@ -224,6 +261,13 @@ async function startServer() {
       console.log(`🔴 Redis status: ${redisConnected ? 'Connected' : 'Not available'}`)
       console.log(`🗄️ Database status: ${dbConnected ? 'Connected' : 'Not available'}`)
     })
+
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('❌ Server error:', error)
+      process.exit(1)
+    })
+
   } catch (error) {
     console.error('❌ Failed to start server:', error)
     process.exit(1)
