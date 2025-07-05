@@ -1,5 +1,57 @@
-# Use Node.js 18 Alpine for smaller image size
-FROM node:18-alpine AS builder
+FROM ubuntu:20.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    nodejs \
+    npm \
+    git \
+    wget \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 18
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Install Solidity compiler
+RUN npm install -g solc
+
+# Install Python security tools
+RUN pip3 install slither-analyzer
+RUN pip3 install mythril
+RUN pip3 install manticore
+RUN pip3 install z3-solver
+
+# Install Oyente
+RUN git clone https://github.com/enzymefinance/oyente.git \
+    && cd oyente \
+    && pip3 install -r requirements.txt \
+    && python3 setup.py install \
+    && cd .. \
+    && rm -rf oyente
+
+# Install Securify
+RUN git clone https://github.com/eth-sri/securify.git \
+    && cd securify \
+    && pip3 install -r requirements.txt \
+    && python3 setup.py install \
+    && cd .. \
+    && rm -rf securify
+
+# Install Echidna
+RUN wget https://github.com/crytic/echidna/releases/download/v2.0.4/echidna-test-2.0.4-Ubuntu-18.04.tar.gz \
+    && tar -xzf echidna-test-2.0.4-Ubuntu-18.04.tar.gz \
+    && mv echidna-test /usr/local/bin/ \
+    && chmod +x /usr/local/bin/echidna-test \
+    && rm echidna-test-2.0.4-Ubuntu-18.04.tar.gz
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +59,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including dev dependencies for build)
-RUN npm ci
+# Install Node.js dependencies
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
@@ -16,49 +68,11 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine AS production
-
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
-
-# Create app user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Copy scripts directory
-COPY --from=builder /app/scripts ./scripts
-
-# Create necessary directories
-RUN mkdir -p logs uploads
-
-# Change ownership to nodejs user
-RUN chown -R nodejs:nodejs /app
-
-# Switch to nodejs user
-USER nodejs
+# Create uploads directory
+RUN mkdir -p uploads tools
 
 # Expose port
 EXPOSE 4000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
 # Start the application
-CMD ["node", "dist/index.js"]
+CMD ["npm", "start"]
