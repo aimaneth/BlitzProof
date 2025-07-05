@@ -47,7 +47,7 @@ interface SmartRemediation {
 }
 
 interface AIModelConfig {
-  modelType: 'gpt-4' | 'claude' | 'custom-ml'
+  modelType: 'gpt-4' | 'gemini' | 'claude' | 'custom-ml'
   temperature: number
   maxTokens: number
   enableML: boolean
@@ -65,17 +65,33 @@ interface MLPrediction {
 
 class AIAnalysisService {
   private openai: OpenAI | null = null
+  private geminiApiKey: string | null = null
+  private useGemini: boolean = false
   
   constructor() {
     // Initialize OpenAI client if API key is available
-    const apiKey = process.env.OPENAI_API_KEY
-    if (apiKey && apiKey !== 'your-openai-api-key-here') {
+    const openaiApiKey = process.env.OPENAI_API_KEY
+    if (openaiApiKey && openaiApiKey !== 'your-openai-api-key-here') {
       this.openai = new OpenAI({
-        apiKey: apiKey,
+        apiKey: openaiApiKey,
       })
       console.log('✅ OpenAI client initialized')
     } else {
-      console.log('⚠️ OpenAI API key not found, using mock AI analysis')
+      console.log('⚠️ OpenAI API key not found')
+    }
+
+    // Initialize Gemini API key if available
+    const geminiApiKey = process.env.GEMINI_API_KEY
+    if (geminiApiKey && geminiApiKey !== 'your-gemini-api-key-here') {
+      this.geminiApiKey = geminiApiKey
+      this.useGemini = true
+      console.log('✅ Gemini API key initialized')
+    } else {
+      console.log('⚠️ Gemini API key not found')
+    }
+
+    if (!this.openai && !this.geminiApiKey) {
+      console.log('⚠️ No AI API keys found, using mock AI analysis')
     }
   }
 
@@ -555,8 +571,8 @@ Format your response as JSON with the following structure:
   }
 
   private async analyzeVulnerabilityWithAI(vulnerability: Vulnerability, contractCode?: string): Promise<any> {
-    if (!this.openai) {
-      // Fallback to mock analysis if OpenAI is not available
+    if (!this.openai && !this.geminiApiKey) {
+      // Fallback to mock analysis if no AI APIs are available
       const context = contractCode ? `Contract context: ${contractCode.substring(0, 500)}...` : ''
       return {
         vulnerabilityId: vulnerability.id,
@@ -575,26 +591,31 @@ Format your response as JSON with the following structure:
     }
 
     try {
-      // Real AI analysis using OpenAI
       const prompt = this.buildVulnerabilityAnalysisPrompt(vulnerability, contractCode)
-      
-      const completion = await this.openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert smart contract security analyst. Analyze vulnerabilities and provide detailed insights, risk assessments, and remediation advice.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
-        temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
-      })
+      let aiResponse = ''
 
-      const aiResponse = completion.choices[0]?.message?.content || ''
+      if (this.useGemini && this.geminiApiKey) {
+        // Use Gemini API
+        aiResponse = await this.callGeminiAPI(prompt)
+      } else if (this.openai) {
+        // Use OpenAI API
+        const completion = await this.openai.chat.completions.create({
+          model: process.env.OPENAI_MODEL || 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert smart contract security analyst. Analyze vulnerabilities and provide detailed insights, risk assessments, and remediation advice.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
+          temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
+        })
+        aiResponse = completion.choices[0]?.message?.content || ''
+      }
       
       return {
         vulnerabilityId: vulnerability.id,
@@ -611,9 +632,48 @@ Format your response as JSON with the following structure:
         }
       }
     } catch (error) {
-      console.error('OpenAI API error:', error)
+      console.error('AI API error:', error)
       // Fallback to mock analysis on error
       return this.getMockVulnerabilityAnalysis(vulnerability, contractCode)
+    }
+  }
+
+  private async callGeminiAPI(prompt: string): Promise<string> {
+    if (!this.geminiApiKey) {
+      throw new Error('Gemini API key not available')
+    }
+
+    try {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': this.geminiApiKey
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are an expert smart contract security analyst. Analyze the following vulnerability and provide detailed insights, risk assessments, and remediation advice. Be concise but thorough.
+
+${prompt}`
+                }
+              ]
+            }
+          ]
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    } catch (error) {
+      console.error('Gemini API error:', error)
+      throw error
     }
   }
 
