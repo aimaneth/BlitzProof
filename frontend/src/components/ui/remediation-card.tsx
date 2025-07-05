@@ -2,200 +2,372 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Card, CardContent, CardHeader, CardTitle } from './card'
 import { Button } from './button'
+import { Card, CardContent, CardHeader, CardTitle } from './card'
 import { Badge } from './badge'
 import { 
-  ChevronDown, 
-  ChevronUp, 
-  Code, 
-  BookOpen, 
   Shield, 
+  Code, 
+  Clock, 
   AlertTriangle,
   CheckCircle,
-  ExternalLink,
-  FileText
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Download,
+  BookOpen,
+  Zap,
+  Brain,
+  Settings,
+  Eye,
+  FileText,
+  ExternalLink
 } from 'lucide-react'
-import { getSeverityBgColor, getSeverityBorderColor, getSeverityColor } from '@/lib/utils'
+import { toast } from 'sonner'
+import { apiService } from '@/lib/api'
 
-interface RemediationData {
+interface RemediationStep {
+  id: string
+  title: string
   description: string
-  steps: string[]
-  bestPractices: string[]
+  code: string
+  explanation: string
+  difficulty: 'easy' | 'medium' | 'hard'
+  estimatedTime: string
+  riskLevel: 'low' | 'medium' | 'high'
   references: string[]
 }
 
+interface RemediationPlan {
+  vulnerabilityId: string
+  vulnerabilityTitle: string
+  severity: string
+  currentCode: string
+  steps: RemediationStep[]
+  totalEstimatedTime: string
+  priority: 'critical' | 'high' | 'medium' | 'low'
+  automated: boolean
+  aiGenerated: boolean
+  confidence: number
+}
+
 interface RemediationCardProps {
-  title: string
-  severity: 'high' | 'medium' | 'low'
-  description: string
-  line?: number
-  remediation?: RemediationData | null
+  vulnerability: any
+  className?: string
 }
 
+export function RemediationCard({ vulnerability, className = '' }: RemediationCardProps) {
+  const [remediationPlan, setRemediationPlan] = useState<RemediationPlan | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set())
 
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical': return 'text-red-500 bg-red-500/10 border-red-500/20'
+      case 'high': return 'text-orange-500 bg-orange-500/10 border-orange-500/20'
+      case 'medium': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20'
+      case 'low': return 'text-green-500 bg-green-500/10 border-green-500/20'
+      default: return 'text-blue-500 bg-blue-500/10 border-blue-500/20'
+    }
+  }
 
-const severityIcons = {
-  high: AlertTriangle,
-  medium: Shield,
-  low: CheckCircle
-}
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'text-green-500'
+      case 'medium': return 'text-yellow-500'
+      case 'hard': return 'text-red-500'
+      default: return 'text-gray-500'
+    }
+  }
 
-export function RemediationCard({ 
-  title, 
-  severity, 
-  description, 
-  line, 
-  remediation 
-}: RemediationCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [activeTab, setActiveTab] = useState<'steps' | 'practices' | 'code' | 'references'>('steps')
-  
-  const SeverityIcon = severityIcons[severity]
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'low': return 'text-green-500'
+      case 'medium': return 'text-yellow-500'
+      case 'high': return 'text-red-500'
+      default: return 'text-gray-500'
+    }
+  }
 
-  const tabs = [
-    { id: 'steps', label: 'Fix Steps', icon: FileText },
-    { id: 'practices', label: 'Best Practices', icon: Shield },
-    { id: 'code', label: 'Code Examples', icon: Code },
-    { id: 'references', label: 'References', icon: BookOpen }
-  ] as const
+  const generateRemediation = async () => {
+    try {
+      setIsLoading(true)
+      const response = await apiService.generateRemediationPlan(vulnerability)
+      setRemediationPlan(response.data)
+      toast.success('Remediation plan generated successfully')
+    } catch (error) {
+      console.error('Failed to generate remediation:', error)
+      toast.error('Failed to generate remediation plan')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Code copied to clipboard')
+  }
+
+  const toggleStepExpansion = (stepId: string) => {
+    const newExpanded = new Set(expandedSteps)
+    if (newExpanded.has(stepId)) {
+      newExpanded.delete(stepId)
+    } else {
+      newExpanded.add(stepId)
+    }
+    setExpandedSteps(newExpanded)
+  }
+
+  const downloadRemediation = () => {
+    if (!remediationPlan) return
+
+    const content = `# Remediation Plan for ${remediationPlan.vulnerabilityTitle}
+
+## Vulnerability Details
+- **Title**: ${remediationPlan.vulnerabilityTitle}
+- **Severity**: ${remediationPlan.severity}
+- **Priority**: ${remediationPlan.priority}
+- **Estimated Time**: ${remediationPlan.totalEstimatedTime}
+- **Confidence**: ${(remediationPlan.confidence * 100).toFixed(1)}%
+
+## Remediation Steps
+
+${remediationPlan.steps.map((step, index) => `
+### Step ${index + 1}: ${step.title}
+
+**Description**: ${step.description}
+
+**Difficulty**: ${step.difficulty}
+**Estimated Time**: ${step.estimatedTime}
+**Risk Level**: ${step.riskLevel}
+
+**Code Fix**:
+\`\`\`solidity
+${step.code}
+\`\`\`
+
+**Explanation**: ${step.explanation}
+
+**References**:
+${step.references.map(ref => `- ${ref}`).join('\n')}
+`).join('\n')}
+
+Generated by BlitzProof Security Platform
+Date: ${new Date().toLocaleDateString()}
+`
+
+    const blob = new Blob([content], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `remediation-${remediationPlan.vulnerabilityId}.md`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast.success('Remediation plan downloaded')
+  }
 
   return (
-    <Card className={`!border-l-4 !border-t-0 !border-r-0 !border-b-0 ${getSeverityBorderColor(severity)} bg-card/50 backdrop-blur-sm`}>
+    <Card className={`bg-card/30 border border-white/10 shadow-lg ${className}`}>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <SeverityIcon className={`h-5 w-5 ${getSeverityColor(severity)}`} />
-              <CardTitle className="text-lg font-semibold text-foreground">
-                {title}
-              </CardTitle>
-              <Badge className={getSeverityBgColor(severity)}>
-                {severity.toUpperCase()}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              {description}
-            </p>
-            {line && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Line {line}
-              </p>
-            )}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-muted-foreground hover:text-foreground"
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            AI-Powered Remediation
+          </CardTitle>
+          <Badge 
+            variant="outline" 
+            className={`text-xs ${getSeverityColor(vulnerability.severity)}`}
           >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
+            {vulnerability.severity.toUpperCase()}
+          </Badge>
         </div>
       </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {/* Vulnerability Summary */}
+        <div className="p-3 bg-card/50 rounded-lg border border-white/10">
+          <h4 className="font-medium text-white mb-2">{vulnerability.title}</h4>
+          <p className="text-sm text-gray-400 mb-3">{vulnerability.description}</p>
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <span>Line {vulnerability.line}</span>
+            <span>File: {vulnerability.file}</span>
+          </div>
+        </div>
 
-      <AnimatePresence>
-        {isExpanded && remediation && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+        {/* Generate Remediation Button */}
+        {!remediationPlan && (
+          <Button
+            onClick={generateRemediation}
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
-            <CardContent className="pt-0">
-              {/* Tab Navigation */}
-              <div className="flex gap-1 mb-4 p-1 bg-muted/20 rounded-lg">
-                {tabs.map((tab) => {
-                  const TabIcon = tab.icon
-                  return (
-                    <Button
-                      key={tab.id}
-                      variant={activeTab === tab.id ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setActiveTab(tab.id)}
-                      className="flex items-center gap-2 text-xs"
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Brain className="w-4 h-4" />
+                Generate AI Remediation
+              </div>
+            )}
+          </Button>
+        )}
+
+        {/* Remediation Plan */}
+        {remediationPlan && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            {/* Plan Summary */}
+            <div className="p-4 bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-lg border border-green-500/20">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-white">Remediation Plan</h4>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-green-500 border-green-500/30">
+                    {remediationPlan.priority.toUpperCase()}
+                  </Badge>
+                  <Badge variant="outline" className="text-blue-500 border-blue-500/30">
+                    {(remediationPlan.confidence * 100).toFixed(0)}% Confidence
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-400" />
+                  <span className="text-gray-300">Time: {remediationPlan.totalEstimatedTime}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Code className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Steps: {remediationPlan.steps.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDetails(!showDetails)}
+                className="flex-1"
+              >
+                {showDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showDetails ? 'Hide Details' : 'Show Details'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={downloadRemediation}
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </div>
+
+            {/* Detailed Steps */}
+            <AnimatePresence>
+              {showDetails && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3"
+                >
+                  {remediationPlan.steps.map((step, index) => (
+                    <div
+                      key={step.id}
+                      className="p-4 bg-card/50 rounded-lg border border-white/10"
                     >
-                      <TabIcon className="h-3 w-3" />
-                      {tab.label}
-                    </Button>
-                  )
-                })}
-              </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="font-medium text-white">
+                          Step {index + 1}: {step.title}
+                        </h5>
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${getDifficultyColor(step.difficulty)}`}
+                          >
+                            {step.difficulty}
+                          </Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${getRiskColor(step.riskLevel)}`}
+                          >
+                            {step.riskLevel} risk
+                          </Badge>
+                        </div>
+                      </div>
 
-              {/* Tab Content */}
-              <div className="space-y-4">
-                {activeTab === 'steps' && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-foreground">Step-by-Step Fix Guide</h4>
-                    <div className="space-y-2">
-                      {remediation.steps.map((step, index) => (
-                        <div key={index} className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg">
-                          <div className="flex-shrink-0 w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-xs font-semibold">
-                            {index + 1}
+                      <p className="text-sm text-gray-400 mb-3">{step.description}</p>
+
+                      <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        <span>{step.estimatedTime}</span>
+                      </div>
+
+                      {/* Code Block */}
+                      <div className="relative">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-gray-400">Code Fix</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(step.code)}
+                            className="h-6 px-2 text-xs"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <pre className="bg-black/50 p-3 rounded text-xs overflow-x-auto">
+                          <code className="text-green-400">{step.code}</code>
+                        </pre>
+                      </div>
+
+                      {/* Explanation */}
+                      <div className="mt-3 p-3 bg-blue-500/10 rounded border border-blue-500/20">
+                        <h6 className="text-xs font-medium text-blue-400 mb-1">Explanation</h6>
+                        <p className="text-xs text-gray-300">{step.explanation}</p>
+                      </div>
+
+                      {/* References */}
+                      {step.references.length > 0 && (
+                        <div className="mt-3">
+                          <h6 className="text-xs font-medium text-gray-400 mb-2">References</h6>
+                          <div className="space-y-1">
+                            {step.references.map((ref, refIndex) => (
+                              <a
+                                key={refIndex}
+                                href={ref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                {ref}
+                              </a>
+                            ))}
                           </div>
-                          <p className="text-sm text-foreground">{step}</p>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  </div>
-                )}
-
-                {activeTab === 'practices' && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-foreground">Security Best Practices</h4>
-                    <div className="space-y-2">
-                      {remediation.bestPractices.map((practice, index) => (
-                        <div key={index} className="flex items-start gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                          <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-sm text-foreground">{practice}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'code' && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-foreground">Code Examples</h4>
-                    <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                      <pre className="text-sm text-gray-300 overflow-x-auto">
-                        <code>{`// Example code will be displayed here
-// This would show vulnerable vs secure patterns`}</code>
-                      </pre>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'references' && (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-foreground">Additional Resources</h4>
-                    <div className="space-y-2">
-                      {remediation.references.map((reference, index) => (
-                        <a
-                          key={index}
-                          href={reference}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 bg-muted/20 hover:bg-muted/40 rounded-lg transition-colors group"
-                        >
-                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
-                          <span className="text-sm text-foreground group-hover:text-primary transition-colors">
-                            {reference.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                          </span>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
-      </AnimatePresence>
+      </CardContent>
     </Card>
   )
 } 

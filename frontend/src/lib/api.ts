@@ -369,6 +369,44 @@ class ApiService {
   async getExportTemplates(): Promise<{ templates: any[] }> {
     return this.request<{ templates: any[] }>('/api/export/templates')
   }
+
+  // Remediation
+  async generateRemediationPlan(vulnerability: any): Promise<{ data: any }> {
+    return this.request<{ data: any }>('/api/remediation/plan', {
+      method: 'POST',
+      body: JSON.stringify({ vulnerability }),
+    })
+  }
+
+  async generateAutomatedFix(vulnerability: any): Promise<{ data: any }> {
+    return this.request<{ data: any }>('/api/remediation/fix', {
+      method: 'POST',
+      body: JSON.stringify({ vulnerability }),
+    })
+  }
+
+  async getBestPractices(category?: string): Promise<{ data: any[] }> {
+    const params = category ? `?category=${category}` : ''
+    return this.request<{ data: any[] }>(`/api/remediation/best-practices${params}`)
+  }
+
+  async getSecurityRecommendations(vulnerabilities: any[]): Promise<{ data: any }> {
+    return this.request<{ data: any }>('/api/remediation/recommendations', {
+      method: 'POST',
+      body: JSON.stringify({ vulnerabilities }),
+    })
+  }
+
+  async generateBatchRemediation(vulnerabilities: any[]): Promise<{ data: any }> {
+    return this.request<{ data: any }>('/api/remediation/batch', {
+      method: 'POST',
+      body: JSON.stringify({ vulnerabilities }),
+    })
+  }
+
+  async getRemediationStats(): Promise<{ data: any }> {
+    return this.request<{ data: any }>('/api/remediation/stats')
+  }
 }
 
 export const apiService = new ApiService() 

@@ -17,6 +17,7 @@ import exportRoutes from './routes/export'
 import profileRoutes from './routes/profile'
 import customRulesRoutes from './routes/customRules'
 import batchScanRoutes from './routes/batchScan'
+import remediationRoutes from './routes/remediation'
 
 dotenv.config()
 
@@ -159,6 +160,7 @@ app.use('/api/export', exportRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/custom-rules', customRulesRoutes)
 app.use('/api/batch-scan', batchScanRoutes)
+app.use('/api/remediation', remediationRoutes)
 
 // Initialize WebSocket service after server creation
 wsService = new WebSocketService(server)
