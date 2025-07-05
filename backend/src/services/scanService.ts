@@ -382,44 +382,8 @@ class ScanService {
       console.log('🔍 AI Analysis Debug: AI analysis completed, got', aiResults.length, 'results')
       console.log('🔍 AI Analysis Debug: First result sample:', aiResults[0])
       
-      // Store AI results in database (optional - continue even if it fails)
-      try {
-        for (let i = 0; i < vulnerabilities.length; i++) {
-          const vuln = vulnerabilities[i]
-          const aiResult = aiResults[i]
-          
-          await pool.query(
-            `INSERT INTO ai_analysis_results (
-              vulnerability_id, confidence, severity, description, remediation, 
-              risk_score, ai_model, analysis_time, enhanced_description, 
-              smart_remediation, code_fixes, false_positive_risk, 
-              exploitability_score, impact_score, reference_links, cwe_ids, tags
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
-            [
-              vuln.id,
-              aiResult.confidence || 0.8,
-              aiResult.severity || 'medium',
-              aiResult.description || 'AI analysis result',
-              aiResult.remediation || 'Review and fix the identified issue',
-              aiResult.riskScore || 50,
-              aiResult.aiModel || 'default',
-              aiResult.analysisTime || 1000,
-              aiResult.enhancedDescription || aiResult.description || 'AI analysis result',
-              aiResult.smartRemediation || aiResult.remediation || 'Review and fix the identified issue',
-              aiResult.codeFixes || [],
-              aiResult.falsePositiveRisk || 0.1,
-              aiResult.exploitabilityScore || 50,
-              aiResult.impactScore || 50,
-              aiResult.references || [],
-              aiResult.cweIds || [],
-              aiResult.tags || []
-            ]
-          )
-        }
-      } catch (dbError) {
-        console.warn('AI analysis database storage failed, but analysis completed:', dbError)
-        // Continue even if database storage fails
-      }
+      // Note: AI results are returned directly to frontend, database storage removed due to foreign key constraints
+      // The AI analysis data is available in the scan results for frontend consumption
       
       console.log('🔍 AI Analysis Debug: Returning', aiResults.length, 'AI analysis results')
       return aiResults
@@ -479,10 +443,32 @@ class ScanService {
     // Base score calculation
     let score = 100 - (highCount * 20 + mediumCount * 10 + lowCount * 5)
     
-    // AI confidence bonus
+    // AI confidence bonus - handle both old and new AI result structures
     if (aiResults.length > 0) {
-      const avgConfidence = aiResults.reduce((sum, result) => sum + result.confidence, 0) / aiResults.length
-      score += Math.round(avgConfidence * 10) // Bonus up to 10 points for high AI confidence
+      let totalConfidence = 0
+      let validResults = 0
+      
+      aiResults.forEach(result => {
+        // Handle new AI result structure (has insights array)
+        if (result.insights && Array.isArray(result.insights)) {
+          result.insights.forEach((insight: any) => {
+            if (insight.confidence !== undefined) {
+              totalConfidence += insight.confidence
+              validResults++
+            }
+          })
+        }
+        // Handle old AI result structure (direct confidence)
+        else if (result.confidence !== undefined) {
+          totalConfidence += result.confidence
+          validResults++
+        }
+      })
+      
+      if (validResults > 0) {
+        const avgConfidence = totalConfidence / validResults
+        score += Math.round(avgConfidence * 10) // Bonus up to 10 points for high AI confidence
+      }
     }
     
     return Math.max(0, Math.min(100, Math.round(score)))
