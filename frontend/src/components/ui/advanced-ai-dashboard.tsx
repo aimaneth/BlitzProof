@@ -69,14 +69,21 @@ export function AdvancedAIDashboard({
     return { level: 'Low', color: 'text-green-400' }
   }
 
+  // Debug logging to check data
+  console.log('🔍 AI Dashboard Debug:', {
+    vulnerabilitiesCount: vulnerabilities.length,
+    aiAnalysisCount: aiAnalysis.length,
+    aiAnalysisData: aiAnalysis.slice(0, 2) // Show first 2 items
+  })
+
   const stats = {
     totalVulnerabilities: vulnerabilities.length,
     aiAnalyzed: aiAnalysis.length,
-    avgConfidence: aiAnalysis.reduce((sum, a) => sum + a.confidence, 0) / aiAnalysis.length || 0,
-    avgRiskScore: aiAnalysis.reduce((sum, a) => sum + a.riskScore, 0) / aiAnalysis.length || 0,
-    avgAnalysisTime: aiAnalysis.reduce((sum, a) => sum + a.analysisTime, 0) / aiAnalysis.length || 0,
-    highConfidence: aiAnalysis.filter(a => a.confidence >= 0.8).length,
-    criticalRisks: aiAnalysis.filter(a => a.riskScore >= 80).length
+    avgConfidence: aiAnalysis.length > 0 ? aiAnalysis.reduce((sum, a) => sum + (a.confidence || 0), 0) / aiAnalysis.length : 0,
+    avgRiskScore: aiAnalysis.length > 0 ? aiAnalysis.reduce((sum, a) => sum + (a.riskScore || 0), 0) / aiAnalysis.length : 0,
+    avgAnalysisTime: aiAnalysis.length > 0 ? aiAnalysis.reduce((sum, a) => sum + (a.analysisTime || 0), 0) / aiAnalysis.length : 0,
+    highConfidence: aiAnalysis.filter(a => (a.confidence || 0) >= 0.8).length,
+    criticalRisks: aiAnalysis.filter(a => (a.riskScore || 0) >= 80).length
   }
 
   return (
@@ -128,7 +135,7 @@ export function AdvancedAIDashboard({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg Confidence</p>
-                  <p className="text-2xl font-bold text-green-400">{Math.round(stats.avgConfidence * 100)}%</p>
+                  <p className="text-2xl font-bold text-green-400">{Math.round((stats.avgConfidence || 0) * 100)}%</p>
                 </div>
                 <Target className="h-8 w-8 text-green-400" />
               </div>
@@ -146,7 +153,7 @@ export function AdvancedAIDashboard({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg Risk Score</p>
-                  <p className="text-2xl font-bold text-orange-400">{Math.round(stats.avgRiskScore)}</p>
+                  <p className="text-2xl font-bold text-orange-400">{Math.round(stats.avgRiskScore || 0)}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-orange-400" />
               </div>
@@ -164,7 +171,7 @@ export function AdvancedAIDashboard({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Analysis Time</p>
-                  <p className="text-2xl font-bold text-purple-400">{Math.round(stats.avgAnalysisTime)}ms</p>
+                  <p className="text-2xl font-bold text-purple-400">{Math.round(stats.avgAnalysisTime || 0)}ms</p>
                 </div>
                 <Clock className="h-8 w-8 text-purple-400" />
               </div>
