@@ -378,11 +378,11 @@ export default function ScannerPage() {
       setScanStartTime(new Date())
       setEstimatedTime(45) // Estimated 45 seconds
       toast.success('🚀 Security scan initiated!')
+      // Don't set isScanning to false here - keep it true until scan completes
     } catch (error) {
       console.error('Scan error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to start scan')
-    } finally {
-      setIsScanning(false)
+      setIsScanning(false) // Only set to false on error
     }
   }
 
@@ -402,13 +402,21 @@ export default function ScannerPage() {
         })
         
         if (status.status === 'completed') {
+          console.log('🔍 Frontend Debug: Scan completed, received data:', {
+            vulnerabilities: status.vulnerabilities?.length || 0,
+            aiAnalysis: status.aiAnalysis?.length || 0,
+            summary: status.summary,
+            score: status.score
+          })
           setScanResults(status)
           setCurrentProgress(null)
+          setIsScanning(false) // Set scanning to false when completed
           const duration = scanStartTime ? Math.round((new Date().getTime() - scanStartTime.getTime()) / 1000) : 0
           toast.success(`✅ Scan completed in ${duration}s! Found ${status.vulnerabilities?.length || 0} issues.`)
           return true // Stop polling
         } else if (status.status === 'failed') {
           setCurrentProgress(null)
+          setIsScanning(false) // Set scanning to false when failed
           toast.error('❌ Scan failed - Please try again')
           return true // Stop polling
         }

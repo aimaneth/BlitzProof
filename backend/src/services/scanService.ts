@@ -89,7 +89,7 @@ class ScanService {
       
       const totalTime = Date.now() - startTime
       
-      return {
+      const scanResult = {
         vulnerabilities: filteredVulns,
         aiAnalysis: aiResults,
         customRules: customRulesResults,
@@ -105,6 +105,15 @@ class ScanService {
         totalTime,
         config
       }
+      
+      console.log('🔍 Scan Results Debug: Final scan result structure:')
+      console.log('  - Vulnerabilities:', filteredVulns.length)
+      console.log('  - AI Analysis:', aiResults.length)
+      console.log('  - Custom Rules:', customRulesResults.length)
+      console.log('  - Summary:', summary)
+      console.log('  - Security Score:', securityScore)
+      
+      return scanResult
     } catch (error) {
       console.error('Scan error:', error)
       throw error
@@ -368,7 +377,10 @@ class ScanService {
 
   private async runAIAnalysis(vulnerabilities: Vulnerability[]): Promise<any[]> {
     try {
+      console.log('🔍 AI Analysis Debug: Starting AI analysis for', vulnerabilities.length, 'vulnerabilities')
       const aiResults = await aiAnalysisService.analyzeVulnerabilities(vulnerabilities)
+      console.log('🔍 AI Analysis Debug: AI analysis completed, got', aiResults.length, 'results')
+      console.log('🔍 AI Analysis Debug: First result sample:', aiResults[0])
       
       // Store AI results in database (optional - continue even if it fails)
       try {
@@ -409,6 +421,7 @@ class ScanService {
         // Continue even if database storage fails
       }
       
+      console.log('🔍 AI Analysis Debug: Returning', aiResults.length, 'AI analysis results')
       return aiResults
     } catch (error) {
       console.error('AI analysis error:', error)
