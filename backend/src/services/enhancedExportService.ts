@@ -10,7 +10,7 @@ export interface ExportOptions {
   includeAIInsights?: boolean
   includeCustomRules?: boolean
   includeCharts?: boolean
-  template?: string
+  template?: string | ReportTemplate
 }
 
 export interface ReportTemplate {
@@ -51,7 +51,7 @@ export class EnhancedExportService {
   }
 
   async generatePDF(scanResult: ScanResult, options: ExportOptions): Promise<Buffer> {
-    const templateName = options.template || 'technical'
+    const templateName = typeof options.template === 'string' ? options.template : 'technical'
     const template = this.templates[templateName]
     const htmlContent = this.generateHTMLReport(scanResult, { ...options, template })
     
@@ -126,13 +126,18 @@ export class EnhancedExportService {
   }
 
   async generateHTML(scanResult: ScanResult, options: ExportOptions): Promise<string> {
-    const templateName = options.template || 'technical'
+    const templateName = typeof options.template === 'string' ? options.template : 'technical'
     const template = this.templates[templateName]
     return this.generateHTMLReport(scanResult, { ...options, template })
   }
 
-  private generateHTMLReport(scanResult: ScanResult, options: ExportOptions & { template: ReportTemplate | undefined }): string {
-    const { template } = options
+  private generateHTMLReport(scanResult: ScanResult, options: ExportOptions): string {
+    const templateName = typeof options.template === 'string' ? options.template : 'technical'
+    const template = this.templates[templateName]
+    if (!template) {
+      throw new Error('Template is required for HTML report generation')
+    }
+    
     const severityColors = {
       critical: '#ef4444',
       high: '#f97316',
@@ -370,7 +375,7 @@ export class EnhancedExportService {
             <p>Security Tools Used</p>
           </div>
           <div class="summary-card">
-            <h3>${Math.round(scanResult.totalTime / 1000)}s</h3>
+            <h3>${Math.round((scanResult.totalTime || 0) / 1000)}s</h3>
             <p>Scan Duration</p>
           </div>
         </div>

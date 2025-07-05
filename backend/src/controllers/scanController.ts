@@ -7,7 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import { etherscanService } from '../services/etherscanService'
 import redisClient from '../config/redis'
-import { remediationService } from '../services/remediationService'
+import remediationService from '../services/remediationService'
 
 export const uploadContract = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -176,15 +176,10 @@ export const getScanProgress = async (req: Request, res: Response): Promise<void
     // If scan is completed, transform to frontend format
     if (status.status === 'completed' && status.results) {
       const enhancedVulnerabilities = status.results.vulnerabilities?.map((vuln: any) => {
-        const remediation = remediationService.getRemediationByTitle(vuln.title)
+        // Remediation will be handled by separate remediation endpoints
         return {
           ...vuln,
-          remediation: remediation ? {
-            description: remediation.description,
-            steps: remediation.steps,
-            bestPractices: remediation.bestPractices,
-            references: remediation.references
-          } : null
+          remediation: null // Will be generated on-demand via /api/remediation/plan
         }
       }) || []
 
@@ -336,15 +331,10 @@ export const scanController = {
       // If scan is completed, enhance with remediation suggestions
       if (status.status === 'completed' && status.vulnerabilities) {
         const enhancedVulnerabilities = status.vulnerabilities.map((vuln: any) => {
-          const remediation = remediationService.getRemediationByTitle(vuln.title)
+          // Remediation will be handled by separate remediation endpoints
           return {
             ...vuln,
-            remediation: remediation ? {
-              description: remediation.description,
-              steps: remediation.steps,
-              bestPractices: remediation.bestPractices,
-              references: remediation.references
-            } : null
+            remediation: null // Will be generated on-demand via /api/remediation/plan
           }
         })
         
