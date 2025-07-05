@@ -75,14 +75,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install Node.js dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies) for build
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies for production
+RUN npm prune --production
 
 # Create uploads directory
 RUN mkdir -p uploads tools
