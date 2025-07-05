@@ -90,8 +90,14 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         setIsConnected(false)
         options.onConnectionChange?.(false)
         
+        // Don't reconnect if this was a normal closure (scan completed/failed)
+        if (event.code === 1000) {
+          console.log('🔌 Normal closure, not reconnecting')
+          return
+        }
+        
         // Attempt to reconnect if not a normal closure
-        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+        if (reconnectAttempts.current < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 10000)
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttempts.current++
@@ -183,13 +189,23 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
       case 'scan_complete':
         if (message.scanId && message.results && options.onScanComplete) {
+          console.log('🔌 Scan completed, closing WebSocket connection')
           options.onScanComplete(message.scanId, message.results)
+          // Close the connection gracefully since scan is done
+          if (wsRef.current) {
+            wsRef.current.close(1000, 'Scan completed')
+          }
         }
         break
 
       case 'scan_error':
         if (message.scanId && message.error && options.onScanError) {
+          console.log('🔌 Scan failed, closing WebSocket connection')
           options.onScanError(message.scanId, message.error)
+          // Close the connection gracefully since scan failed
+          if (wsRef.current) {
+            wsRef.current.close(1000, 'Scan failed')
+          }
         }
         break
 

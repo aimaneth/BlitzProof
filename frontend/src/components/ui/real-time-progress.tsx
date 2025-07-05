@@ -100,9 +100,19 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
               error: message.error
             })
           } else if (message.type === 'scan_complete') {
+            console.log('🔌 Scan completed, closing WebSocket connection')
             onComplete?.(message.results)
+            // Close the connection gracefully since scan is done
+            if (ws) {
+              ws.close(1000, 'Scan completed')
+            }
           } else if (message.type === 'scan_error') {
+            console.log('🔌 Scan failed, closing WebSocket connection')
             onError?.(message.error)
+            // Close the connection gracefully since scan failed
+            if (ws) {
+              ws.close(1000, 'Scan failed')
+            }
           }
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error)
@@ -113,7 +123,13 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
         console.log('🔌 WebSocket disconnected:', event.code, event.reason)
         setIsConnected(false)
         
-        // Attempt reconnection if not a normal closure
+        // Don't reconnect if scan is completed or failed
+        if (progress?.status === 'completed' || progress?.status === 'failed') {
+          console.log('🔌 Scan completed/failed, not reconnecting')
+          return
+        }
+        
+        // Attempt reconnection if not a normal closure and scan is still running
         if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000) // Exponential backoff
           console.log(`🔌 Reconnecting in ${delay}ms (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`)
