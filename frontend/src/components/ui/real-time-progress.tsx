@@ -38,65 +38,104 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
   const [progress, setProgress] = useState<ScanProgress | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
-  // WebSocket connection (simplified for now)
+  // WebSocket connection with reconnection logic
   useEffect(() => {
     if (!isVisible || !scanId) return
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:4000'
-    const wsUrl = `${protocol}//${host}`
+    let ws: WebSocket | null = null
+    let reconnectTimeout: NodeJS.Timeout | null = null
+    let reconnectAttempts = 0
+    const maxReconnectAttempts = 5
 
-    const ws = new WebSocket(wsUrl)
+    const connect = () => {
+      // Determine WebSocket URL based on environment
+      let wsUrl: string
+      if (process.env.NODE_ENV === 'production') {
+        // In production, use the same host as the current page but with WebSocket protocol
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const host = window.location.host
+        wsUrl = `${protocol}//${host}`
+      } else {
+        // In development, use localhost
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const host = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:4000'
+        wsUrl = `${protocol}//${host}`
+      }
 
-    ws.onopen = () => {
-      console.log('🔌 WebSocket connected for real-time progress')
-      setIsConnected(true)
-      
-      // Subscribe to scan updates
-      ws.send(JSON.stringify({
-        type: 'subscribe',
-        scanId
-      }))
-    }
+      console.log('🔌 Attempting WebSocket connection to:', wsUrl)
+      ws = new WebSocket(wsUrl)
 
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data)
+      ws.onopen = () => {
+        console.log('🔌 WebSocket connected for real-time progress')
+        setIsConnected(true)
+        reconnectAttempts = 0
         
-        if (message.type === 'scan_progress') {
-          setProgress({
-            scanId: message.scanId,
-            status: message.status,
-            progress: message.progress || 0,
-            currentStep: message.currentStep || '',
-            estimatedTime: message.estimatedTime,
-            vulnerabilitiesFound: message.vulnerabilitiesFound || 0,
-            toolsCompleted: message.toolsCompleted || [],
-            currentTool: message.currentTool,
-            error: message.error
-          })
-        } else if (message.type === 'scan_complete') {
-          onComplete?.(message.results)
-        } else if (message.type === 'scan_error') {
-          onError?.(message.error)
+        // Subscribe to scan updates
+        if (ws) {
+          ws.send(JSON.stringify({
+            type: 'subscribe',
+            scanId
+          }))
         }
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error)
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data)
+          
+          if (message.type === 'scan_progress') {
+            setProgress({
+              scanId: message.scanId,
+              status: message.status,
+              progress: message.progress || 0,
+              currentStep: message.currentStep || '',
+              estimatedTime: message.estimatedTime,
+              vulnerabilitiesFound: message.vulnerabilitiesFound || 0,
+              toolsCompleted: message.toolsCompleted || [],
+              currentTool: message.currentTool,
+              error: message.error
+            })
+          } else if (message.type === 'scan_complete') {
+            onComplete?.(message.results)
+          } else if (message.type === 'scan_error') {
+            onError?.(message.error)
+          }
+        } catch (error) {
+          console.error('Failed to parse WebSocket message:', error)
+        }
+      }
+
+      ws.onclose = (event) => {
+        console.log('🔌 WebSocket disconnected:', event.code, event.reason)
+        setIsConnected(false)
+        
+        // Attempt reconnection if not a normal closure
+        if (event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000) // Exponential backoff
+          console.log(`🔌 Reconnecting in ${delay}ms (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`)
+          
+          reconnectTimeout = setTimeout(() => {
+            reconnectAttempts++
+            connect()
+          }, delay)
+        }
+      }
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error)
+        setIsConnected(false)
       }
     }
 
-    ws.onclose = () => {
-      console.log('🔌 WebSocket disconnected')
-      setIsConnected(false)
-    }
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
-      setIsConnected(false)
-    }
+    connect()
 
     return () => {
-      ws.close()
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout)
+      }
+      if (ws) {
+        ws.close(1000, 'Component unmounting')
+      }
     }
   }, [scanId, isVisible, onComplete, onError])
 
@@ -208,9 +247,16 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
             <div className="flex items-center gap-2 mt-2">
               <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
               <span className="text-xs text-gray-400">
-                {isConnected ? 'Real-time updates connected' : 'Connecting...'}
+                {isConnected ? 'Real-time updates connected' : 'Real-time updates disabled'}
               </span>
             </div>
+            
+            {/* Fallback Message */}
+            {!isConnected && (
+              <div className="text-xs text-gray-400 mt-1">
+                Progress updates will still work via polling
+              </div>
+            )}
 
             {/* Error Display */}
             {progress.error && (
