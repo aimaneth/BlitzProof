@@ -69,8 +69,13 @@ class AIAnalysisService {
   private useGemini: boolean = false
   
   constructor() {
+    console.log('🔍 AI Analysis Debug: Initializing AI Analysis Service')
+    
     // Initialize OpenAI client if API key is available
     const openaiApiKey = process.env.OPENAI_API_KEY
+    console.log('🔍 AI Analysis Debug: OpenAI API key exists:', !!openaiApiKey)
+    console.log('🔍 AI Analysis Debug: OpenAI API key is placeholder:', openaiApiKey === 'your-openai-api-key-here')
+    
     if (openaiApiKey && openaiApiKey !== 'your-openai-api-key-here') {
       this.openai = new OpenAI({
         apiKey: openaiApiKey,
@@ -82,6 +87,9 @@ class AIAnalysisService {
 
     // Initialize Gemini API key if available
     const geminiApiKey = process.env.GEMINI_API_KEY
+    console.log('🔍 AI Analysis Debug: Gemini API key exists:', !!geminiApiKey)
+    console.log('🔍 AI Analysis Debug: Gemini API key is placeholder:', geminiApiKey === 'your-gemini-api-key-here')
+    
     if (geminiApiKey && geminiApiKey !== 'your-gemini-api-key-here') {
       this.geminiApiKey = geminiApiKey
       this.useGemini = true
@@ -92,6 +100,8 @@ class AIAnalysisService {
 
     if (!this.openai && !this.geminiApiKey) {
       console.log('⚠️ No AI API keys found, using mock AI analysis')
+    } else {
+      console.log('✅ AI API keys found, real AI analysis will be used')
     }
   }
 
@@ -571,7 +581,13 @@ Format your response as JSON with the following structure:
   }
 
   private async analyzeVulnerabilityWithAI(vulnerability: Vulnerability, contractCode?: string): Promise<any> {
+    console.log('🔍 AI Analysis Debug: Starting analysis for vulnerability:', vulnerability.id)
+    console.log('🔍 AI Analysis Debug: OpenAI available:', !!this.openai)
+    console.log('🔍 AI Analysis Debug: Gemini API key available:', !!this.geminiApiKey)
+    console.log('🔍 AI Analysis Debug: Use Gemini:', this.useGemini)
+    
     if (!this.openai && !this.geminiApiKey) {
+      console.log('⚠️ AI Analysis Debug: No AI APIs available, using mock data')
       // Fallback to mock analysis if no AI APIs are available
       const context = contractCode ? `Contract context: ${contractCode.substring(0, 500)}...` : ''
       return {
@@ -595,9 +611,12 @@ Format your response as JSON with the following structure:
       let aiResponse = ''
 
       if (this.useGemini && this.geminiApiKey) {
+        console.log('🔍 AI Analysis Debug: Using Gemini API')
         // Use Gemini API
         aiResponse = await this.callGeminiAPI(prompt)
+        console.log('🔍 AI Analysis Debug: Gemini response length:', aiResponse.length)
       } else if (this.openai) {
+        console.log('🔍 AI Analysis Debug: Using OpenAI API')
         // Use OpenAI API
         const completion = await this.openai.chat.completions.create({
           model: process.env.OPENAI_MODEL || 'gpt-4',
@@ -615,6 +634,7 @@ Format your response as JSON with the following structure:
           temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
         })
         aiResponse = completion.choices[0]?.message?.content || ''
+        console.log('🔍 AI Analysis Debug: OpenAI response length:', aiResponse.length)
       }
       
       return {
@@ -633,6 +653,7 @@ Format your response as JSON with the following structure:
       }
     } catch (error) {
       console.error('AI API error:', error)
+      console.log('⚠️ AI Analysis Debug: Falling back to mock analysis due to error')
       // Fallback to mock analysis on error
       return this.getMockVulnerabilityAnalysis(vulnerability, contractCode)
     }
