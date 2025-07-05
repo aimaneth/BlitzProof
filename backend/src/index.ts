@@ -4,8 +4,8 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
 import { createServer } from 'http'
-import { Server } from 'socket.io'
 import redisClient from './config/redis'
+import WebSocketService from './services/websocketService'
 import { initializeDatabase } from './config/init-db'
 import { securityHeaders } from './middleware/auth'
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics'
@@ -73,18 +73,8 @@ const corsOptions = {
   optionsSuccessStatus: 200
 }
 
-// Socket.io with CORS and proper WebSocket configuration
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins.filter(Boolean) as string[],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-  },
-  transports: ['websocket', 'polling'],
-  allowEIO3: true,
-  pingTimeout: 60000,
-  pingInterval: 25000
-})
+// WebSocket service for real-time updates
+let wsService: WebSocketService
 
 // Middleware
 app.use(cors(corsOptions))
@@ -170,22 +160,11 @@ app.use('/api/profile', profileRoutes)
 app.use('/api/custom-rules', customRulesRoutes)
 app.use('/api/batch-scan', batchScanRoutes)
 
-// Socket.io connection handling
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id)
+// Initialize WebSocket service after server creation
+wsService = new WebSocketService(server)
 
-  socket.on('join-scan', (scanId: string) => {
-    socket.join(`scan-${scanId}`)
-    console.log(`Client ${socket.id} joined scan ${scanId}`)
-  })
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id)
-  })
-})
-
-// Make io available to other modules
-app.set('io', io)
+// Make WebSocket service available to other modules
+app.set('wsService', wsService)
 
 // Initialize database and start server
 async function startServer() {

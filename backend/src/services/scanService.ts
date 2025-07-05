@@ -32,7 +32,7 @@ class ScanService {
   private readonly uploadDir = path.join(__dirname, '../../uploads')
   private readonly toolsDir = path.join(__dirname, '../../tools')
 
-  async scanContract(filePath: string, config: ScanConfig = this.getDefaultConfig()): Promise<any> {
+  async scanContract(filePath: string, config: ScanConfig = this.getDefaultConfig(), scanId?: string): Promise<any> {
     const startTime = Date.now()
     const results: ToolResult[] = []
     
@@ -40,6 +40,22 @@ class ScanService {
       // Validate file exists
       if (!fs.existsSync(filePath)) {
         throw new Error('Contract file not found')
+      }
+
+      // Get WebSocket service for real-time updates
+      const wsService = this.getWebSocketService()
+      
+      // Broadcast scan start
+      if (scanId && wsService) {
+        wsService.broadcastScanProgress(scanId, {
+          scanId,
+          status: 'running',
+          progress: 0,
+          currentStep: 'Initializing scan...',
+          vulnerabilitiesFound: 0,
+          toolsCompleted: [],
+          estimatedTime: 60 // Estimate 60 seconds
+        })
       }
 
       // Run security tools in parallel
@@ -67,6 +83,19 @@ class ScanService {
       
       // Filter by severity threshold
       const filteredVulns = this.filterBySeverity(deduplicatedVulns, config.severityThreshold)
+      
+      // Broadcast tools completion
+      if (scanId && wsService) {
+        wsService.broadcastScanProgress(scanId, {
+          scanId,
+          status: 'running',
+          progress: 40,
+          currentStep: 'Running AI analysis...',
+          vulnerabilitiesFound: filteredVulns.length,
+          toolsCompleted: results.map(r => r.tool),
+          estimatedTime: 30
+        })
+      }
       
       // Run AI analysis if enabled
       let aiResults: any[] = []
@@ -112,6 +141,11 @@ class ScanService {
       console.log('  - Custom Rules:', customRulesResults.length)
       console.log('  - Summary:', summary)
       console.log('  - Security Score:', securityScore)
+      
+      // Broadcast scan completion
+      if (scanId && wsService) {
+        wsService.broadcastScanComplete(scanId, scanResult)
+      }
       
       return scanResult
     } catch (error) {
@@ -1188,6 +1222,18 @@ class ScanService {
 
   // In-memory storage for scan results
   private scanResults = new Map<string, any>()
+
+  private getWebSocketService(): any {
+    try {
+      // Get WebSocket service from Express app
+      const express = require('express')
+      const app = express()
+      return app.get('wsService')
+    } catch (error) {
+      console.warn('WebSocket service not available:', error)
+      return null
+    }
+  }
 }
 
 export default new ScanService() 

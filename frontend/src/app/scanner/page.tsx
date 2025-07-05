@@ -43,6 +43,7 @@ import { ScanConfiguration } from '@/components/ui/scan-configuration'
 import { CustomRulesManager } from '@/components/ui/custom-rules-manager'
 import { BatchScanManager } from '@/components/ui/batch-scan-manager'
 import { TutorialOverlay, useTutorial } from '@/components/ui/tutorial-overlay'
+import { RealTimeProgress } from '@/components/ui/real-time-progress'
 import { getSeverityColor, getSeverityBorderColor, sortVulnerabilitiesBySeverity } from "@/lib/utils"
 import Image from 'next/image'
 
@@ -1448,6 +1449,23 @@ export default function ScannerPage() {
         </div>
       )}
       
+      {/* Real-time Progress */}
+      <RealTimeProgress
+        scanId={currentScanId || ''}
+        isVisible={isScanning && !!currentScanId}
+        onComplete={(results) => {
+          setScanResults(results)
+          setIsScanning(false)
+          setCurrentScanId(null)
+          toast.success('✅ Scan completed! Found vulnerabilities and generated AI analysis.')
+        }}
+        onError={(error) => {
+          setIsScanning(false)
+          setCurrentScanId(null)
+          toast.error(`❌ Scan failed: ${error}`)
+        }}
+      />
+
       {/* Tutorial Overlay */}
       <TutorialOverlay isOpen={isTutorialOpen} onClose={closeTutorial} />
     </Layout>
