@@ -18,6 +18,7 @@ import { motion } from "framer-motion"
 import { getSeverityColor, getSeverityBadgeVariant } from "@/lib/utils"
 
 interface AIAnalysisData {
+  vulnerabilityId?: number
   confidence: number
   severity: 'high' | 'medium' | 'low'
   description: string
@@ -280,7 +281,7 @@ export function AdvancedAIDashboard({
                       <div className={`w-4 h-4 rounded-full ${getSeverityColor(analysis.severity)}`} />
                       <div>
                         <h4 className="font-semibold text-foreground">
-                          {vulnerabilities.find(v => v.id === index + 1)?.title || 'AI Analysis'}
+                          {vulnerabilities.find(v => v.id === analysis.vulnerabilityId)?.title || 'AI Analysis'}
                         </h4>
                         <p className="text-sm text-muted-foreground">
                           {analysis.enhancedDescription || analysis.description}
@@ -331,14 +332,14 @@ export function AdvancedAIDashboard({
                     <div>
                       <span className="text-muted-foreground">Exploitability:</span>
                       <span className="font-semibold text-foreground">
-                        {analysis.exploitabilityScore || 'N/A'}
+                        {analysis.exploitabilityScore ? `${analysis.exploitabilityScore}/100` : 'N/A'}
                       </span>
                     </div>
 
                     <div>
                       <span className="text-muted-foreground">Analysis Time:</span>
                       <span className="font-semibold text-foreground">
-                        {analysis.analysisTime}ms
+                        {analysis.analysisTime ? `${analysis.analysisTime}ms` : 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -360,7 +361,7 @@ export function AdvancedAIDashboard({
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-semibold text-foreground">
-                        {vulnerabilities.find(v => v.id === index + 1)?.title || 'Vulnerability'}
+                        {vulnerabilities.find(v => v.id === analysis.vulnerabilityId)?.title || 'Vulnerability'}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {analysis.smartRemediation || analysis.remediation}
