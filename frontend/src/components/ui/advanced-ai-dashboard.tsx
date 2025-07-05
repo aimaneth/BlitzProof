@@ -289,7 +289,7 @@ export function AdvancedAIDashboard({
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={getSeverityBadgeVariant(analysis.severity)}>
-                        {analysis.severity.toUpperCase()}
+                        {analysis.severity?.toUpperCase() || 'UNKNOWN'}
                       </Badge>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4" />
@@ -367,7 +367,7 @@ export function AdvancedAIDashboard({
                       </p>
                     </div>
                     <Badge variant={getSeverityBadgeVariant(analysis.severity)}>
-                      {analysis.severity.toUpperCase()}
+                      {analysis.severity?.toUpperCase() || 'UNKNOWN'}
                     </Badge>
                   </div>
 

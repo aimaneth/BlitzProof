@@ -72,7 +72,7 @@ export function AIAnalysisCard({ vulnerability }: AIAnalysisProps) {
               <CardTitle className="text-lg">AI-Powered Analysis</CardTitle>
             </div>
             <Badge variant={getSeverityBadgeVariant(vulnerability.severity)}>
-              {vulnerability.severity.toUpperCase()}
+              {vulnerability.severity?.toUpperCase() || 'UNKNOWN'}
             </Badge>
           </div>
         </CardHeader>
