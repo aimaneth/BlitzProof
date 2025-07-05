@@ -28,13 +28,19 @@ class WebSocketService extends EventEmitter {
 
   constructor(server: Server) {
     super()
+    console.log('🔌 Initializing WebSocket server...')
     this.wss = new WebSocketServer({ server })
+    console.log('🔌 WebSocket server created successfully')
     this.setupWebSocketServer()
   }
 
   private setupWebSocketServer() {
+    console.log('🔌 Setting up WebSocket server event handlers...')
+    
     this.wss.on('connection', (ws: WebSocket, req: any) => {
       const clientId = this.generateClientId()
+      console.log(`🔌 WebSocket connection attempt from: ${req.headers.origin || 'unknown'}`)
+      
       const client: ClientConnection = {
         id: clientId,
         ws,

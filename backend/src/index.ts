@@ -168,6 +168,14 @@ wsService = new WebSocketService(server)
 // Make WebSocket service available to other modules
 app.set('wsService', wsService)
 
+// Add a WebSocket endpoint for testing
+app.get('/ws', (req, res) => {
+  res.json({ 
+    message: 'WebSocket endpoint available',
+    status: 'WebSocket server is running'
+  })
+})
+
 // Initialize database and start server
 async function startServer() {
   try {
