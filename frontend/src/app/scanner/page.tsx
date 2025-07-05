@@ -36,7 +36,8 @@ import {
   HelpCircle,
   BookOpen,
   Layers,
-  ChevronDown
+  ChevronDown,
+  Eye
 } from "lucide-react"
 import { toast } from "sonner"
 import { AdvancedAIDashboard } from '@/components/ui/advanced-ai-dashboard'
@@ -1169,6 +1170,143 @@ export default function ScannerPage() {
                                 <div className="mt-2 p-2 bg-card rounded text-xs">
                                   <strong>Recommendation:</strong> {result.recommendation}
                                 </div>
+                                
+                                {/* AI Analysis Section */}
+                                {scanResults.aiAnalysis && scanResults.aiAnalysis.find(ai => ai.vulnerabilityId === result.id) && (
+                                  <div className="mt-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex items-center gap-2">
+                                        <Brain className="h-4 w-4 text-blue-500" />
+                                        <span className="text-xs font-semibold text-blue-500">AI Analysis</span>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => {
+                                          // Toggle AI analysis visibility
+                                          const aiSection = document.getElementById(`ai-analysis-${result.id}`)
+                                          if (aiSection) {
+                                            aiSection.classList.toggle('hidden')
+                                          }
+                                        }}
+                                      >
+                                        <Eye className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                    
+                                                                         <div id={`ai-analysis-${result.id}`} className="space-y-2 text-xs">
+                                       {(() => {
+                                         const aiData = scanResults.aiAnalysis.find(ai => ai.vulnerabilityId === result.id)
+                                         if (!aiData) return null
+                                         
+                                         return (
+                                           <div className="space-y-2 text-xs">
+                                             {/* Enhanced Description */}
+                                             {aiData.enhancedDescription && (
+                                               <div>
+                                                 <span className="font-medium text-foreground">Enhanced Analysis:</span>
+                                                 <p className="text-muted-foreground mt-1">{aiData.enhancedDescription}</p>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Confidence Score */}
+                                             {aiData.confidence && (
+                                               <div className="flex items-center justify-between">
+                                                 <span className="font-medium text-foreground">AI Confidence:</span>
+                                                 <span className={`font-bold ${
+                                                   aiData.confidence >= 0.8 ? 'text-green-500' :
+                                                   aiData.confidence >= 0.6 ? 'text-yellow-500' : 'text-red-500'
+                                                 }`}>
+                                                   {Math.round(aiData.confidence * 100)}%
+                                                 </span>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Risk Score */}
+                                             {aiData.riskScore && (
+                                               <div className="flex items-center justify-between">
+                                                 <span className="font-medium text-foreground">Risk Score:</span>
+                                                 <span className={`font-bold ${
+                                                   aiData.riskScore >= 80 ? 'text-red-500' :
+                                                   aiData.riskScore >= 60 ? 'text-orange-500' :
+                                                   aiData.riskScore >= 40 ? 'text-yellow-500' : 'text-green-500'
+                                                 }`}>
+                                                   {aiData.riskScore}/100
+                                                 </span>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Exploitability Score */}
+                                             {aiData.exploitabilityScore && (
+                                               <div className="flex items-center justify-between">
+                                                 <span className="font-medium text-foreground">Exploitability:</span>
+                                                 <span className="font-bold text-foreground">{aiData.exploitabilityScore}/100</span>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Impact Score */}
+                                             {aiData.impactScore && (
+                                               <div className="flex items-center justify-between">
+                                                 <span className="font-medium text-foreground">Impact Score:</span>
+                                                 <span className="font-bold text-foreground">{aiData.impactScore}/100</span>
+                                               </div>
+                                             )}
+                                             
+                                             {/* False Positive Risk */}
+                                             {aiData.falsePositiveRisk && (
+                                               <div className="flex items-center justify-between">
+                                                 <span className="font-medium text-foreground">False Positive Risk:</span>
+                                                 <span className="font-bold text-foreground">{Math.round(aiData.falsePositiveRisk)}%</span>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Smart Remediation */}
+                                             {aiData.smartRemediation && (
+                                               <div className="mt-2">
+                                                 <span className="font-medium text-foreground">AI Remediation:</span>
+                                                 <p className="text-muted-foreground mt-1">{aiData.smartRemediation}</p>
+                                               </div>
+                                             )}
+                                             
+                                             {/* CWE IDs */}
+                                             {aiData.cweIds && aiData.cweIds.length > 0 && (
+                                               <div className="mt-2">
+                                                 <span className="font-medium text-foreground">CWE IDs:</span>
+                                                 <div className="flex flex-wrap gap-1 mt-1">
+                                                   {aiData.cweIds.map((cwe: string, index: number) => (
+                                                     <span key={index} className="px-2 py-1 bg-orange-500/20 text-orange-500 rounded text-xs">
+                                                       {cwe}
+                                                     </span>
+                                                   ))}
+                                                 </div>
+                                               </div>
+                                             )}
+                                             
+                                             {/* Tags */}
+                                             {aiData.tags && aiData.tags.length > 0 && (
+                                               <div className="mt-2">
+                                                 <span className="font-medium text-foreground">Tags:</span>
+                                                 <div className="flex flex-wrap gap-1 mt-1">
+                                                   {aiData.tags.slice(0, 3).map((tag: string, index: number) => (
+                                                     <span key={index} className="px-2 py-1 bg-blue-500/20 text-blue-500 rounded text-xs">
+                                                       {tag}
+                                                     </span>
+                                                   ))}
+                                                   {aiData.tags.length > 3 && (
+                                                     <span className="px-2 py-1 bg-gray-500/20 text-gray-500 rounded text-xs">
+                                                       +{aiData.tags.length - 3}
+                                                     </span>
+                                                   )}
+                                                 </div>
+                                               </div>
+                                             )}
+                                           </div>
+                                         )
+                                       })()}
+                                     </div>
+                                   </div>
+                                 )}
                               </div>
                             </div>
                           </motion.div>
