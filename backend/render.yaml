@@ -3,10 +3,7 @@ services:
     name: blitzproof-backend
     env: node
     plan: free
-    buildCommand: |
-      npm ci --only=production && npm run build
-      chmod +x install-tools.sh
-      ./install-tools.sh
+    dockerfilePath: ./Dockerfile
     startCommand: npm start
     healthCheckPath: /health
     envVars:

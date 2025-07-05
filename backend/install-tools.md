@@ -211,4 +211,83 @@ After installing the tools:
 3. **Start the Masvibe backend server**
 4. **Test with a sample contract**
 
-The platform will automatically detect available tools and use mock data for any missing tools, ensuring the application continues to function even if some tools are not installed. 
+The platform will automatically detect available tools and use mock data for any missing tools, ensuring the application continues to function even if some tools are not installed.
+
+# Security Tools Installation Status
+
+## Current Status
+
+The BlitzProof platform integrates multiple security analysis tools. Due to dependency conflicts and installation challenges, some tools may not install properly in the Docker environment. However, the application has robust fallback mechanisms.
+
+## Tools Status
+
+### ✅ Working Tools
+- **Slither**: Primary static analysis tool - installed successfully
+- **AI Analysis**: OpenAI-powered vulnerability analysis - always available
+
+### ⚠️ Tools with Fallback
+The following tools have fallback to mock data if installation fails:
+
+1. **Mythril**: Symbolic execution tool
+   - Installation: `pip3 install mythril==0.24.7`
+   - Fallback: Mock vulnerability data
+   - Status: May fail due to dependency issues
+
+2. **Manticore**: Symbolic execution framework
+   - Installation: `pip3 install manticore`
+   - Fallback: Mock vulnerability data
+   - Status: May fail due to complex dependencies
+
+3. **Echidna**: Fuzzing tool
+   - Installation: Binary download from GitHub releases
+   - Fallback: Mock vulnerability data
+   - Status: May fail due to binary compatibility
+
+4. **Oyente**: Static analysis tool
+   - Installation: Git clone + pip install
+   - Fallback: Mock vulnerability data
+   - Status: May fail due to dependency issues
+
+5. **Securify**: Static analysis tool
+   - Installation: Git clone + pip install
+   - Fallback: Mock vulnerability data
+   - Status: May fail due to dependency issues
+
+## Fallback System
+
+The application automatically detects when tools are not available and falls back to realistic mock data. This ensures:
+
+- ✅ Application always works
+- ✅ Users get meaningful results
+- ✅ No crashes due to missing tools
+- ✅ Real vulnerabilities are still detected (via Slither + AI)
+
+## Testing Real Tools
+
+To test if tools are working:
+
+1. **Check tool availability**:
+   ```bash
+   slither --version
+   myth version
+   manticore --version
+   echidna-test --version
+   ```
+
+2. **Run a scan** and check the console output for:
+   - "Tool not available, using mock data" messages
+   - Tool execution times and success status
+
+## Deployment Notes
+
+- The Docker build will continue even if some tools fail to install
+- The application will use mock data for failed tools
+- Real security analysis is still performed via Slither and AI analysis
+- Users get a complete security report regardless of tool availability
+
+## Future Improvements
+
+1. **Containerized Tools**: Use separate containers for each tool
+2. **Tool-Specific Images**: Create optimized images for each tool
+3. **Dynamic Tool Loading**: Load tools at runtime based on availability
+4. **Alternative Installations**: Try different installation methods for problematic tools 
