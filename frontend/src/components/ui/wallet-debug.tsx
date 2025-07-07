@@ -146,7 +146,7 @@ export function WalletDebug() {
               <span className="font-medium">Mobile Issues</span>
             </div>
             <div className="pl-5 space-y-1 text-xs text-yellow-600">
-              <div>• MetaMask doesn't work as browser extension on mobile</div>
+              <div>• MetaMask doesn&apos;t work as browser extension on mobile</div>
               <div>• Need WalletConnect with mobile wallet apps</div>
               <div>• Check WalletConnect allowed origins</div>
             </div>
