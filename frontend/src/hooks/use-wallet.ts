@@ -1,142 +1,72 @@
 'use client'
 
 import { useAccount, useBalance, useDisconnect } from "wagmi"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { apiService } from "@/lib/api"
-import { useHydrated } from "./use-hydrated"
 
 export function useWallet() {
   const { address, isConnected } = useAccount()
-  // Handle balance fetching errors gracefully
-  const { data: balance, error: balanceError } = useBalance({ address })
+  const { data: balance } = useBalance({ address })
   const { disconnect } = useDisconnect()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const isHydrated = useHydrated()
 
-  const shortAddress = isHydrated && address 
+  const shortAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : ""
 
-  const handleUserRegistration = useCallback(async () => {
+  // Handle wallet connection and authentication
+  useEffect(() => {
+    if (isConnected && address) {
+      handleAuthentication()
+    } else {
+      setIsAuthenticated(false)
+      setError(null)
+      localStorage.removeItem('auth_token')
+    }
+  }, [isConnected, address])
+
+  const handleAuthentication = async () => {
     if (!address) return
 
     try {
       setIsLoading(true)
       setError(null)
       
-      // First, test backend connection
-      const isBackendConnected = await apiService.testConnection()
-      if (!isBackendConnected) {
-        throw new Error('Backend server is not available. Please check if the backend is running.')
-      }
-
-      // Check if user already has a token (only after hydration)
-      if (isHydrated) {
-        const existingToken = localStorage.getItem('auth_token')
-        if (existingToken) {
-          // Verify token is still valid
-          try {
-            await apiService.getProfile()
-            setIsAuthenticated(true)
-            console.log('✅ User authenticated with existing token')
-            return
-          } catch {
-            console.log('❌ Existing token invalid, removing...')
-            localStorage.removeItem('auth_token')
-          }
-        }
-      }
-
-      // Register new user with retry logic
-      let retries = 3
-      let lastError: Error | null = null
-      
-      while (retries > 0) {
+      // Check if user already has a valid token
+      const existingToken = localStorage.getItem('auth_token')
+      if (existingToken) {
         try {
-          console.log(`🔄 Attempting user registration (attempt ${4 - retries}/3)`)
-          const response = await apiService.registerUser(address)
-          
-          if (response.token) {
-            if (isHydrated) {
-              localStorage.setItem('auth_token', response.token)
-            }
-            setIsAuthenticated(true)
-            console.log('✅ User registered and authenticated successfully')
-            return
-          } else {
-            throw new Error('Registration response missing token')
-          }
-        } catch (registrationError) {
-          lastError = registrationError as Error
-          console.error(`❌ Registration attempt ${4 - retries}/3 failed:`, registrationError)
-          retries--
-          
-          if (retries > 0) {
-            // Wait before retry
-            await new Promise(resolve => setTimeout(resolve, 2000))
-          }
+          await apiService.getProfile()
+          setIsAuthenticated(true)
+          return
+        } catch {
+          localStorage.removeItem('auth_token')
         }
       }
-      
-      // All retries failed
-      throw lastError || new Error('Registration failed after all attempts')
-      
+
+      // Register new user
+      const response = await apiService.registerUser(address)
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token)
+        setIsAuthenticated(true)
+      }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      console.error('❌ User registration failed:', errorMessage)
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed'
       setError(errorMessage)
       setIsAuthenticated(false)
-      
-      // Clear any invalid tokens (only after hydration)
-      if (isHydrated) {
-        localStorage.removeItem('auth_token')
-      }
+      localStorage.removeItem('auth_token')
     } finally {
       setIsLoading(false)
     }
-  }, [address, isHydrated])
-
-  // Handle wallet connection and user registration
-  useEffect(() => {
-    // Only proceed if hydrated to prevent hydration mismatches
-    if (!isHydrated) return
-    
-    if (isConnected && address) {
-      console.log('🔗 Wallet connected, starting authentication...')
-      handleUserRegistration()
-    } else {
-      console.log('🔌 Wallet disconnected, clearing authentication...')
-      setIsAuthenticated(false)
-      setError(null)
-      // Clear auth token when wallet disconnects (only after hydration)
-      localStorage.removeItem('auth_token')
-    }
-  }, [isConnected, address, handleUserRegistration, isHydrated])
-
-  // Handle balance errors gracefully
-  useEffect(() => {
-    if (balanceError) {
-      console.warn('Balance fetch error (this is normal during development):', balanceError.message)
-    }
-  }, [balanceError])
+  }
 
   const handleDisconnect = () => {
-    console.log('👋 User disconnecting...')
-    if (isHydrated) {
-      localStorage.removeItem('auth_token')
-    }
+    localStorage.removeItem('auth_token')
     setIsAuthenticated(false)
     setError(null)
     disconnect()
-  }
-
-  const retryAuthentication = () => {
-    if (address) {
-      console.log('🔄 Retrying authentication...')
-      handleUserRegistration()
-    }
   }
 
   return {
@@ -148,6 +78,5 @@ export function useWallet() {
     shortAddress,
     balance,
     disconnect: handleDisconnect,
-    retryAuthentication
   }
 } 
