@@ -42,11 +42,29 @@ export function Web3Provider({ children }: Web3ProviderProps) {
         console.log('- QueryClient configured')
         console.log('- RainbowKitProvider initialized')
         
+        // Safari-specific debugging
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        console.log('🌐 Browser detection:', {
+          isSafari,
+          isMobile,
+          userAgent: navigator.userAgent,
+          platform: navigator.platform
+        })
+        
         // Check for common wallet injection issues
         console.log('🔍 Post-initialization wallet check:')
         console.log('- window.ethereum:', window.ethereum)
         console.log('- window.ethereum?.isMetaMask:', window.ethereum?.isMetaMask)
         console.log('- window.ethereum?.providers?.length:', window.ethereum?.providers?.length)
+        
+        // Check WalletConnect configuration
+        const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+        console.log('🔗 WalletConnect config:', {
+          projectId: walletConnectProjectId ? walletConnectProjectId.slice(0, 8) + '...' : 'NOT SET',
+          domain: window.location.origin,
+          isSecure: window.location.protocol === 'https:'
+        })
       }
     }, 100)
 
@@ -71,6 +89,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
         <RainbowKitProvider
           initialChain={config.chains[0]}
           showRecentTransactions={false}
+          locale="en-US"
         >
           {children}
         </RainbowKitProvider>

@@ -40,8 +40,19 @@ export const config = (() => {
     
     // Debug mobile detection
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     console.log('📱 Mobile detection:', isMobile ? 'Mobile device' : 'Desktop device')
+    console.log('🍎 Safari detection:', isSafari ? 'Safari browser' : 'Other browser')
     console.log('🔗 Available connectors:', isMetaMaskAvailable ? 'MetaMask + WalletConnect' : 'WalletConnect only')
+    
+    // Safari-specific warnings
+    if (isSafari && isMobile) {
+      console.log('📱 Safari Mobile detected - WalletConnect should work')
+      console.log('💡 If no wallets show, try:')
+      console.log('1. Check if WalletConnect project has correct domain')
+      console.log('2. Try refreshing the page')
+      console.log('3. Check if HTTPS is working properly')
+    }
   }
 
   // Create config with conditional MetaMask connector
