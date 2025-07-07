@@ -55,10 +55,13 @@ export const config = (() => {
     }
   }
 
-  // Create config with conditional MetaMask connector
+  // Create config with mobile-optimized connectors
   try {
-    if (isMetaMaskAvailable) {
-      console.log('✅ Creating config with MetaMask connector')
+    const isMobile = typeof window !== 'undefined' && 
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    
+    if (isMetaMaskAvailable && !isMobile) {
+      console.log('✅ Creating config with MetaMask connector (desktop)')
       configInstance = createConfig({
         chains: [mainnet, polygon, arbitrum, optimism],
         connectors: [
@@ -75,14 +78,20 @@ export const config = (() => {
         },
       })
     } else {
-      console.log('⚠️ Creating config without MetaMask connector (mobile)')
+      console.log('📱 Creating mobile-optimized config')
       const walletConnectConfig = walletConnect({
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+        metadata: {
+          name: 'BlitzProof',
+          description: 'Web3 Security Platform',
+          url: typeof window !== 'undefined' ? window.location.origin : 'https://blitzproof.com',
+          icons: ['https://blitzproof.com/favicon.ico']
+        }
       })
       
-      console.log('🔧 WalletConnect config created:', {
+      console.log('🔧 Mobile wallet config created:', {
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.slice(0, 8) + '...',
-        connector: walletConnectConfig,
+        isMobile,
         domain: typeof window !== 'undefined' ? window.location.origin : 'SSR'
       })
       
@@ -90,6 +99,7 @@ export const config = (() => {
         chains: [mainnet, polygon, arbitrum, optimism],
         connectors: [
           walletConnectConfig,
+          // Mobile wallet connectors
           injected({
             target: 'metaMask',
           }),

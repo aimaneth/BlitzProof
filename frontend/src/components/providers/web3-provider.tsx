@@ -90,6 +90,8 @@ export function Web3Provider({ children }: Web3ProviderProps) {
           initialChain={config.chains[0]}
           showRecentTransactions={false}
           locale="en-US"
+          // Mobile-specific configuration
+          modalSize="compact"
         >
           {children}
         </RainbowKitProvider>
