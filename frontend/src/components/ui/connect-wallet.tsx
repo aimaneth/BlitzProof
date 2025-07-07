@@ -105,7 +105,7 @@ export function ConnectWallet() {
   }
 
   return (
-    <div className="[&_.rainbow-kit-connect]:!h-9 [&_.rainbow-kit-connect]:!px-3 [&_.rainbow-kit-connect]:!text-sm">
+    <div className="[&_.rainbow-kit-connect]:!h-9 [&_.rainbow-kit-connect]:!px-3 [&_.rainbow-kit-connect]:!text-sm [&_.rainbow-kit-connect]:!justify-center [&_.rainbow-kit-connect]:!items-center [&_.rainbow-kit-connect]:!w-full [&_.rainbow-kit-connect]:!flex">
       {isHydrated ? (
         <ConnectButton />
       ) : (
