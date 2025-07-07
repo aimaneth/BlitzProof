@@ -168,48 +168,51 @@ export const config = (() => {
   return configInstance
 })()
 
-// Add error handling for RPC connection issues
+// Add error handling for RPC connection issues - only after hydration
 if (typeof window !== 'undefined') {
-  // Debug MetaMask and wallet detection
-  console.log('🔧 Web3 Configuration Debug:')
-  console.log('- MetaMask connector configured')
-  console.log('- Available chains:', [mainnet, polygon, arbitrum, optimism].map(c => c.name))
-  
-  // Listen for unhandled promise rejections related to RPC and MetaMask
-  window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason?.message?.includes('net::ERR_CONNECTION_CLOSED') ||
-        event.reason?.message?.includes('TimeoutError') ||
-        event.reason?.message?.includes('MetaMask extension not found') ||
-        event.reason?.message?.includes('User rejected')) {
-      console.warn('Wallet connection issue detected. This is normal during development.')
-      event.preventDefault() // Prevent the error from showing in console
-    }
-  })
-  
-  // Handle MetaMask extension errors
-  window.addEventListener('error', (event) => {
-    if (event.message?.includes('MetaMask extension not found') ||
-        event.message?.includes('ChromeTransport') ||
-        event.filename?.includes('inpage.js') ||
-        event.filename?.includes('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn') ||
-        event.filename?.includes('intercept-console-error.js')) {
-      console.warn('⚠️ MetaMask extension error detected. This is usually harmless and can be ignored.')
-      console.log('MetaMask will still work once the extension is properly loaded.')
-      event.preventDefault() // Prevent the error from showing in console
-      return false // Stop error propagation
-    }
-  }, true) // Use capture phase to catch errors early
+  // Use setTimeout to ensure this runs after React hydration is complete
+  setTimeout(() => {
+    // Debug MetaMask and wallet detection
+    console.log('🔧 Web3 Configuration Debug:')
+    console.log('- MetaMask connector configured')
+    console.log('- Available chains:', [mainnet, polygon, arbitrum, optimism].map(c => c.name))
+    
+    // Listen for unhandled promise rejections related to RPC and MetaMask
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason?.message?.includes('net::ERR_CONNECTION_CLOSED') ||
+          event.reason?.message?.includes('TimeoutError') ||
+          event.reason?.message?.includes('MetaMask extension not found') ||
+          event.reason?.message?.includes('User rejected')) {
+        console.warn('Wallet connection issue detected. This is normal during development.')
+        event.preventDefault() // Prevent the error from showing in console
+      }
+    })
+    
+    // Handle MetaMask extension errors
+    window.addEventListener('error', (event) => {
+      if (event.message?.includes('MetaMask extension not found') ||
+          event.message?.includes('ChromeTransport') ||
+          event.filename?.includes('inpage.js') ||
+          event.filename?.includes('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn') ||
+          event.filename?.includes('intercept-console-error.js')) {
+        console.warn('⚠️ MetaMask extension error detected. This is usually harmless and can be ignored.')
+        console.log('MetaMask will still work once the extension is properly loaded.')
+        event.preventDefault() // Prevent the error from showing in console
+        return false // Stop error propagation
+      }
+    }, true) // Use capture phase to catch errors early
 
-  // Override console.error to catch MetaMask errors
-  const originalConsoleError = console.error
-  console.error = (...args) => {
-    const message = args.join(' ')
-    if (message.includes('MetaMask extension not found') || 
-        message.includes('ChromeTransport') ||
-        message.includes('inpage.js')) {
-      console.warn('⚠️ MetaMask extension error suppressed:', message)
-      return // Don't log the error
+    // Override console.error to catch MetaMask errors
+    const originalConsoleError = console.error
+    console.error = (...args) => {
+      const message = args.join(' ')
+      if (message.includes('MetaMask extension not found') || 
+          message.includes('ChromeTransport') ||
+          message.includes('inpage.js')) {
+        console.warn('⚠️ MetaMask extension error suppressed:', message)
+        return // Don't log the error
+      }
+      originalConsoleError.apply(console, args)
     }
-    originalConsoleError.apply(console, args)
-  }
+  }, 1000) // Wait 1 second for full hydration
 } 
