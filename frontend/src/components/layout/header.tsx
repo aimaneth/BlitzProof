@@ -156,11 +156,11 @@ function MobileMenu({
               <Image
                 src="/logo.png"
                 alt="BlitzProof Logo"
-                className="h-8 w-8 rounded object-cover"
-                width={32}
-                height={32}
+                className="h-6 w-6 rounded object-cover"
+                width={24}
+                height={24}
               />
-              <span className="text-lg font-bold text-foreground">BlitzProof</span>
+              <span className="text-base font-bold text-foreground">BlitzProof</span>
             </div>
           </Link>
           <Button
@@ -208,6 +208,7 @@ function MobileMenu({
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const { isConnected, isAuthenticated } = useWallet()
   
   // Show authenticated navigation only when user is connected and authenticated
@@ -216,10 +217,25 @@ export function Header() {
     ...(isConnected && isAuthenticated ? authenticatedNavigation : [])
   ]
 
+  // Handle scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-6" aria-label="Global">
+      <header className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled 
+          ? "bg-background/70 backdrop-blur-xl border-b border-border/30 shadow-lg shadow-black/5" 
+          : "bg-transparent border-b border-transparent"
+      )}>
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4" aria-label="Global">
           {/* Logo */}
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center">
@@ -228,12 +244,12 @@ export function Header() {
                 <Image
                   src="/logo.png"
                   alt="BlitzProof Logo"
-                  className="h-10 w-10 sm:h-12 sm:w-12 rounded object-cover"
-                  width={48}
-                  height={48}
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded object-cover"
+                  width={32}
+                  height={32}
                   priority
                 />
-                <span className="text-xl sm:text-2xl font-bold text-foreground">BlitzProof</span>
+                <span className="text-lg sm:text-xl font-bold text-foreground">BlitzProof</span>
               </div>
             </Link>
           </div>
@@ -261,11 +277,11 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-12 w-12 p-0"
+              className="h-10 w-10 p-0"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
             >
-              <Menu className="h-6 w-6" aria-hidden="true" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>
           </div>
         </nav>

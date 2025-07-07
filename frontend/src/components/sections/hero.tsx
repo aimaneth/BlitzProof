@@ -389,7 +389,7 @@ const TypewriterText = ({
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-background py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-background -mt-20 pt-44 sm:pt-52">
       {/* Spotlight effect */}
       <Spotlight />
       
