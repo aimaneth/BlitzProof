@@ -178,6 +178,7 @@ const exampleContractsByNetwork: Record<string, { name: string; address: string;
 }
 
 export default function ScannerPage() {
+  // All hooks at the top!
   const { isConnected, shortAddress } = useWallet()
   const { isTutorialOpen, openTutorial, closeTutorial } = useTutorial()
   const isHydrated = useHydrated()
@@ -197,29 +198,9 @@ export default function ScannerPage() {
   const [showAdvancedAI, setShowAdvancedAI] = useState(false)
   const [showScanConfig, setShowScanConfig] = useState(false)
   const [scanConfig, setScanConfig] = useState<any>(null)
-  
   // New enhanced features state
   const [activeTab, setActiveTab] = useState<'scanner' | 'custom-rules' | 'batch-scan'>('scanner')
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false)
-
-  // Show loading state during hydration to prevent flash
-  if (!isHydrated) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Loading Scanner...
-            </h2>
-            <p className="text-muted-foreground">
-              Initializing security scanner...
-            </p>
-          </div>
-        </div>
-      </Layout>
-    )
-  }
 
   // Close network dropdown when clicking outside
   useEffect(() => {
@@ -245,32 +226,26 @@ export default function ScannerPage() {
       if (isTutorialOpen) {
         const currentTutorialStep = localStorage.getItem('blitzproof-tutorial-current-step') || '0'
         const stepNumber = parseInt(currentTutorialStep)
-        
         // Step 4 is Contract Address Analysis (0-indexed, so step 3)
         if (stepNumber === 3) {
           setInputMethod("address")
         }
       }
     }
-
     // Check immediately
     checkTutorialStep()
-
     // Listen for storage changes (when tutorial step changes)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'blitzproof-tutorial-current-step') {
         checkTutorialStep()
       }
     }
-
     // Listen for custom events (for same-tab communication)
     const handleTutorialStepChange = () => {
       checkTutorialStep()
     }
-
     window.addEventListener('storage', handleStorageChange)
     window.addEventListener('tutorial-step-change', handleTutorialStepChange)
-
     return () => {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('tutorial-step-change', handleTutorialStepChange)
@@ -481,7 +456,24 @@ export default function ScannerPage() {
     }
   }
 
-
+  // All hooks (useState, useEffect, useCallback, etc.) are now above this line
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Loading Scanner...
+            </h2>
+            <p className="text-muted-foreground">
+              Initializing security scanner...
+            </p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout>
