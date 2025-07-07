@@ -1,6 +1,6 @@
 import { createConfig, http } from 'wagmi'
 import { mainnet, polygon, arbitrum, optimism } from 'wagmi/chains'
-import { metaMask, walletConnect } from 'wagmi/connectors'
+import { metaMask, walletConnect, injected } from 'wagmi/connectors'
 
 // Ensure config is only created once
 let configInstance: ReturnType<typeof createConfig> | null = null
@@ -76,11 +76,28 @@ export const config = (() => {
       })
     } else {
       console.log('⚠️ Creating config without MetaMask connector (mobile)')
+      const walletConnectConfig = walletConnect({
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+      })
+      
+      console.log('🔧 WalletConnect config created:', {
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.slice(0, 8) + '...',
+        connector: walletConnectConfig,
+        domain: typeof window !== 'undefined' ? window.location.origin : 'SSR'
+      })
+      
       configInstance = createConfig({
         chains: [mainnet, polygon, arbitrum, optimism],
         connectors: [
-          walletConnect({
-            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+          walletConnectConfig,
+          injected({
+            target: 'metaMask',
+          }),
+          injected({
+            target: 'coinbaseWallet',
+          }),
+          injected({
+            target: 'trust',
           }),
         ],
         transports: {
@@ -91,14 +108,27 @@ export const config = (() => {
         },
       })
     }
+    
+    console.log('🎯 Final config created with connectors:', configInstance.connectors.map(c => c.name || 'Unknown'))
+    
   } catch (error) {
-    console.error('Failed to create wagmi config:', error)
-    // Fallback config without MetaMask if it fails
+    console.error('❌ Failed to create wagmi config:', error)
+    // Fallback config with multiple connectors
+    console.log('🔄 Using fallback config with multiple connectors')
     configInstance = createConfig({
       chains: [mainnet, polygon, arbitrum, optimism],
       connectors: [
         walletConnect({
           projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
+        }),
+        injected({
+          target: 'metaMask',
+        }),
+        injected({
+          target: 'coinbaseWallet',
+        }),
+        injected({
+          target: 'trust',
         }),
       ],
       transports: {
