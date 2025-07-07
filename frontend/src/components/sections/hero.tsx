@@ -493,8 +493,8 @@ export function Hero() {
                   width={1200}
                   height={800}
                 />
-                {/* Stronger and higher faded bottom overlay */}
-                <div className="pointer-events-none absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+                {/* Responsive faded bottom overlay - reduced on mobile */}
+                <div className="pointer-events-none absolute bottom-0 left-0 w-full h-32 sm:h-48 md:h-64 bg-gradient-to-t from-black/70 sm:from-black/80 md:from-black/90 via-black/40 sm:via-black/50 md:via-black/60 to-transparent" />
               </div>
             </div>
           </div>
