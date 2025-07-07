@@ -202,6 +202,25 @@ export default function ScannerPage() {
   const [activeTab, setActiveTab] = useState<'scanner' | 'custom-rules' | 'batch-scan'>('scanner')
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false)
 
+  // Show loading state during hydration to prevent flash
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Loading Scanner...
+            </h2>
+            <p className="text-muted-foreground">
+              Initializing security scanner...
+            </p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
   // Close network dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -641,7 +660,9 @@ export default function ScannerPage() {
                         <p className="text-xs sm:text-sm text-muted-foreground">
                           Connect your wallet to access the security scanner and save your scan history.
                         </p>
-                        <ConnectWallet />
+                        <div className="flex justify-center">
+                          <ConnectWallet />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -957,7 +978,9 @@ export default function ScannerPage() {
                             <p className="text-xs text-muted-foreground mb-3">
                               Connect your wallet to access the security scanner
                             </p>
-                            <ConnectWallet />
+                            <div className="flex justify-center">
+                              <ConnectWallet />
+                            </div>
                           </div>
                         </div>
                       ) : (

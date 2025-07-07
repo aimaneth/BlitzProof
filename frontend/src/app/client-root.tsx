@@ -8,7 +8,7 @@ export default function ClientRoot({ children }: { children: React.ReactNode }) 
   const pathname = usePathname()
   
   // Define protected routes that require authentication
-  const protectedRoutes = ['/dashboard', '/scanner', '/profile']
+  const protectedRoutes = ['/dashboard', '/profile']
   const isProtectedRoute = protectedRoutes.some(route => pathname?.startsWith(route))
 
   return (
