@@ -24,6 +24,26 @@ export const config = (() => {
     isMetaMaskAvailable
   })
 
+  // Debug mobile detection and WalletConnect configuration
+  if (typeof window !== 'undefined') {
+    const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+    if (!walletConnectProjectId) {
+      console.error('❌ WalletConnect not configured! Please:')
+      console.error('1. Go to https://cloud.walletconnect.com')
+      console.error('2. Create a new project')
+      console.error('3. Add your domain to allowed origins')
+      console.error('4. Update NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID in .env.local')
+    } else {
+      console.log('✅ WalletConnect project ID configured:', walletConnectProjectId.slice(0, 8) + '...')
+      console.log('✅ WalletConnect should work on mobile devices')
+    }
+    
+    // Debug mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    console.log('📱 Mobile detection:', isMobile ? 'Mobile device' : 'Desktop device')
+    console.log('🔗 Available connectors:', isMetaMaskAvailable ? 'MetaMask + WalletConnect' : 'WalletConnect only')
+  }
+
   // Create config with conditional MetaMask connector
   try {
     if (isMetaMaskAvailable) {
@@ -44,7 +64,7 @@ export const config = (() => {
         },
       })
     } else {
-      console.log('⚠️ Creating config without MetaMask connector')
+      console.log('⚠️ Creating config without MetaMask connector (mobile)')
       configInstance = createConfig({
         chains: [mainnet, polygon, arbitrum, optimism],
         connectors: [
@@ -81,19 +101,6 @@ export const config = (() => {
 
   return configInstance
 })()
-
-// Add a warning if WalletConnect is not properly configured
-if (typeof window !== 'undefined') {
-  if (!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
-    console.warn('⚠️ WalletConnect not properly configured. Please:')
-    console.warn('1. Go to https://cloud.walletconnect.com')
-    console.warn('2. Create a new project')
-    console.warn('3. Add http://localhost:3002 to allowed origins')
-    console.warn('4. Update NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID in .env.local')
-  } else {
-    console.log('✅ WalletConnect project ID configured:', process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.slice(0, 8) + '...')
-  }
-}
 
 // Add error handling for RPC connection issues
 if (typeof window !== 'undefined') {
