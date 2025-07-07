@@ -101,7 +101,8 @@ export const config = (() => {
           description: 'Web3 Security Platform',
           url: typeof window !== 'undefined' ? window.location.origin : 'https://blitzproof.com',
           icons: ['https://blitzproof.com/favicon.ico']
-        }
+        },
+        showQrModal: true
       })
       
       console.log('🔧 Mobile wallet config created:', {
@@ -114,15 +115,23 @@ export const config = (() => {
         chains: [mainnet, polygon, arbitrum, optimism],
         connectors: [
           walletConnectConfig,
-          // Mobile wallet connectors
+          // Force WalletConnect to be the primary option
           injected({
             target: 'metaMask',
+            shimDisconnect: true,
           }),
           injected({
             target: 'coinbaseWallet',
+            shimDisconnect: true,
           }),
           injected({
             target: 'trust',
+            shimDisconnect: true,
+          }),
+          // Add more mobile wallet options
+          injected({
+            target: 'rainbow',
+            shimDisconnect: true,
           }),
         ],
         transports: {

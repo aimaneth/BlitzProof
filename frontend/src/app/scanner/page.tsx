@@ -48,7 +48,6 @@ import { TutorialOverlay, useTutorial } from '@/components/ui/tutorial-overlay'
 import { RealTimeProgress } from '@/components/ui/real-time-progress'
 import { getSeverityColor, getSeverityBorderColor, sortVulnerabilitiesBySeverity } from "@/lib/utils"
 import Image from 'next/image'
-import { WalletDebug } from '@/components/ui/wallet-debug'
 
 const networks = [
   { id: "ethereum", name: "Ethereum", icon: "/networks/ethereum.png" },
@@ -1623,9 +1622,6 @@ export default function ScannerPage() {
 
       {/* Tutorial Overlay */}
       <TutorialOverlay isOpen={isTutorialOpen} onClose={closeTutorial} />
-      
-      {/* Wallet Debug Component */}
-      <WalletDebug />
     </Layout>
   )
 } 
