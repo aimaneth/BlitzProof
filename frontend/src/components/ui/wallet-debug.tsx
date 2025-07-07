@@ -21,6 +21,7 @@ export function WalletDebug() {
         walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID 
           ? `${process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID.slice(0, 8)}...` 
           : 'NOT SET',
+        walletConnectProjectIdFull: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'NOT SET',
         
         // Browser
         userAgent: navigator.userAgent,
@@ -98,9 +99,10 @@ export function WalletDebug() {
           </div>
           <div className="pl-5 space-y-1">
             <div>Project ID: {debugInfo.walletConnectProjectId}</div>
+            <div className="text-xs text-muted-foreground">Full ID: {debugInfo.walletConnectProjectIdFull}</div>
             {debugInfo.walletConnectProjectId === 'NOT SET' && (
               <div className="text-red-500 text-xs">
-                ❌ Add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to .env.local
+                ❌ Add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to Vercel environment
               </div>
             )}
           </div>
@@ -159,8 +161,9 @@ export function WalletDebug() {
           </div>
           <div className="pl-5 space-y-1 text-xs text-blue-600">
             <div>1. Go to https://cloud.walletconnect.com</div>
-            <div>2. Add {debugInfo.domain} to allowed origins</div>
-            <div>3. Use mobile wallet apps (MetaMask, Trust, etc.)</div>
+            <div>2. Find project: {debugInfo.walletConnectProjectIdFull}</div>
+            <div>3. Add {debugInfo.domain} to allowed origins</div>
+            <div>4. Use mobile wallet apps (MetaMask, Trust, etc.)</div>
           </div>
         </div>
       </div>
