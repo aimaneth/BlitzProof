@@ -62,7 +62,12 @@ export function ConnectWallet() {
   }, [isHydrated])
 
   if (!isHydrated) {
-    return null; // Don't render anything until hydrated
+    return (
+      <Button variant="outline" disabled className="h-9 px-3 text-sm">
+        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        Loading...
+      </Button>
+    )
   }
 
   if (isLoading) {
@@ -98,14 +103,16 @@ export function ConnectWallet() {
 
   return (
     <div className="[&_.rainbow-kit-connect]:!h-9 [&_.rainbow-kit-connect]:!px-3 [&_.rainbow-kit-connect]:!text-sm [&_.rainbow-kit-connect]:!justify-center [&_.rainbow-kit-connect]:!items-center [&_.rainbow-kit-connect]:!w-full [&_.rainbow-kit-connect]:!flex">
-      {isHydrated ? (
-        <ConnectButton />
-      ) : (
-        <Button variant="outline" disabled className="h-9 px-3 text-sm">
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Loading...
-        </Button>
-      )}
+      {(() => {
+        console.log('🔧 ConnectWallet render debug:', {
+          isHydrated,
+          isConnected,
+          isAuthenticated,
+          isLoading,
+          userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'SSR'
+        })
+        return <ConnectButton />
+      })()}
     </div>
   )
 } 
