@@ -455,17 +455,17 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 1.6 }}
           className="mx-auto mt-16 max-w-4xl px-4"
         >
-          <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-6 lg:gap-10 opacity-60 flex-wrap">
+          <div className="flex items-center justify-center gap-3 sm:gap-3 md:gap-6 lg:gap-10 opacity-60">
             {/* Partner logos */}
-            <Image src="/partners/Slither.png" alt="Slither" width={56} height={40} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
-            <Image src="/partners/Mythril.png" alt="Mythril" width={56} height={40} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
-            <Image src="/partners/Echidna.png" alt="Echidna" width={56} height={40} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
-            <Image src="/partners/Manticore.png" alt="Manticore" width={56} height={40} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
-            <div className="h-8 sm:h-12 md:h-16 lg:h-20 flex items-center justify-center">
+            <Image src="/partners/Slither.png" alt="Slither" width={56} height={40} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <Image src="/partners/Mythril.png" alt="Mythril" width={56} height={40} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <Image src="/partners/Echidna.png" alt="Echidna" width={56} height={40} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <Image src="/partners/Manticore.png" alt="Manticore" width={56} height={40} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <div className="h-12 sm:h-14 md:h-16 lg:h-20 flex items-center justify-center">
               <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-500">Oyente</span>
             </div>
-            <Image src="/partners/Securify.png" alt="Securify" width={56} height={48} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
-            <Image src="/partners/OpenAI.png" alt="OpenAI" width={56} height={80} className="h-8 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <Image src="/partners/Securify.png" alt="Securify" width={56} height={48} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
+            <Image src="/partners/OpenAI.png" alt="OpenAI" width={56} height={80} className="h-12 w-auto sm:h-12 md:h-16 lg:h-20" />
           </div>
         </motion.div>
 
