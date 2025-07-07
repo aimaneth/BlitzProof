@@ -61,16 +61,8 @@ export function ConnectWallet() {
     }
   }, [isHydrated])
 
-
-
-  // Show loading state during hydration to prevent mismatch
   if (!isHydrated) {
-    return (
-      <Button variant="outline" disabled className="h-9 px-3 text-sm">
-        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        Loading...
-      </Button>
-    )
+    return null; // Don't render anything until hydrated
   }
 
   if (isLoading) {
