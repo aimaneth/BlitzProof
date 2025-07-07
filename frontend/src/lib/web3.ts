@@ -2,10 +2,25 @@ import { createConfig, http } from 'wagmi'
 import { mainnet, polygon, arbitrum, optimism } from 'wagmi/chains'
 import { metaMask, walletConnect, injected } from 'wagmi/connectors'
 
-// Ensure config is only created once
+// Ensure config is only created once and only on client
 let configInstance: ReturnType<typeof createConfig> | null = null
 
 export const config = (() => {
+  // Only create config on client side to avoid SSR issues
+  if (typeof window === 'undefined') {
+    // Return a minimal config for SSR
+    return createConfig({
+      chains: [mainnet, polygon, arbitrum, optimism],
+      connectors: [],
+      transports: {
+        [mainnet.id]: http(),
+        [polygon.id]: http(),
+        [arbitrum.id]: http(),
+        [optimism.id]: http(),
+      },
+    })
+  }
+
   if (configInstance) {
     return configInstance
   }
@@ -119,7 +134,7 @@ export const config = (() => {
       })
     }
     
-    console.log('🎯 Final config created with connectors:', configInstance.connectors.map(c => c.name || 'Unknown'))
+    console.log('🎯 Final config created with connectors:', configInstance.connectors.map(c => c.name || "Unknown"))
     
   } catch (error) {
     console.error('❌ Failed to create wagmi config:', error)

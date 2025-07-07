@@ -30,11 +30,11 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     setIsClient(true)
   }, [])
 
-  // Debug wallet detection
+  // Debug wallet detection - only run after full hydration
   useEffect(() => {
     if (!isClient) return
     
-    // Use a timeout to ensure this runs after hydration
+    // Use a longer timeout to ensure this runs after all hydration is complete
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined') {
         console.log('🔧 Web3Provider Debug:')
@@ -66,7 +66,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
           isSecure: window.location.protocol === 'https:'
         })
       }
-    }, 100)
+    }, 500) // Increased timeout to avoid hydration issues
 
     return () => clearTimeout(timer)
   }, [isClient])
