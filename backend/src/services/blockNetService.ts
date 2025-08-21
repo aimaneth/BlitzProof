@@ -318,7 +318,7 @@ class BlockNetService {
       ORDER BY timestamp DESC 
       LIMIT $1
     `
-    let params = [limit]
+    let params: (string | number)[] = [limit]
     
     if (tokenAddress) {
       query = `
@@ -364,7 +364,7 @@ class BlockNetService {
         priceChange24h: 0,
         volume24h: 0,
         liquidityUSD: 0,
-        holderCount: parseInt(mockTokenData.holderCount),
+        holderCount: parseInt(mockTokenData.holderCount) || 0,
         transactionCount24h: transactions.length,
         largeTransactions24h,
         securityScore,
