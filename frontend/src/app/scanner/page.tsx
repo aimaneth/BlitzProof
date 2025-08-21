@@ -201,6 +201,43 @@ export default function ScannerPage() {
   // New enhanced features state
   const [activeTab, setActiveTab] = useState<'scanner' | 'custom-rules' | 'batch-scan'>('scanner')
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false)
+  const [stats, setStats] = useState<any>(null)
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
+
+  // Fetch stats for dashboard
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await apiService.getGlobalStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+        // Fallback to default stats
+        setStats({
+          totalScans: 0,
+          completedScans: 0,
+          totalVulnerabilities: 0
+        })
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  // Fetch recent activity
+  useEffect(() => {
+    const fetchRecentActivity = async () => {
+      try {
+        const data = await apiService.getRecentActivity(3)
+        setRecentActivity(data.recentActivity || [])
+      } catch (error) {
+        console.error('Failed to fetch recent activity:', error)
+        setRecentActivity([])
+      }
+    }
+
+    fetchRecentActivity()
+  }, [])
 
   // Close network dropdown when clicking outside
   useEffect(() => {
@@ -1343,7 +1380,9 @@ export default function ScannerPage() {
                           </div>
                           <div>
                             <p className="text-xs sm:text-sm text-muted-foreground">Total Scans</p>
-                            <p className="text-xl sm:text-2xl font-bold text-foreground">1,247</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
+                              {stats?.totalScans || '0'}
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -1357,7 +1396,9 @@ export default function ScannerPage() {
                           </div>
                           <div>
                             <p className="text-xs sm:text-sm text-muted-foreground">Secure Contracts</p>
-                            <p className="text-xl sm:text-2xl font-bold text-foreground">892</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
+                              {stats?.completedScans || '0'}
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -1371,7 +1412,9 @@ export default function ScannerPage() {
                           </div>
                           <div>
                             <p className="text-xs sm:text-sm text-muted-foreground">Vulnerabilities Found</p>
-                            <p className="text-xl sm:text-2xl font-bold text-foreground">355</p>
+                            <p className="text-xl sm:text-2xl font-bold text-foreground">
+                              {stats?.totalVulnerabilities || '0'}
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -1440,38 +1483,45 @@ export default function ScannerPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3 sm:space-y-4">
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
-                          <div className="p-1.5 sm:p-2 bg-green-500/20 rounded-full">
-                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                        {recentActivity && recentActivity.length > 0 ? (
+                          recentActivity.map((activity) => (
+                            <div key={activity.id} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
+                              <div className={`p-1.5 sm:p-2 rounded-full ${
+                                activity.status === 'completed' ? 'bg-green-500/20' :
+                                activity.status === 'failed' ? 'bg-red-500/20' : 'bg-yellow-500/20'
+                              }`}>
+                                {activity.status === 'completed' ? (
+                                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                                ) : activity.status === 'failed' ? (
+                                  <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                                ) : (
+                                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs sm:text-sm font-medium text-foreground truncate">
+                                  {activity.contractName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(activity.createdAt).toLocaleDateString()} • {activity.network}
+                                </p>
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  activity.status === 'completed' ? 'text-green-500 border-green-500/30' :
+                                  activity.status === 'failed' ? 'text-red-500 border-red-500/30' : 'text-yellow-500 border-yellow-500/30'
+                                }`}
+                              >
+                                {activity.vulnerabilityCount > 0 ? `${activity.vulnerabilityCount} Issues` : 'Secure'}
+                              </Badge>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-4">
+                            <p className="text-xs sm:text-sm text-muted-foreground">No recent activity</p>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">USDT Token Analysis</p>
-                            <p className="text-xs text-muted-foreground">Completed 2 minutes ago</p>
-                          </div>
-                          <Badge variant="outline" className="text-green-500 border-green-500/30 text-xs">Secure</Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
-                          <div className="p-1.5 sm:p-2 bg-yellow-500/20 rounded-full">
-                            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">DeFi Protocol Scan</p>
-                            <p className="text-xs text-muted-foreground">Completed 15 minutes ago</p>
-                          </div>
-                          <Badge variant="outline" className="text-yellow-500 border-yellow-500/30 text-xs">3 Issues</Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-card/50 rounded-lg">
-                          <div className="p-1.5 sm:p-2 bg-red-500/20 rounded-full">
-                            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-foreground truncate">NFT Contract Analysis</p>
-                            <p className="text-xs text-muted-foreground">Completed 1 hour ago</p>
-                          </div>
-                          <Badge variant="outline" className="text-red-500 border-red-500/30 text-xs">Critical</Badge>
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

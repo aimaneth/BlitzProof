@@ -223,8 +223,26 @@ class ApiService {
     })
   }
 
-  async getUserStats(): Promise<UserStats> {
-    return this.request<UserStats>('/api/profile/stats')
+  async getUserStats(): Promise<{
+    totalScans: number
+    completedScans: number
+    failedScans: number
+    totalVulnerabilities: number
+    highVulnerabilities: number
+    mediumVulnerabilities: number
+    lowVulnerabilities: number
+    successRate: string
+  }> {
+    return this.request<{
+      totalScans: number
+      completedScans: number
+      failedScans: number
+      totalVulnerabilities: number
+      highVulnerabilities: number
+      mediumVulnerabilities: number
+      lowVulnerabilities: number
+      successRate: string
+    }>('/api/scan/stats/user')
   }
 
   async createApiKey(name: string, permissions?: string[]): Promise<{ message: string; api_key: ApiKey }> {
@@ -406,6 +424,62 @@ class ApiService {
 
   async getRemediationStats(): Promise<{ data: any }> {
     return this.request<{ data: any }>('/api/remediation/stats')
+  }
+
+  // New methods for real statistics
+  async getGlobalStats(): Promise<{
+    totalScans: string
+    totalVulnerabilities: string
+    detectionAccuracy: string
+    completedScans: number
+    failedScans: number
+    highVulnerabilities: number
+    mediumVulnerabilities: number
+    lowVulnerabilities: number
+  }> {
+    return this.request<{
+      totalScans: string
+      totalVulnerabilities: string
+      detectionAccuracy: string
+      completedScans: number
+      failedScans: number
+      highVulnerabilities: number
+      mediumVulnerabilities: number
+      lowVulnerabilities: number
+    }>('/api/scan/stats/global')
+  }
+
+  async getRecentActivity(limit?: number): Promise<{
+    recentActivity: Array<{
+      id: number
+      contractName: string
+      contractAddress?: string
+      network: string
+      status: string
+      createdAt: string
+      updatedAt: string
+      vulnerabilityCount: number
+      highCount: number
+      mediumCount: number
+      lowCount: number
+    }>
+  }> {
+    const params = limit ? `?limit=${limit}` : ''
+    return this.request<{
+      recentActivity: Array<{
+        id: number
+        contractName: string
+        contractAddress?: string
+        network: string
+        status: string
+        createdAt: string
+        updatedAt: string
+        vulnerabilityCount: number
+        highCount: number
+        mediumCount: number
+        lowCount: number
+      }>
+    }>(`/api/scan/recent-activity${params}`)
   }
 }
 

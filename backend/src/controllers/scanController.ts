@@ -289,6 +289,148 @@ export const getScanDetails = async (req: AuthRequest, res: Response): Promise<v
   }
 }
 
+export const getGlobalStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Get global statistics from database
+    const totalScansResult = await pool.query('SELECT COUNT(*) as total FROM scans')
+    const completedScansResult = await pool.query("SELECT COUNT(*) as completed FROM scans WHERE status = 'completed'")
+    const failedScansResult = await pool.query("SELECT COUNT(*) as failed FROM scans WHERE status = 'failed'")
+    
+    // Get vulnerability statistics
+    const vulnResult = await pool.query(`
+      SELECT 
+        COUNT(*) as total_vulnerabilities,
+        COUNT(CASE WHEN severity = 'high' THEN 1 END) as high_vulnerabilities,
+        COUNT(CASE WHEN severity = 'medium' THEN 1 END) as medium_vulnerabilities,
+        COUNT(CASE WHEN severity = 'low' THEN 1 END) as low_vulnerabilities
+      FROM scan_results
+    `)
+    
+    const totalScans = parseInt(totalScansResult.rows[0]?.total || '0')
+    const completedScans = parseInt(completedScansResult.rows[0]?.completed || '0')
+    const totalVulnerabilities = parseInt(vulnResult.rows[0]?.total_vulnerabilities || '0')
+    
+    // Calculate detection accuracy based on completed scans
+    const detectionAccuracy = totalScans > 0 ? ((completedScans / totalScans) * 100).toFixed(1) : '0.0'
+    
+    res.json({
+      totalScans: totalScans.toLocaleString(),
+      totalVulnerabilities: totalVulnerabilities.toLocaleString(),
+      detectionAccuracy: `${detectionAccuracy}%`,
+      completedScans,
+      failedScans: parseInt(failedScansResult.rows[0]?.failed || '0'),
+      highVulnerabilities: parseInt(vulnResult.rows[0]?.high_vulnerabilities || '0'),
+      mediumVulnerabilities: parseInt(vulnResult.rows[0]?.medium_vulnerabilities || '0'),
+      lowVulnerabilities: parseInt(vulnResult.rows[0]?.low_vulnerabilities || '0')
+    })
+  } catch (error) {
+    console.error('Error fetching global stats:', error)
+    res.status(500).json({ error: 'Failed to fetch global statistics' })
+  }
+}
+
+export const getUserStats = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'User not authenticated' })
+      return
+    }
+
+    const userId = req.user.userId
+
+    // Get user's scan statistics
+    const totalScansResult = await pool.query('SELECT COUNT(*) as total FROM scans WHERE user_id = $1', [userId])
+    const completedScansResult = await pool.query("SELECT COUNT(*) as completed FROM scans WHERE user_id = $1 AND status = 'completed'", [userId])
+    const failedScansResult = await pool.query("SELECT COUNT(*) as failed FROM scans WHERE user_id = $1 AND status = 'failed'", [userId])
+    
+    // Get user's vulnerability statistics
+    const vulnResult = await pool.query(`
+      SELECT 
+        COUNT(*) as total_vulnerabilities,
+        COUNT(CASE WHEN severity = 'high' THEN 1 END) as high_vulnerabilities,
+        COUNT(CASE WHEN severity = 'medium' THEN 1 END) as medium_vulnerabilities,
+        COUNT(CASE WHEN severity = 'low' THEN 1 END) as low_vulnerabilities
+      FROM scan_results sr
+      JOIN scans s ON sr.scan_id = s.id
+      WHERE s.user_id = $1
+    `, [userId])
+    
+    const totalScans = parseInt(totalScansResult.rows[0]?.total || '0')
+    const completedScans = parseInt(completedScansResult.rows[0]?.completed || '0')
+    const totalVulnerabilities = parseInt(vulnResult.rows[0]?.total_vulnerabilities || '0')
+    
+    // Calculate success rate
+    const successRate = totalScans > 0 ? ((completedScans / totalScans) * 100).toFixed(1) : '0.0'
+    
+    res.json({
+      totalScans,
+      completedScans,
+      failedScans: parseInt(failedScansResult.rows[0]?.failed || '0'),
+      totalVulnerabilities,
+      highVulnerabilities: parseInt(vulnResult.rows[0]?.high_vulnerabilities || '0'),
+      mediumVulnerabilities: parseInt(vulnResult.rows[0]?.medium_vulnerabilities || '0'),
+      lowVulnerabilities: parseInt(vulnResult.rows[0]?.low_vulnerabilities || '0'),
+      successRate: `${successRate}%`
+    })
+  } catch (error) {
+    console.error('Error fetching user stats:', error)
+    res.status(500).json({ error: 'Failed to fetch user statistics' })
+  }
+}
+
+export const getRecentActivity = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'User not authenticated' })
+      return
+    }
+
+    const userId = req.user.userId
+    const limit = parseInt(req.query.limit as string) || 5
+
+    // Get recent scans with vulnerability counts
+    const result = await pool.query(`
+      SELECT 
+        s.id,
+        s.contract_name,
+        s.contract_address,
+        s.network,
+        s.status,
+        s.created_at,
+        s.updated_at,
+        COUNT(sr.id) as vulnerability_count,
+        COUNT(CASE WHEN sr.severity = 'high' THEN 1 END) as high_count,
+        COUNT(CASE WHEN sr.severity = 'medium' THEN 1 END) as medium_count,
+        COUNT(CASE WHEN sr.severity = 'low' THEN 1 END) as low_count
+      FROM scans s
+      LEFT JOIN scan_results sr ON s.id = sr.scan_id
+      WHERE s.user_id = $1
+      GROUP BY s.id, s.contract_name, s.contract_address, s.network, s.status, s.created_at, s.updated_at
+      ORDER BY s.created_at DESC
+      LIMIT $2
+    `, [userId, limit])
+
+    const recentActivity = result.rows.map(row => ({
+      id: row.id,
+      contractName: row.contract_name || 'Unknown Contract',
+      contractAddress: row.contract_address,
+      network: row.network,
+      status: row.status,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      vulnerabilityCount: parseInt(row.vulnerability_count || '0'),
+      highCount: parseInt(row.high_count || '0'),
+      mediumCount: parseInt(row.medium_count || '0'),
+      lowCount: parseInt(row.low_count || '0')
+    }))
+
+    res.json({ recentActivity })
+  } catch (error) {
+    console.error('Error fetching recent activity:', error)
+    res.status(500).json({ error: 'Failed to fetch recent activity' })
+  }
+}
+
 export const scanController = {
   // Start a new scan
   async startScan(req: Request, res: Response) {

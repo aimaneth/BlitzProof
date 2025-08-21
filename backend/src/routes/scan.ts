@@ -1,5 +1,5 @@
 import express from 'express'
-import { uploadContract, scanContractAddress, getScanProgress, getUserScans, getScanDetails } from '../controllers/scanController'
+import { uploadContract, scanContractAddress, getScanProgress, getUserScans, getScanDetails, getGlobalStats, getUserStats, getRecentActivity } from '../controllers/scanController'
 import { authenticateToken, optionalAuth } from '../middleware/auth'
 import { upload } from '../middleware/upload'
 import scanService from '../services/scanService'
@@ -40,6 +40,12 @@ router.post('/upload', (req: any, res: any, next: any) => {
   console.log('📋 Body after multer:', req.body)
   next()
 }, uploadContract)
+
+// New routes for real statistics
+router.get('/stats/global', getGlobalStats)
+router.get('/stats/user', authenticateToken, getUserStats)
+router.get('/recent-activity', authenticateToken, getRecentActivity)
+
 router.get('/status/:scanId', async (req, res, next) => {
   try {
     console.log('🔍 STATUS ROUTE HIT with scanId:', req.params.scanId)
