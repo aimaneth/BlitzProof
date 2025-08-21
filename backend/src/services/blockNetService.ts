@@ -425,6 +425,75 @@ class BlockNetService {
       recentActivity: alerts
     }
   }
+
+  // Mark alert as read
+  async markAlertAsRead(alertId: string): Promise<boolean> {
+    try {
+      const result = await pool.query(
+        'UPDATE security_alerts SET is_read = true WHERE id = $1',
+        [alertId]
+      )
+      return result.rowCount > 0
+    } catch (error) {
+      console.error('Error marking alert as read:', error)
+      return false
+    }
+  }
+
+  // Remove token from monitoring
+  async removeTokenMonitor(tokenAddress: string): Promise<boolean> {
+    try {
+      const result = await pool.query(
+        'DELETE FROM token_monitors WHERE token_address = $1',
+        [tokenAddress]
+      )
+      return result.rowCount > 0
+    } catch (error) {
+      console.error('Error removing token monitor:', error)
+      return false
+    }
+  }
+
+  // Update monitoring settings
+  async updateMonitoringSettings(tokenAddress: string, settings: {
+    monitoringEnabled?: boolean
+    alertThresholds?: any
+  }): Promise<boolean> {
+    try {
+      const updates: string[] = []
+      const values: any[] = []
+      let paramCount = 1
+
+      if (settings.monitoringEnabled !== undefined) {
+        updates.push(`monitoring_enabled = $${paramCount}`)
+        values.push(settings.monitoringEnabled)
+        paramCount++
+      }
+
+      if (settings.alertThresholds) {
+        updates.push(`alert_thresholds = $${paramCount}`)
+        values.push(JSON.stringify(settings.alertThresholds))
+        paramCount++
+      }
+
+      if (updates.length === 0) return false
+
+      updates.push(`updated_at = CURRENT_TIMESTAMP`)
+      values.push(tokenAddress)
+
+      const query = `
+        UPDATE token_monitors 
+        SET ${updates.join(', ')} 
+        WHERE token_address = $${paramCount}
+      `
+
+      const result = await pool.query(query, values)
+      return result.rowCount > 0
+    } catch (error) {
+      console.error('Error updating monitoring settings:', error)
+      return false
+    }
+  }
 }
 
 export default new BlockNetService()

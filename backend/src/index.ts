@@ -19,6 +19,7 @@ import customRulesRoutes from './routes/customRules'
 import batchScanRoutes from './routes/batchScan'
 import remediationRoutes from './routes/remediation'
 import contactRoutes from './routes/contact'
+import blockNetRoutes from './routes/blockNet'
 
 dotenv.config()
 
@@ -194,6 +195,7 @@ app.use('/api/custom-rules', customRulesRoutes)
 app.use('/api/batch-scan', batchScanRoutes)
 app.use('/api/remediation', remediationRoutes)
 app.use('/api/contact', contactRoutes)
+app.use('/api/blocknet', blockNetRoutes)
 
 // Initialize WebSocket service after server creation
 wsService = new WebSocketService(server)

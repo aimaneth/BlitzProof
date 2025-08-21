@@ -17,6 +17,7 @@ import { Loader2 } from "lucide-react"
 const publicNavigation = [
   { name: "Services", href: "/services" },
   { name: "Scanner", href: "/scanner" },
+  { name: "BlockNet", href: "/blocknet" },
 ]
 
 // Navigation items that require authentication

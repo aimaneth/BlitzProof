@@ -482,6 +482,226 @@ class ApiService {
     }>(`/api/scan/recent-activity${params}`)
   }
 
+  // BlockNet API Methods
+  async getBlockNetDashboard(): Promise<{
+    totalMonitored: number
+    totalAlerts: number
+    criticalAlerts: number
+    highRiskTokens: number
+    recentActivity: Array<{
+      id: string
+      tokenAddress: string
+      alertType: string
+      severity: string
+      title: string
+      description: string
+      timestamp: string
+      isRead: boolean
+    }>
+  }> {
+    return this.request<{
+      totalMonitored: number
+      totalAlerts: number
+      criticalAlerts: number
+      highRiskTokens: number
+      recentActivity: Array<{
+        id: string
+        tokenAddress: string
+        alertType: string
+        severity: string
+        title: string
+        description: string
+        timestamp: string
+        isRead: boolean
+      }>
+    }>('/api/blocknet/dashboard')
+  }
+
+  async getMonitoredTokens(): Promise<{
+    tokens: Array<{
+      id: string
+      tokenAddress: string
+      tokenName: string
+      tokenSymbol: string
+      network: string
+      contractType: string
+      monitoringEnabled: boolean
+      alertThresholds: any
+      createdAt: string
+      updatedAt: string
+    }>
+  }> {
+    return this.request<{
+      tokens: Array<{
+        id: string
+        tokenAddress: string
+        tokenName: string
+        tokenSymbol: string
+        network: string
+        contractType: string
+        monitoringEnabled: boolean
+        alertThresholds: any
+        createdAt: string
+        updatedAt: string
+      }>
+    }>('/api/blocknet/monitors')
+  }
+
+  async addTokenMonitor(monitorData: {
+    tokenAddress: string
+    tokenName: string
+    tokenSymbol: string
+    network: string
+    contractType: string
+  }): Promise<{ success: boolean; monitor: any }> {
+    return this.request<{ success: boolean; monitor: any }>('/api/blocknet/monitors', {
+      method: 'POST',
+      body: JSON.stringify(monitorData)
+    })
+  }
+
+  async getSecurityAlerts(tokenAddress?: string, limit?: number): Promise<{
+    alerts: Array<{
+      id: string
+      tokenAddress: string
+      alertType: string
+      severity: string
+      title: string
+      description: string
+      transactionHash?: string
+      fromAddress?: string
+      toAddress?: string
+      amount?: string
+      usdValue?: number
+      timestamp: string
+      isRead: boolean
+      metadata: any
+    }>
+    total: number
+    critical: number
+    high: number
+    medium: number
+    low: number
+  }> {
+    const params = new URLSearchParams()
+    if (tokenAddress) params.append('tokenAddress', tokenAddress)
+    if (limit) params.append('limit', limit.toString())
+    
+    const queryString = params.toString()
+    return this.request<{
+      alerts: Array<{
+        id: string
+        tokenAddress: string
+        alertType: string
+        severity: string
+        title: string
+        description: string
+        transactionHash?: string
+        fromAddress?: string
+        toAddress?: string
+        amount?: string
+        usdValue?: number
+        timestamp: string
+        isRead: boolean
+        metadata: any
+      }>
+      total: number
+      critical: number
+      high: number
+      medium: number
+      low: number
+    }>(`/api/blocknet/alerts${queryString ? `?${queryString}` : ''}`)
+  }
+
+  async markAlertAsRead(alertId: string): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(`/api/blocknet/alerts/${alertId}/read`, {
+      method: 'PUT'
+    })
+  }
+
+  async getTokenRanking(limit?: number, sortBy?: string): Promise<{
+    ranking: Array<{
+      rank: number
+      id: string
+      tokenAddress: string
+      tokenName: string
+      tokenSymbol: string
+      network: string
+      contractType: string
+      monitoringEnabled: boolean
+      metrics: {
+        securityScore: number
+        riskLevel: string
+        transactionCount24h: number
+        largeTransactions24h: number
+      }
+    }>
+    total: number
+  }> {
+    const params = new URLSearchParams()
+    if (limit) params.append('limit', limit.toString())
+    if (sortBy) params.append('sortBy', sortBy)
+    
+    const queryString = params.toString()
+    return this.request<{
+      ranking: Array<{
+        rank: number
+        id: string
+        tokenAddress: string
+        tokenName: string
+        tokenSymbol: string
+        network: string
+        contractType: string
+        monitoringEnabled: boolean
+        metrics: {
+          securityScore: number
+          riskLevel: string
+          transactionCount24h: number
+          largeTransactions24h: number
+        }
+      }>
+      total: number
+    }>(`/api/blocknet/ranking${queryString ? `?${queryString}` : ''}`)
+  }
+
+  async getTokenMetrics(tokenAddress: string): Promise<{
+    metrics: {
+      tokenAddress: string
+      totalSupply: string
+      circulatingSupply: string
+      marketCap: number
+      price: number
+      priceChange24h: number
+      volume24h: number
+      liquidityUSD: number
+      holderCount: number
+      transactionCount24h: number
+      largeTransactions24h: number
+      securityScore: number
+      riskLevel: string
+      lastUpdated: string
+    }
+  }> {
+    return this.request<{
+      metrics: {
+        tokenAddress: string
+        totalSupply: string
+        circulatingSupply: string
+        marketCap: number
+        price: number
+        priceChange24h: number
+        volume24h: number
+        liquidityUSD: number
+        holderCount: number
+        transactionCount24h: number
+        largeTransactions24h: number
+        securityScore: number
+        riskLevel: string
+        lastUpdated: string
+      }
+    }>(`/api/blocknet/tokens/${tokenAddress}/metrics`)
+  }
+
   // Contact form submission
   async submitContactForm(formData: {
     project: string

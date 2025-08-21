@@ -297,6 +297,46 @@ CREATE INDEX IF NOT EXISTS idx_custom_rules_severity ON custom_rules(severity);
 CREATE INDEX IF NOT EXISTS idx_batch_scan_jobs_user_id ON batch_scan_jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_batch_scan_jobs_status ON batch_scan_jobs(status);
 CREATE INDEX IF NOT EXISTS idx_batch_scan_files_job_id ON batch_scan_files(job_id);
+
+-- Create token monitors table for BlockNet
+CREATE TABLE IF NOT EXISTS token_monitors (
+    id VARCHAR(100) PRIMARY KEY,
+    token_address VARCHAR(42) NOT NULL,
+    token_name VARCHAR(255) NOT NULL,
+    token_symbol VARCHAR(50) NOT NULL,
+    network VARCHAR(50) DEFAULT 'ethereum',
+    contract_type VARCHAR(20) DEFAULT 'ERC20',
+    monitoring_enabled BOOLEAN DEFAULT true,
+    alert_thresholds JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create security alerts table for BlockNet
+CREATE TABLE IF NOT EXISTS security_alerts (
+    id VARCHAR(100) PRIMARY KEY,
+    token_address VARCHAR(42) NOT NULL,
+    alert_type VARCHAR(50) NOT NULL,
+    severity VARCHAR(20) NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    transaction_hash VARCHAR(66),
+    from_address VARCHAR(42),
+    to_address VARCHAR(42),
+    amount VARCHAR(255),
+    usd_value DECIMAL(20, 8),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT false,
+    metadata JSONB DEFAULT '{}'
+);
+
+-- Create BlockNet indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_token_monitors_address ON token_monitors(token_address);
+CREATE INDEX IF NOT EXISTS idx_token_monitors_enabled ON token_monitors(monitoring_enabled);
+CREATE INDEX IF NOT EXISTS idx_security_alerts_token ON security_alerts(token_address);
+CREATE INDEX IF NOT EXISTS idx_security_alerts_severity ON security_alerts(severity);
+CREATE INDEX IF NOT EXISTS idx_security_alerts_timestamp ON security_alerts(timestamp);
+CREATE INDEX IF NOT EXISTS idx_security_alerts_read ON security_alerts(is_read);
 CREATE INDEX IF NOT EXISTS idx_batch_scan_files_status ON batch_scan_files(status);
 CREATE INDEX IF NOT EXISTS idx_ml_model_performance_model_name ON ml_model_performance(model_name);
 CREATE INDEX IF NOT EXISTS idx_tool_integration_logs_tool_name ON tool_integration_logs(tool_name);
