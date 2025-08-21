@@ -481,6 +481,33 @@ class ApiService {
       }>
     }>(`/api/scan/recent-activity${params}`)
   }
+
+  // Contact form submission
+  async submitContactForm(formData: {
+    project: string
+    name: string
+    email: string
+    job: string
+    contact: string
+    services: string[]
+    notes: string
+  }): Promise<{
+    success: boolean
+    message: string
+    contactId: number
+  }> {
+    return this.request<{
+      success: boolean
+      message: string
+      contactId: number
+    }>('/api/contact/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+  }
 }
 
 export const apiService = new ApiService() 

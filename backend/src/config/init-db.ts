@@ -236,6 +236,21 @@ CREATE TABLE IF NOT EXISTS batch_scan_files (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create contact_requests table for service form submissions
+CREATE TABLE IF NOT EXISTS contact_requests (
+    id SERIAL PRIMARY KEY,
+    project_name VARCHAR(255) NOT NULL,
+    contact_name VARCHAR(255) NOT NULL,
+    contact_email VARCHAR(255) NOT NULL,
+    job_title VARCHAR(255) NOT NULL,
+    contact_method TEXT,
+    services_requested JSONB NOT NULL,
+    additional_notes TEXT,
+    status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create ML model performance tracking table
 CREATE TABLE IF NOT EXISTS ml_model_performance (
     id SERIAL PRIMARY KEY,

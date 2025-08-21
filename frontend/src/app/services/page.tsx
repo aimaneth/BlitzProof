@@ -5,6 +5,7 @@ import { ShieldCheck, Search, FileText, RefreshCw, CheckCircle, UserCheck, Arrow
 import { Spotlight } from '@/components/sections/hero';
 import { useState, ChangeEvent, FormEvent, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout/layout';
+import { apiService } from '@/lib/api';
 
 interface FormState {
   project: string;
@@ -101,6 +102,8 @@ export default function Services() {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 const [securityScore, setSecurityScore] = useState({
   complexity: 'Medium (5-20 functions)',
   assetValue: '$1M - $10M',
@@ -136,13 +139,28 @@ const [riskLevel, setRiskLevel] = useState('Medium');
     return errs;
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
+    setSubmitError(null);
+    
     if (Object.keys(errs).length === 0) {
-      setSubmitted(true);
-      // Here you could send the form data to an API
+      setIsSubmitting(true);
+      try {
+        const response = await apiService.submitContactForm(form);
+        if (response.success) {
+          setSubmitted(true);
+          console.log('✅ Contact form submitted successfully:', response.contactId);
+        } else {
+          setSubmitError('Failed to submit form. Please try again.');
+        }
+      } catch (error) {
+        console.error('❌ Contact form submission error:', error);
+        setSubmitError('Failed to submit form. Please check your connection and try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   }
 
@@ -318,7 +336,18 @@ const [riskLevel, setRiskLevel] = useState('Medium');
                   <label className="block mb-1 text-xs font-medium text-foreground">Additional Notes</label>
                   <textarea name="notes" value={form.notes} onChange={handleChange} rows={2} className="w-full rounded-lg bg-background border border-white/10 px-3 py-2 text-foreground focus:outline-none focus:border-primary text-sm" />
                 </div>
-                <button type="submit" className="w-full py-2 sm:py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-sm sm:text-base">Submit Request</button>
+                {submitError && (
+                  <div className="text-red-500 text-xs mb-3 p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    {submitError}
+                  </div>
+                )}
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full py-2 sm:py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                </button>
               </>
             )}
           </form>
