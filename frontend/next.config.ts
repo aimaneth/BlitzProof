@@ -5,9 +5,13 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Ensure static assets are served
+  // API proxy to backend
   async rewrites() {
     return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
       {
         source: '/:path*',
         destination: '/:path*',

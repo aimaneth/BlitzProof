@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { AuthRequest } from '../middleware/auth'
-import pool from '../config/database'
+import pool from '../config/postgres'
 import crypto from 'crypto'
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {

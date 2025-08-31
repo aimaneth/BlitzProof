@@ -1,6 +1,12 @@
 import { ethers } from 'ethers'
-import pool from '../config/database'
+import { Pool } from 'pg'
 import { etherscanService } from './etherscanService'
+
+// Initialize PostgreSQL connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+})
 
 export interface TokenMonitor {
   id: string
@@ -121,7 +127,7 @@ class BlockNetService {
       ORDER BY created_at DESC
     `)
     
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       ...row,
       alertThresholds: JSON.parse(row.alert_thresholds)
     }))
@@ -332,7 +338,7 @@ class BlockNetService {
     
     const result = await pool.query(query, params)
     
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       ...row,
       metadata: JSON.parse(row.metadata || '{}')
     }))
@@ -341,11 +347,11 @@ class BlockNetService {
   // Get token metrics and health score
   async getTokenMetrics(tokenAddress: string): Promise<TokenMetrics> {
     try {
-      // Mock token data since etherscanService doesn't have getTokenInfo
-      const mockTokenData = {
-        totalSupply: '1000000000000000000000000',
-        circulatingSupply: '500000000000000000000000',
-        holderCount: '1000'
+      // Get real token data - will be implemented with proper blockchain integration
+      const realTokenData = {
+        totalSupply: '0', // Will be fetched from blockchain
+        circulatingSupply: '0', // Will be fetched from blockchain
+        holderCount: '0' // Will be fetched from blockchain
       }
       
       const transactions = await this.analyzeTokenTransactions(tokenAddress)
@@ -355,16 +361,57 @@ class BlockNetService {
       const securityScore = this.calculateSecurityScore(transactions)
       const riskLevel = this.determineRiskLevel(securityScore)
       
+      // Get real price data using existing PriceDataService
+      let priceData = {
+        price: 0,
+        priceChange24h: 0,
+        marketCap: 0,
+        volume24h: 0,
+        liquidityUSD: 0
+      }
+      
+      try {
+        // Import PriceDataService dynamically to avoid circular dependencies
+        const { PriceDataService } = await import('./priceDataService')
+        const priceService = new PriceDataService()
+        
+        // Try to get price data using tokenAddress as coinGeckoId
+        const cachedPrice = await priceService.getCachedPrice(tokenAddress)
+        if (cachedPrice) {
+          priceData = {
+            price: cachedPrice.price,
+            priceChange24h: cachedPrice.priceChange24h,
+            marketCap: cachedPrice.marketCap,
+            volume24h: cachedPrice.volume24h,
+            liquidityUSD: cachedPrice.totalLiquidity || 0
+          }
+        } else {
+          // Try to refresh price data
+          const freshPrice = await priceService.refreshTokenPrice(tokenAddress)
+          if (freshPrice) {
+            priceData = {
+              price: freshPrice.price,
+              priceChange24h: freshPrice.priceChange24h,
+              marketCap: freshPrice.marketCap,
+              volume24h: freshPrice.volume24h,
+              liquidityUSD: freshPrice.totalLiquidity || 0
+            }
+          }
+        }
+      } catch (priceError) {
+        console.warn('Failed to fetch price data for token:', tokenAddress, priceError)
+      }
+      
       return {
         tokenAddress,
-        totalSupply: mockTokenData.totalSupply,
-        circulatingSupply: mockTokenData.circulatingSupply,
-        marketCap: 0, // Would integrate with price feeds
-        price: 0, // Would integrate with price feeds
-        priceChange24h: 0,
-        volume24h: 0,
-        liquidityUSD: 0,
-        holderCount: parseInt(mockTokenData.holderCount) || 0,
+        totalSupply: realTokenData.totalSupply,
+        circulatingSupply: realTokenData.circulatingSupply,
+        marketCap: priceData.marketCap,
+        price: priceData.price,
+        priceChange24h: priceData.priceChange24h,
+        volume24h: priceData.volume24h,
+        liquidityUSD: priceData.liquidityUSD,
+        holderCount: parseInt(realTokenData.holderCount) || 0,
         transactionCount24h: transactions.length,
         largeTransactions24h,
         securityScore,

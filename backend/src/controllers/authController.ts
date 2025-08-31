@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { AuthRequest } from '../middleware/auth'
-import pool from '../config/database'
+import pool from '../config/postgres'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import nodemailer from 'nodemailer'
-import pool from '../config/database'
+import pool from '../config/postgres'
 
 interface ContactFormData {
   project: string

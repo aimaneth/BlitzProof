@@ -118,13 +118,22 @@ class ApiService {
       ...options,
     }
 
-    const response = await fetch(url, config)
+    try {
+      const response = await fetch(url, config)
 
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.statusText}`)
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.statusText}`)
+      }
+
+      return response.json()
+    } catch (error) {
+      // Handle network errors more gracefully
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error(`❌ Network error: Cannot connect to backend at ${API_BASE_URL}`)
+        throw new Error(`Backend server is not running or not accessible. Please ensure the backend is running on ${API_BASE_URL}`)
+      }
+      throw error
     }
-
-    return response.json()
   }
 
   private getAuthHeaders(): HeadersInit {
@@ -702,6 +711,371 @@ class ApiService {
     }>(`/api/blocknet/tokens/${tokenAddress}/metrics`)
   }
 
+  // 🔍 NEW: Real data API methods
+  async getTrendingTokens(limit?: number): Promise<{
+    tokens: Array<{
+      address: string
+      symbol: string
+      name: string
+      price: number
+      marketCap: number
+      volume24h: number
+      priceChange24h: number
+      holderCount: number
+      securityScore: number
+      riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+      lastUpdated: Date
+    }>
+    total: number
+    timestamp: string
+  }> {
+    const params = new URLSearchParams()
+    if (limit) params.append('limit', limit.toString())
+    
+    const queryString = params.toString()
+    return this.request<{
+      tokens: Array<{
+        address: string
+        symbol: string
+        name: string
+        price: number
+        marketCap: number
+        volume24h: number
+        priceChange24h: number
+        holderCount: number
+        securityScore: number
+        riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+        lastUpdated: Date
+      }>
+      total: number
+      timestamp: string
+    }>(`/api/blocknet/trending${queryString ? `?${queryString}` : ''}`)
+  }
+
+  async analyzeContract(contractAddress: string): Promise<{
+    analysis: {
+      contractAddress: string
+      sourceCode: string
+      abi: string
+      contractName: string
+      compilerVersion: string
+      optimizationUsed: string
+      runs: string
+      constructorArguments: string
+      evmVersion: string
+      library: string
+      licenseType: string
+      proxy: string
+      implementation: string
+      swarmSource: string
+      transactionCount: number
+      lastTransaction: any
+      securityAnalysis: {
+        riskScore: number
+        vulnerabilities: string[]
+        suspiciousPatterns: string[]
+        recommendations: string[]
+      }
+    }
+    timestamp: string
+  }> {
+    return this.request<{
+      analysis: {
+        contractAddress: string
+        sourceCode: string
+        abi: string
+        contractName: string
+        compilerVersion: string
+        optimizationUsed: string
+        runs: string
+        constructorArguments: string
+        evmVersion: string
+        library: string
+        licenseType: string
+        proxy: string
+        implementation: string
+        swarmSource: string
+        transactionCount: number
+        lastTransaction: any
+        securityAnalysis: {
+          riskScore: number
+          vulnerabilities: string[]
+          suspiciousPatterns: string[]
+          recommendations: string[]
+        }
+      }
+      timestamp: string
+    }>(`/api/blocknet/contracts/${contractAddress}/analyze`)
+  }
+
+  // Database-first API methods
+  async getCachedDashboard(): Promise<{
+    data: {
+      tokens: Array<{
+        id: string; // 🆕 ADDED: Database ID
+        coinGeckoId: string; // 🆕 ADDED: CoinGecko ID
+        address: string;
+        symbol: string;
+        name: string;
+        price: number;
+        marketCap: number;
+        volume24h: number;
+        priceChange24h: number;
+        holderCount: number;
+        securityScore: number;
+        lastUpdate: Date;
+        isRefreshing?: boolean;
+        refreshError?: string;
+        // Manual token fields
+        description?: string;
+        network?: string;
+        category?: string;
+        priority?: number;
+        riskLevel?: string;
+        monitoringStrategy?: string;
+      }>;
+      stats: {
+        totalTokens: number;
+        refreshingTokens: number;
+        tokensWithErrors: number;
+        lastUpdate: string;
+      };
+    };
+    fromCache: boolean;
+    message?: string;
+  }> {
+    return this.request<{
+      data: {
+        tokens: Array<{
+          id: string;
+          coinGeckoId: string;
+          address: string;
+          symbol: string;
+          name: string;
+          price: number;
+          marketCap: number;
+          volume24h: number;
+          priceChange24h: number;
+          holderCount: number;
+          securityScore: number;
+          lastUpdate: Date;
+          isRefreshing?: boolean;
+          refreshError?: string;
+        }>;
+        stats: {
+          totalTokens: number;
+          refreshingTokens: number;
+          tokensWithErrors: number;
+          lastUpdate: string;
+        };
+      };
+      fromCache: boolean;
+      message?: string;
+    }>(`/api/cached/dashboard`);
+  }
+
+  async getCachedTokenData(tokenId: string): Promise<{
+    data: {
+      tokenId: string;
+      name: string;
+      symbol: string;
+      price: number;
+      priceChange24h: number;
+      marketCap: number;
+      volume24h: number;
+      securityScore: number;
+      holderCount: number;
+      network?: string;
+      address?: string;
+      contractType?: string;
+      dexPairs: any[];
+      priceHistory: any[];
+      lastApiUpdate: Date;
+      isRefreshing: boolean;
+      refreshError?: string;
+    };
+    fromCache: boolean;
+    isRefreshing: boolean;
+    lastUpdate?: Date;
+  }> {
+    return this.request<{
+      data: {
+        tokenId: string;
+        name: string;
+        symbol: string;
+        price: number;
+        priceChange24h: number;
+        marketCap: number;
+        volume24h: number;
+        securityScore: number;
+        holderCount: number;
+        network?: string;
+        address?: string;
+        contractType?: string;
+        dexPairs: any[];
+        priceHistory: any[];
+        lastApiUpdate: Date;
+        isRefreshing: boolean;
+        refreshError?: string;
+      };
+      fromCache: boolean;
+      isRefreshing: boolean;
+      lastUpdate?: Date;
+    }>(`/api/cached/token/${tokenId}`);
+  }
+
+  async forceRefreshToken(tokenId: string): Promise<{
+    success: boolean;
+    message: string;
+    jobId: number;
+    estimatedTime: string;
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      jobId: number;
+      estimatedTime: string;
+    }>(`/api/cached/refresh/${tokenId}`, {
+      method: 'POST'
+    });
+  }
+
+  async getRefreshStatus(): Promise<{
+    data: {
+      pendingJobs: number;
+      activeRefreshes: number;
+      tokensRefreshing: Array<{
+        tokenId: string;
+        name: string;
+        symbol: string;
+        lastUpdate: Date;
+      }>;
+    };
+  }> {
+    return this.request<{
+      data: {
+        pendingJobs: number;
+        activeRefreshes: number;
+        tokensRefreshing: Array<{
+          tokenId: string;
+          name: string;
+          symbol: string;
+          lastUpdate: Date;
+        }>;
+      };
+    }>(`/api/cached/refresh/status`);
+  }
+
+  async getTokenMetricsSummary(): Promise<{
+    summary: {
+      totalTokens: number
+      averageSecurityScore: number
+      riskDistribution: {
+        LOW: number
+        MEDIUM: number
+        HIGH: number
+        CRITICAL: number
+      }
+      totalMarketCap: number
+      totalVolume24h: number
+    }
+    timestamp: string
+  }> {
+    return this.request<{
+      summary: {
+        totalTokens: number
+        averageSecurityScore: number
+        riskDistribution: {
+          LOW: number
+          MEDIUM: number
+          HIGH: number
+          CRITICAL: number
+        }
+        totalMarketCap: number
+        totalVolume24h: number
+      }
+      timestamp: string
+    }>('/api/blocknet/metrics/summary')
+  }
+
+  async generateSecurityAlerts(contractAddress: string): Promise<{
+    alerts: Array<{
+      id: string
+      tokenAddress: string
+      alertType: 'LARGE_TRANSFER' | 'SUSPICIOUS_ACTIVITY' | 'LIQUIDITY_REMOVAL' | 'PRICE_MANIPULATION'
+      severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+      title: string
+      description: string
+      metadata: any
+      timestamp: Date
+      isRead: boolean
+    }>
+    total: number
+    critical: number
+    high: number
+    medium: number
+    low: number
+    timestamp: string
+  }> {
+    return this.request<{
+      alerts: Array<{
+        id: string
+        tokenAddress: string
+        alertType: 'LARGE_TRANSFER' | 'SUSPICIOUS_ACTIVITY' | 'LIQUIDITY_REMOVAL' | 'PRICE_MANIPULATION'
+        severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+        title: string
+        description: string
+        metadata: any
+        timestamp: Date
+        isRead: boolean
+      }>
+      total: number
+      critical: number
+      high: number
+      medium: number
+      low: number
+      timestamp: string
+    }>(`/api/blocknet/contracts/${contractAddress}/alerts`)
+  }
+
+  async monitorTransactions(contractAddress: string, limit?: number): Promise<{
+    transactions: Array<{
+      hash: string
+      from: string
+      to: string
+      value: string
+      gas: string
+      gasPrice: string
+      timeStamp: string
+      blockNumber: string
+      isError: string
+      txreceipt_status: string
+    }>
+    total: number
+    timestamp: string
+  }> {
+    const params = new URLSearchParams()
+    if (limit) params.append('limit', limit.toString())
+    
+    const queryString = params.toString()
+    return this.request<{
+      transactions: Array<{
+        hash: string
+        from: string
+        to: string
+        value: string
+        gas: string
+        gasPrice: string
+        timeStamp: string
+        blockNumber: string
+        isError: string
+        txreceipt_status: string
+      }>
+      total: number
+      timestamp: string
+    }>(`/api/blocknet/contracts/${contractAddress}/transactions${queryString ? `?${queryString}` : ''}`)
+  }
+
   // Contact form submission
   async submitContactForm(formData: {
     project: string
@@ -728,6 +1102,600 @@ class ApiService {
       body: JSON.stringify(formData),
     })
   }
+
+  // 🎯 Manual Token Management API Methods
+  async getManualTokens(): Promise<{
+    tokens: Array<{
+      id: string;
+      coinGeckoId: string;
+      name: string;
+      symbol: string;
+      address?: string;
+      network?: string;
+      contractType?: string;
+      description?: string;
+      addedAt: string;
+      isActive: boolean;
+    }>;
+    total: number;
+  }> {
+    return this.request<{
+      tokens: Array<{
+        id: string;
+        coinGeckoId: string;
+        name: string;
+        symbol: string;
+        address?: string;
+        network?: string;
+        contractType?: string;
+        description?: string;
+        addedAt: string;
+        isActive: boolean;
+      }>;
+      total: number;
+    }>('/api/blocknet/manual-tokens');
+  }
+
+  async addManualToken(tokenId: string, customName?: string, customSymbol?: string, coinGeckoId?: string): Promise<{
+    success: boolean;
+    message: string;
+    token: {
+      id: string;
+      coinGeckoId: string;
+      name: string;
+      symbol: string;
+      address?: string;
+      network?: string;
+      contractType?: string;
+      description?: string;
+      addedAt: string;
+      isActive: boolean;
+    };
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      token: {
+        id: string;
+        coinGeckoId: string;
+        name: string;
+        symbol: string;
+        address?: string;
+        network?: string;
+        contractType?: string;
+        description?: string;
+        addedAt: string;
+        isActive: boolean;
+      };
+    }>('/api/blocknet/manual-tokens', {
+      method: 'POST',
+      body: JSON.stringify({ tokenId, coinGeckoId, customName, customSymbol })
+    });
+  }
+
+  async updateManualToken(
+    tokenId: string,
+    coinGeckoId: string,
+    customName?: string,
+    customSymbol?: string,
+    address?: string,
+    network?: string,
+    category?: string,
+    priority?: number,
+    riskLevel?: string,
+    monitoringStrategy?: string,
+    description?: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    token: {
+      id: string;
+      coinGeckoId: string;
+      name: string;
+      symbol: string;
+      address?: string;
+      network?: string;
+      contractType?: string;
+      description?: string;
+      addedAt: string;
+      isActive: boolean;
+    };
+  }> {
+    const requestBody = {
+      coinGeckoId,
+      customName,
+      customSymbol,
+      address,
+      network,
+      category,
+      priority,
+      riskLevel,
+      monitoringStrategy,
+      description
+    };
+    
+    console.log('🔍 API Service: Sending update request:', {
+      url: `/api/blocknet/manual-tokens/${tokenId}`,
+      method: 'PUT',
+      body: requestBody
+    });
+    
+    return this.request<{
+      success: boolean;
+      message: string;
+      token: {
+        id: string;
+        coinGeckoId: string;
+        name: string;
+        symbol: string;
+        address?: string;
+        network?: string;
+        contractType?: string;
+        description?: string;
+        addedAt: string;
+        isActive: boolean;
+      };
+    }>(`/api/blocknet/manual-tokens/${tokenId}`, {
+      method: 'PUT',
+      body: JSON.stringify(requestBody)
+    });
+  }
+
+  async removeManualToken(tokenId: string): Promise<{
+    success: boolean;
+    message: string;
+    tokenId: string;
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      tokenId: string;
+    }>(`/api/blocknet/manual-tokens/${tokenId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async toggleManualToken(tokenId: string): Promise<{
+    success: boolean;
+    message: string;
+    tokenId: string;
+    isActive: boolean;
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      tokenId: string;
+      isActive: boolean;
+    }>(`/api/blocknet/manual-tokens/${tokenId}/toggle`, {
+      method: 'PATCH'
+    });
+  }
+
+  // Token Logo Management
+  async getLogoTokens(): Promise<{
+    success: boolean;
+    tokens: Array<{
+      id: string;
+      tokenId: string;
+      symbol: string;
+      name: string;
+      logoUrl: string;
+      uploadedAt: string;
+    }>;
+  }> {
+    return this.request<{
+      success: boolean;
+      tokens: Array<{
+        id: string;
+        tokenId: string;
+        symbol: string;
+        name: string;
+        logoUrl: string;
+        uploadedAt: string;
+      }>;
+    }>('/api/blocknet/token-logos');
+  }
+
+  async uploadTokenLogo(formData: FormData): Promise<{
+    success: boolean;
+    message: string;
+    tokenId: string;
+    logoUrl: string;
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      tokenId: string;
+      logoUrl: string;
+    }>('/api/blocknet/token-logos', {
+      method: 'POST',
+      body: formData // Don't set Content-Type header for FormData
+    });
+  }
+
+  async removeTokenLogo(tokenId: string): Promise<{
+    success: boolean;
+    message: string;
+    tokenId: string;
+  }> {
+    return this.request<{
+      success: boolean;
+      message: string;
+      tokenId: string;
+    }>(`/api/blocknet/token-logos/${tokenId}`, {
+      method: 'DELETE'
+    });
+  }
 }
+
+// 🆕 SIMPLE TOKEN API FUNCTIONS
+export interface SimpleToken {
+  id: number;
+  uniqueId: string;
+  coinGeckoId: string;
+  name: string;
+  symbol: string;
+  description?: string;
+  network: string;
+  contractAddress?: string;
+  category: string;
+  priority: number;
+  riskLevel: string;
+  monitoringStrategy: string;
+  isActive: boolean;
+  // New fields from comprehensive structure
+  website?: string;
+  rank?: number;
+  holderCount?: number;
+  contractScore?: number;
+  auditsCount?: number;
+  // Related data (will be populated separately)
+  socials?: TokenSocial[];
+  contracts?: TokenContract[];
+  audits?: TokenAudit[];
+  auditLinks?: TokenAuditLink[];
+  securityScore?: TokenSecurityScore;
+  tags?: string[];
+  explorers?: TokenExplorer[];
+  wallets?: TokenWallet[];
+  sourceCode?: TokenSourceCode[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TokenSocial {
+  id?: number; // Optional for creation, required for existing records
+  platform: string; // twitter, telegram, discord, reddit, linkedin, website, whitepaper, github, gitlab, etherscan, certik, hacken, slowmist, quantstamp
+  url: string;
+  isVerified?: boolean;
+}
+
+export interface TokenContract {
+  id?: number; // Optional for creation, required for existing records
+  network: string;
+  contractAddress: string;
+}
+
+export interface TokenAudit {
+  id: number;
+  auditorName: string;
+  auditDate: string;
+  auditType: string;
+  score: number;
+  reportUrl?: string;
+  status: string;
+  findingsSummary?: string;
+}
+
+export interface TokenAuditLink {
+  id?: number; // Optional for creation, required for existing records
+  auditName: string;
+  auditUrl: string;
+  auditType: string;
+}
+
+export interface TokenSecurityScore {
+  id: number;
+  overallScore: number;
+  rating: string;
+  codeSecurityScore: number;
+  marketScore: number;
+  governanceScore: number;
+  fundamentalScore: number;
+  communityScore: number;
+  operationalScore: number;
+  verifiedCount: number;
+  informationalCount: number;
+  warningsCount: number;
+  criticalCount: number;
+}
+
+export interface TokenTag {
+  id: number;
+  name: string;
+  category: string;
+  description?: string;
+}
+
+export interface TokenExplorer {
+  id?: number; // Optional for creation, required for existing records
+  explorerName: string;
+  explorerUrl: string;
+  network: string;
+}
+
+export interface TokenWallet {
+  id?: number; // Optional for creation, required for existing records
+  walletName: string;
+  walletUrl: string;
+  walletType: string;
+  isActive?: boolean;
+}
+
+export interface TokenSourceCode {
+  id?: number; // Optional for creation, required for existing records
+  sourceType: string; // github, gitlab, etherscan, bscscan, etc.
+  sourceName: string;
+  sourceUrl: string;
+  network?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+}
+
+
+
+export interface TokenWithPrice extends SimpleToken {
+  price?: number;
+  priceChange24h?: number;
+  marketCap?: number;
+  volume24h?: number;
+  lastPriceUpdate?: Date;
+}
+
+// Get all tokens
+export const getAllTokens = async (): Promise<{ success: boolean; tokens: SimpleToken[]; total: number }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching tokens:', error);
+    throw error;
+  }
+};
+
+// Get all tokens with price data
+export const getAllTokensWithPrice = async (): Promise<{ success: boolean; tokens: TokenWithPrice[]; total: number }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens/with-price`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching tokens with price:', error);
+    throw error;
+  }
+};
+
+// Get token by unique ID
+export const getTokenByUniqueId = async (uniqueId: string): Promise<{ success: boolean; token: SimpleToken }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens/${uniqueId}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching token:', error);
+    throw error;
+  }
+};
+
+// Get token with price data
+export const getTokenWithPrice = async (uniqueId: string): Promise<{ success: boolean; token: TokenWithPrice }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens/${uniqueId}/price`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching token with price:', error);
+    throw error;
+  }
+};
+
+// Get real-time price data
+export const getPriceData = async (tokenId: string, refresh: boolean = false): Promise<{ success: boolean; data: any; message: string; source?: string }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/price-data/${tokenId}?refresh=${refresh}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching price data:', error);
+    throw error;
+  }
+};
+
+// Refresh token price
+export const refreshTokenPrice = async (tokenId: string): Promise<{ success: boolean; data: any; message: string }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/price-data/${tokenId}/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error refreshing price:', error);
+    throw error;
+  }
+};
+
+
+
+// Add new token
+export const addToken = async (tokenData: {
+  uniqueId: string;
+  coinGeckoId: string;
+  name: string;
+  symbol: string;
+  description?: string;
+  network?: string;
+  contractAddress?: string;
+  category?: string;
+  priority?: number;
+  riskLevel?: string;
+  monitoringStrategy?: string;
+  website?: string;
+  rank?: number;
+  holderCount?: number;
+  contractScore?: number;
+  auditsCount?: number;
+  socials?: TokenSocial[];
+  contracts?: TokenContract[];
+  explorers?: TokenExplorer[];
+  wallets?: TokenWallet[];
+  auditLinks?: TokenAuditLink[];
+  sourceCode?: TokenSourceCode[];
+  tags?: string[];
+}): Promise<{ success: boolean; message: string; token: SimpleToken; error?: string; details?: string[] }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tokenData),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error adding token:', error);
+    throw error;
+  }
+};
+
+// Update token
+export const updateToken = async (uniqueId: string, updates: Partial<SimpleToken>): Promise<{ success: boolean; message: string; token: SimpleToken; error?: string; details?: string[] }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens/${uniqueId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating token:', error);
+    throw error;
+  }
+};
+
+// Delete token
+export const deleteToken = async (uniqueId: string): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/simple-tokens/${uniqueId}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error deleting token:', error);
+    throw error;
+  }
+};
+
+// 🆕 GET TOKEN FUNDAMENTAL DATA
+export const getTokenFundamentalData = async (tokenId: string): Promise<{
+  success: boolean;
+  data: {
+    supplyMetrics: {
+      totalSupply: string;
+      circulatingSupply: string;
+      maxSupply: string;
+      burnedTokens: string;
+      circulatingRatio: number;
+    };
+    distribution: {
+      top10Holders: number;
+      top50Holders: number;
+      top100Holders: number;
+      averageHolderBalance: number;
+      whaleCount: number;
+    };
+    liquidity: {
+      totalLiquidityUSD: number;
+      liquidityPairs: number;
+      averageLiquidity: number;
+      liquidityHealth: string;
+      volume24h: number;
+      volumeChange24h: number;
+    };
+    performance: {
+      marketCap: number;
+      fullyDilutedValue: number;
+      priceToBookRatio: number;
+      priceEarningsRatio: number;
+      returnOnInvestment: number;
+    };
+    tokenomics: {
+      inflationRate: number;
+      stakingAPY: number;
+      burningMechanism: boolean;
+      transactionTax: number;
+      vestingSchedule: any[];
+      lockupPeriods: any[];
+    };
+    utility: {
+      useCases: string[];
+      ecosystemIntegration: number;
+      governanceRights: boolean;
+      stakingEnabled: boolean;
+      defiIntegration: boolean;
+      nftUtility: boolean;
+    };
+    development: {
+      teamSize: number;
+      githubActivity: number;
+      lastUpdate: string | null;
+      roadmapProgress: number;
+      partnershipCount: number;
+      auditCount: number;
+    };
+    riskFactors: {
+      concentrationRisk: string;
+      liquidityRisk: string;
+      regulatoryRisk: string;
+      technicalRisk: string;
+      marketRisk: string;
+    };
+    healthScore: {
+      overall: number;
+      supply: number;
+      distribution: number;
+      liquidity: number;
+      utility: number;
+      development: number;
+    };
+    dataSources: string[];
+    lastUpdated: string;
+  };
+  token: {
+    id: number;
+    uniqueId: string;
+    name: string;
+    symbol: string;
+    network: string;
+  };
+}> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/blocknet/tokens/${tokenId}/fundamental`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching fundamental data:', error);
+    throw error;
+  }
+};
 
 export const apiService = new ApiService() 

@@ -1,5 +1,5 @@
 import { Vulnerability } from '../types/scan'
-import pool from '../config/database'
+import pool from '../config/postgres'
 import OpenAI from 'openai'
 
 interface AIAnalysisResult {

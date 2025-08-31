@@ -3,54 +3,48 @@ import path from 'path'
 import fs from 'fs'
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), 'uploads')
+const uploadsDir = path.join(__dirname, '../../uploads')
+const tokenLogosDir = path.join(uploadsDir, 'token-logos')
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true })
 }
 
+if (!fs.existsSync(tokenLogosDir)) {
+  fs.mkdirSync(tokenLogosDir, { recursive: true })
+}
+
+// Configure multer for token logo uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDir)
+    cb(null, tokenLogosDir)
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+    // Use tokenId as filename to ensure consistent naming
+    const tokenId = req.body.tokenId || 'unknown'
+    const ext = path.extname(file.originalname)
+    const filename = `${tokenId}${ext}`
+    cb(null, filename)
   }
 })
 
+// File filter for images only
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  console.log('🔍 File upload attempt:', {
-    originalname: file.originalname,
-    mimetype: file.mimetype,
-    size: file.size,
-    fieldname: file.fieldname
-  })
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/webp']
   
-  // Only allow .sol files
-  if (file.mimetype === 'text/plain' || file.originalname.endsWith('.sol')) {
-    console.log('✅ File accepted:', file.originalname)
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true)
   } else {
-    console.log('❌ File rejected:', file.originalname, 'mimetype:', file.mimetype)
-    cb(new Error('Only .sol files are allowed'))
+    cb(new Error('Only image files are allowed'))
   }
 }
 
-// Add error handling to multer
-const multerErrorHandler = (err: any, req: any, res: any, next: any) => {
-  console.log('❌ Multer error:', err)
-  if (err instanceof multer.MulterError) {
-    console.log('📋 Multer error code:', err.code)
-    console.log('📋 Multer error field:', err.field)
-    console.log('📋 Multer error message:', err.message)
-  }
-  next(err)
-}
-
+// Configure multer
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 2 * 1024 * 1024, // 2MB limit
+    files: 1
   }
 }) 

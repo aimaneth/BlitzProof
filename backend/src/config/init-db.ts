@@ -1,6 +1,6 @@
 import { Pool } from 'pg'
 import dotenv from 'dotenv'
-import pool from './database'
+import pool from './postgres'
 
 dotenv.config()
 
@@ -330,6 +330,114 @@ CREATE TABLE IF NOT EXISTS security_alerts (
     metadata JSONB DEFAULT '{}'
 );
 
+-- Create manual_tokens table for BlockNet token management
+CREATE TABLE IF NOT EXISTS manual_tokens (
+    id SERIAL PRIMARY KEY,
+    token_id VARCHAR(255) UNIQUE NOT NULL,
+    coin_gecko_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(50) NOT NULL,
+    address VARCHAR(255),
+    network VARCHAR(100),
+    contract_type VARCHAR(100),
+    description TEXT,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    priority INTEGER DEFAULT 0,
+    category VARCHAR(50) DEFAULT 'TRENDING',
+    monitoring_strategy VARCHAR(50) DEFAULT 'HOURLY',
+    risk_level VARCHAR(50) DEFAULT 'MEDIUM',
+    alert_thresholds JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create token_logos table for custom token logos
+CREATE TABLE IF NOT EXISTS token_logos (
+    id SERIAL PRIMARY KEY,
+    token_id VARCHAR(255) UNIQUE NOT NULL,
+    symbol VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    logo_url VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create blitzproof_scores table for storing BlitzProof scores
+CREATE TABLE IF NOT EXISTS blitzproof_scores (
+    id SERIAL PRIMARY KEY,
+    token_id VARCHAR(255) UNIQUE NOT NULL,
+    overall_score DECIMAL(5,2) NOT NULL,
+    rating VARCHAR(20) NOT NULL,
+    code_security_score DECIMAL(5,2) NOT NULL,
+    operational_score DECIMAL(5,2) NOT NULL,
+    market_score DECIMAL(5,2) NOT NULL,
+    community_score DECIMAL(5,2) NOT NULL,
+    governance_score DECIMAL(5,2) NOT NULL,
+    fundamental_score DECIMAL(5,2) NOT NULL,
+    vulnerability_summary JSONB DEFAULT '{}',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create token_info table for storing token information
+CREATE TABLE IF NOT EXISTS token_info (
+    id SERIAL PRIMARY KEY,
+    token_id VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(50) NOT NULL,
+    rank INTEGER,
+    audits INTEGER DEFAULT 0,
+    website VARCHAR(500),
+    contract_address VARCHAR(255),
+    contract_score DECIMAL(5,2),
+    tags TEXT[],
+    socials JSONB DEFAULT '{}',
+    verification_badges JSONB DEFAULT '{}',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create cached_token_data table for storing API data
+CREATE TABLE IF NOT EXISTS cached_token_data (
+    id SERIAL PRIMARY KEY,
+    token_id VARCHAR(255) UNIQUE NOT NULL,
+    coin_gecko_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(50) NOT NULL,
+    price DECIMAL(20,8) DEFAULT 0,
+    price_change_24h DECIMAL(10,4) DEFAULT 0,
+    market_cap DECIMAL(20,2) DEFAULT 0,
+    volume_24h DECIMAL(20,2) DEFAULT 0,
+    security_score INTEGER DEFAULT 0,
+    holder_count INTEGER DEFAULT 0,
+    network VARCHAR(100),
+    address VARCHAR(255),
+    contract_type VARCHAR(100),
+    dex_pairs JSONB DEFAULT '[]',
+    price_history JSONB DEFAULT '[]',
+    api_data JSONB DEFAULT '{}',
+    last_api_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_refreshing BOOLEAN DEFAULT FALSE,
+    refresh_error TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create background_jobs table for tracking API refresh jobs
+CREATE TABLE IF NOT EXISTS background_jobs (
+    id SERIAL PRIMARY KEY,
+    job_type VARCHAR(100) NOT NULL,
+    token_id VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'pending',
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    error_message TEXT,
+    retry_count INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 3,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create BlockNet indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_token_monitors_address ON token_monitors(token_address);
 CREATE INDEX IF NOT EXISTS idx_token_monitors_enabled ON token_monitors(monitoring_enabled);
@@ -341,24 +449,109 @@ CREATE INDEX IF NOT EXISTS idx_batch_scan_files_status ON batch_scan_files(statu
 CREATE INDEX IF NOT EXISTS idx_ml_model_performance_model_name ON ml_model_performance(model_name);
 CREATE INDEX IF NOT EXISTS idx_tool_integration_logs_tool_name ON tool_integration_logs(tool_name);
 CREATE INDEX IF NOT EXISTS idx_tool_integration_logs_created_at ON tool_integration_logs(created_at);
+
+-- Create indexes for manual_tokens table
+CREATE INDEX IF NOT EXISTS idx_manual_tokens_coin_gecko_id ON manual_tokens(coin_gecko_id);
+CREATE INDEX IF NOT EXISTS idx_manual_tokens_is_active ON manual_tokens(is_active);
+CREATE INDEX IF NOT EXISTS idx_manual_tokens_priority ON manual_tokens(priority DESC);
+CREATE INDEX IF NOT EXISTS idx_manual_tokens_category ON manual_tokens(category);
+CREATE INDEX IF NOT EXISTS idx_manual_tokens_network ON manual_tokens(network);
+
+-- Create indexes for token_logos table
+CREATE INDEX IF NOT EXISTS idx_token_logos_token_id ON token_logos(token_id);
+
+-- Create indexes for blitzproof_scores table
+CREATE INDEX IF NOT EXISTS idx_blitzproof_scores_token_id ON blitzproof_scores(token_id);
+CREATE INDEX IF NOT EXISTS idx_blitzproof_scores_overall_score ON blitzproof_scores(overall_score DESC);
+
+-- Create indexes for token_info table
+CREATE INDEX IF NOT EXISTS idx_token_info_token_id ON token_info(token_id);
+CREATE INDEX IF NOT EXISTS idx_token_info_symbol ON token_info(symbol);
+
+-- Create indexes for cached_token_data table
+CREATE INDEX IF NOT EXISTS idx_cached_token_data_token_id ON cached_token_data(token_id);
+CREATE INDEX IF NOT EXISTS idx_cached_token_data_coin_gecko_id ON cached_token_data(coin_gecko_id);
+CREATE INDEX IF NOT EXISTS idx_cached_token_data_last_update ON cached_token_data(last_api_update DESC);
+CREATE INDEX IF NOT EXISTS idx_cached_token_data_refreshing ON cached_token_data(is_refreshing);
+
+-- Create indexes for background_jobs table
+CREATE INDEX IF NOT EXISTS idx_background_jobs_type ON background_jobs(job_type);
+CREATE INDEX IF NOT EXISTS idx_background_jobs_status ON background_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_background_jobs_token ON background_jobs(token_id);
+CREATE INDEX IF NOT EXISTS idx_background_jobs_created ON background_jobs(created_at DESC);
 `
 
 export async function initializeDatabase() {
   try {
-    // Connect directly to the blitzproof_db database and create tables
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    })
+    // Use the imported pool from postgres.ts
 
     // First, create tables without indexes
     const tablesOnlySchema = schema.replace(/-- Create indexes for better performance[\s\S]*$/, '')
     await pool.query(tablesOnlySchema)
+    
+    // Ensure critical tables exist separately
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS cached_token_data (
+          id SERIAL PRIMARY KEY,
+          token_id VARCHAR(255) UNIQUE NOT NULL,
+          coin_gecko_id VARCHAR(255) NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          symbol VARCHAR(50) NOT NULL,
+          price DECIMAL(20,8) DEFAULT 0,
+          price_change_24h DECIMAL(10,4) DEFAULT 0,
+          market_cap DECIMAL(20,2) DEFAULT 0,
+          volume_24h DECIMAL(20,2) DEFAULT 0,
+          security_score INTEGER DEFAULT 0,
+          holder_count INTEGER DEFAULT 0,
+          network VARCHAR(100),
+          address VARCHAR(255),
+          contract_type VARCHAR(100),
+          dex_pairs JSONB DEFAULT '[]',
+          price_history JSONB DEFAULT '[]',
+          api_data JSONB DEFAULT '{}',
+          last_api_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          is_refreshing BOOLEAN DEFAULT FALSE,
+          refresh_error TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS background_jobs (
+          id SERIAL PRIMARY KEY,
+          job_type VARCHAR(100) NOT NULL,
+          token_id VARCHAR(255),
+          status VARCHAR(50) DEFAULT 'pending',
+          started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          completed_at TIMESTAMP,
+          error_message TEXT,
+          retry_count INTEGER DEFAULT 0,
+          max_retries INTEGER DEFAULT 3,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS token_logos (
+          id SERIAL PRIMARY KEY,
+          token_id VARCHAR(255) UNIQUE NOT NULL,
+          symbol VARCHAR(50) NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          logo_url VARCHAR(500) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      -- Create indexes for these tables
+      CREATE INDEX IF NOT EXISTS idx_cached_token_data_token_id ON cached_token_data(token_id);
+      CREATE INDEX IF NOT EXISTS idx_cached_token_data_coin_gecko_id ON cached_token_data(coin_gecko_id);
+      CREATE INDEX IF NOT EXISTS idx_cached_token_data_last_update ON cached_token_data(last_api_update DESC);
+      CREATE INDEX IF NOT EXISTS idx_cached_token_data_refreshing ON cached_token_data(is_refreshing);
+      
+      CREATE INDEX IF NOT EXISTS idx_background_jobs_type ON background_jobs(job_type);
+      CREATE INDEX IF NOT EXISTS idx_background_jobs_status ON background_jobs(status);
+      CREATE INDEX IF NOT EXISTS idx_background_jobs_token ON background_jobs(token_id);
+      CREATE INDEX IF NOT EXISTS idx_background_jobs_created ON background_jobs(created_at DESC);
+      
+      CREATE INDEX IF NOT EXISTS idx_token_logos_token_id ON token_logos(token_id);
+    `)
     
     // Add missing columns if they don't exist
     await pool.query(`
@@ -570,9 +763,79 @@ export async function initializeDatabase() {
       console.log('⚠️ Scan templates insertion failed (table might not exist yet):', error.message)
     }
 
+    // Create trigger function first
+    try {
+      await pool.query(`
+        CREATE OR REPLACE FUNCTION update_updated_at_column()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            NEW.updated_at = CURRENT_TIMESTAMP;
+            RETURN NEW;
+        END;
+        $$ language 'plpgsql';
+      `)
+      console.log('✅ Trigger function created successfully')
+    } catch (error: any) {
+      console.log('⚠️ Trigger function creation failed:', error.message)
+    }
+
+    // Create triggers after tables exist
+    try {
+      await pool.query(`
+        DROP TRIGGER IF EXISTS update_manual_tokens_updated_at ON manual_tokens;
+        CREATE TRIGGER update_manual_tokens_updated_at 
+            BEFORE UPDATE ON manual_tokens 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+      `)
+      console.log('✅ Manual tokens trigger created successfully')
+    } catch (error: any) {
+      console.log('⚠️ Manual tokens trigger creation failed:', error.message)
+    }
+
+    try {
+      await pool.query(`
+        DROP TRIGGER IF EXISTS update_cached_token_data_updated_at ON cached_token_data;
+        CREATE TRIGGER update_cached_token_data_updated_at 
+            BEFORE UPDATE ON cached_token_data 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+      `)
+      console.log('✅ Cached token data trigger created successfully')
+    } catch (error: any) {
+      console.log('⚠️ Cached token data trigger creation failed:', error.message)
+    }
+
+    // Insert default manual tokens
+    try {
+      await pool.query(`
+        INSERT INTO manual_tokens (token_id, coin_gecko_id, name, symbol, network, contract_type, description, priority, category, monitoring_strategy, risk_level, alert_thresholds) VALUES
+        ('1', 'bitcoin', 'Bitcoin', 'BTC', 'Bitcoin', 'Native', 'The first and most well-known cryptocurrency', 100, 'ESTABLISHED', 'REAL_TIME', 'LOW', '{"priceChange": 5, "volumeSpike": 200, "largeTransfer": 1000000, "holderMovement": 2}'),
+        ('2', 'ethereum', 'Ethereum', 'ETH', 'Ethereum', 'Native', 'Smart contract platform and cryptocurrency', 95, 'ESTABLISHED', 'REAL_TIME', 'LOW', '{"priceChange": 5, "volumeSpike": 200, "largeTransfer": 1000000, "holderMovement": 2}'),
+        ('3', 'blox-myrc', 'Blox', 'MYRC', 'Ethereum', 'ERC20', 'Blox token on Ethereum network', 80, 'TRENDING', 'REAL_TIME', 'MEDIUM', '{"priceChange": 10, "volumeSpike": 300, "largeTransfer": 100000, "holderMovement": 5}')
+        ON CONFLICT (token_id) DO NOTHING;
+      `)
+      console.log('✅ Default manual tokens inserted successfully')
+    } catch (error: any) {
+      console.log('⚠️ Default manual tokens insertion failed:', error.message)
+    }
+
     console.log('✅ Database initialized successfully with enhanced schema')
   } catch (error) {
     console.error('❌ Database initialization error:', error)
     throw error
   }
+}
+
+// Run the initialization if this file is executed directly
+if (require.main === module) {
+  initializeDatabase()
+    .then(() => {
+      console.log('🎉 Database initialization completed successfully')
+      process.exit(0)
+    })
+    .catch((error) => {
+      console.error('💥 Database initialization failed:', error)
+      process.exit(1)
+    })
 } 

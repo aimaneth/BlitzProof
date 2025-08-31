@@ -1,118 +1,181 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-interface ScanProgress {
-  scanId: string
-  status: 'pending' | 'running' | 'completed' | 'failed'
-  progress: number
-  currentStep: string
-  estimatedTime?: number
-  vulnerabilitiesFound: number
-  toolsCompleted: string[]
-  currentTool?: string
-  error?: string
+interface WebSocketMessage {
+  type: string
+  [key: string]: any
 }
 
-interface WebSocketMessage {
-  type: 'connection' | 'subscription' | 'scan_progress' | 'scan_complete' | 'scan_error' | 'error'
-  scanId?: string
-  status?: string
-  progress?: number
-  currentStep?: string
-  estimatedTime?: number
-  vulnerabilitiesFound?: number
-  toolsCompleted?: string[]
-  currentTool?: string
-  error?: string
-  results?: any
-  message?: string
+interface WebSocketState {
+  isConnected: boolean
+  isConnecting: boolean
+  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error'
+  lastMessage: WebSocketMessage | null
+  error: string | null
+  reconnectAttempts: number
+  latency: number | null
 }
 
 interface UseWebSocketOptions {
-  onScanProgress?: (progress: ScanProgress) => void
-  onScanComplete?: (scanId: string, results: any) => void
-  onScanError?: (scanId: string, error: string) => void
-  onConnectionChange?: (connected: boolean) => void
+  url?: string
+  autoReconnect?: boolean
+  maxReconnectAttempts?: number
+  reconnectInterval?: number
+  heartbeatInterval?: number
+  fallbackPolling?: boolean
+  pollInterval?: number
+  onMessage?: (message: WebSocketMessage) => void
+  onConnect?: () => void
+  onDisconnect?: () => void
+  onError?: (error: string) => void
+}
+
+const DEFAULT_OPTIONS: UseWebSocketOptions = {
+  url: process.env.NODE_ENV === 'production' 
+    ? 'wss://blitzproof-backend.onrender.com' 
+    : 'ws://localhost:4000',
+  autoReconnect: true, // Re-enabled with proper limits
+  maxReconnectAttempts: 2, // Limited attempts
+  reconnectInterval: 3000,
+  heartbeatInterval: 30000,
+  fallbackPolling: true,
+  pollInterval: 10000,
 }
 
 export function useWebSocket(options: UseWebSocketOptions = {}) {
-  const [isConnected, setIsConnected] = useState(false)
-  const [clientId, setClientId] = useState<string | null>(null)
+  const config = { ...DEFAULT_OPTIONS, ...options }
+  
+  const [state, setState] = useState<WebSocketState>({
+    isConnected: false,
+    isConnecting: false,
+    connectionStatus: 'disconnected', // Start with disconnected state
+    lastMessage: null,
+    error: null,
+    reconnectAttempts: 0,
+    latency: null,
+  })
+
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const reconnectAttempts = useRef(0)
-  const maxReconnectAttempts = 5
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastPingRef = useRef<number>(0)
+  const isPollingRef = useRef<boolean>(false)
 
+  // Connection management
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return
     }
 
-    // Determine WebSocket URL based on environment
-    let wsUrl: string
-    if (process.env.NODE_ENV === 'production') {
-      // In production, connect to the backend URL (Render)
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'blitzproof-backend.onrender.com'
-      // Remove https:// prefix if present
-      const cleanBackendUrl = backendUrl.replace(/^https?:\/\//, '')
-      wsUrl = `${protocol}//${cleanBackendUrl}`
-    } else {
-      // In development, use localhost
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const host = process.env.NEXT_PUBLIC_API_URL || 'localhost:4000'
-      // Remove https:// prefix if present
-      const cleanHost = host.replace(/^https?:\/\//, '')
-      wsUrl = `${protocol}//${cleanHost}`
+    // Validate WebSocket URL
+    if (!config.url) {
+      console.error('WebSocket URL not configured')
+      setState(prev => ({
+        ...prev,
+        isConnecting: false,
+        connectionStatus: 'error',
+        error: 'WebSocket URL not configured'
+      }))
+      return
     }
 
-    try {
-      const ws = new WebSocket(wsUrl)
-      wsRef.current = ws
+    setState(prev => ({ ...prev, isConnecting: true, connectionStatus: 'connecting' }))
 
+    try {
+      console.log(`🔌 Attempting WebSocket connection to: ${config.url}`)
+      const ws = new WebSocket(config.url)
+      
       ws.onopen = () => {
         console.log('🔌 WebSocket connected')
-        setIsConnected(true)
-        options.onConnectionChange?.(true)
-        reconnectAttempts.current = 0
+        setState(prev => ({
+          ...prev,
+          isConnected: true,
+          isConnecting: false,
+          connectionStatus: 'connected',
+          error: null,
+          reconnectAttempts: 0,
+        }))
+        
+        config.onConnect?.()
+        startHeartbeat()
       }
 
       ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data)
-          handleMessage(message)
+          
+          // Handle heartbeat responses
+          if (message.type === 'pong') {
+            const latency = Date.now() - lastPingRef.current
+            setState(prev => ({ ...prev, latency }))
+            return
+          }
+
+          setState(prev => ({ ...prev, lastMessage: message }))
+          config.onMessage?.(message)
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error)
         }
       }
 
       ws.onclose = (event) => {
-        console.log('🔌 WebSocket disconnected:', event.code, event.reason)
-        setIsConnected(false)
-        options.onConnectionChange?.(false)
+        console.log(`🔌 WebSocket disconnected: ${event.code} - ${event.reason}`)
+        setState(prev => ({
+          ...prev,
+          isConnected: false,
+          isConnecting: false,
+          connectionStatus: 'disconnected',
+        }))
         
-        // Don't reconnect if this was a normal closure (scan completed/failed)
-        if (event.code === 1000) {
-          console.log('🔌 Normal closure, not reconnecting')
-          return
-        }
+        stopHeartbeat()
+        config.onDisconnect?.()
         
-        // Attempt to reconnect if not a normal closure
-        if (reconnectAttempts.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 10000)
-          reconnectTimeoutRef.current = setTimeout(() => {
-            reconnectAttempts.current++
-            connect()
-          }, delay)
+        // Auto-reconnect if enabled and not a normal closure
+        // Don't reconnect on code 1000 (normal closure) or 1006 (abnormal closure after multiple failures)
+        if (config.autoReconnect && event.code !== 1000) {
+          // For code 1006 (abnormal closure), check if we've exceeded max attempts
+          if (event.code === 1006) {
+            const currentAttempts = state.reconnectAttempts
+            if (currentAttempts >= config.maxReconnectAttempts!) {
+              console.log('Max reconnection attempts reached, stopping reconnection')
+              setState(prev => ({
+                ...prev,
+                connectionStatus: 'error',
+                error: 'Connection failed after multiple attempts'
+              }))
+              return
+            }
+          }
+          scheduleReconnect()
         }
       }
 
       ws.onerror = (error) => {
         console.error('WebSocket error:', error)
+        const errorMessage = 'WebSocket connection error'
+        setState(prev => ({
+          ...prev,
+          error: errorMessage,
+          connectionStatus: 'error',
+        }))
+        config.onError?.(errorMessage)
       }
+
+      wsRef.current = ws
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error)
+      setState(prev => ({
+        ...prev,
+        isConnecting: false,
+        connectionStatus: 'error',
+        error: 'Failed to create WebSocket connection',
+      }))
+      
+      if (config.autoReconnect) {
+        scheduleReconnect()
+      }
     }
-  }, [options])
+  }, [config])
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -120,118 +183,197 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       reconnectTimeoutRef.current = null
     }
     
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current)
+      heartbeatIntervalRef.current = null
+    }
+    
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+    
     if (wsRef.current) {
       wsRef.current.close(1000, 'User disconnect')
       wsRef.current = null
     }
     
-    setIsConnected(false)
-    setClientId(null)
-    options.onConnectionChange?.(false)
-  }, [options])
+    setState(prev => ({
+      ...prev,
+      isConnected: false,
+      isConnecting: false,
+      connectionStatus: 'disconnected',
+      reconnectAttempts: 0,
+    }))
+  }, [])
 
-  const subscribeToScan = useCallback((scanId: string) => {
-    if (!isConnected || !wsRef.current) {
-      console.warn('WebSocket not connected, cannot subscribe to scan')
+  const send = useCallback((message: WebSocketMessage) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(message))
+    } else {
+      console.warn('WebSocket is not connected, cannot send message')
+    }
+  }, [])
+
+  // Heartbeat management
+  const startHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current)
+    }
+    
+    heartbeatIntervalRef.current = setInterval(() => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        lastPingRef.current = Date.now()
+        send({ type: 'ping' })
+      }
+    }, config.heartbeatInterval)
+  }, [config.heartbeatInterval, send])
+
+  const stopHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current)
+      heartbeatIntervalRef.current = null
+    }
+  }, [])
+
+  // Reconnection logic
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+    }
+    
+    setState(prev => {
+      const newAttempts = prev.reconnectAttempts + 1
+      
+      if (newAttempts > config.maxReconnectAttempts!) {
+        console.log('Max reconnection attempts reached, switching to polling')
+        return {
+          ...prev,
+          connectionStatus: 'error',
+          error: 'Max reconnection attempts reached',
+        }
+      }
+      
+      const delay = config.reconnectInterval! * Math.pow(2, newAttempts - 1)
+      console.log(`Scheduling reconnection attempt ${newAttempts} in ${delay}ms`)
+      
+      reconnectTimeoutRef.current = setTimeout(() => {
+        setState(prev => ({ ...prev, connectionStatus: 'reconnecting' }))
+        connect()
+      }, delay)
+      
+      return {
+        ...prev,
+        reconnectAttempts: newAttempts,
+        connectionStatus: 'reconnecting',
+      }
+    })
+  }, [config, connect])
+
+  // Fallback polling
+  const startPolling = useCallback(() => {
+    if (isPollingRef.current) {
       return
     }
+    
+    console.log('🔄 Starting fallback polling')
+    isPollingRef.current = true
+    
+    pollIntervalRef.current = setInterval(() => {
+      // Simulate WebSocket-like behavior with polling
+      const pollMessage: WebSocketMessage = {
+        type: 'poll_update',
+        timestamp: Date.now(),
+        source: 'polling',
+      }
+      
+      setState(prev => ({ ...prev, lastMessage: pollMessage }))
+      // Use a ref to avoid dependency issues
+      if (options.onMessage) {
+        options.onMessage(pollMessage)
+      }
+    }, DEFAULT_OPTIONS.pollInterval)
+  }, [options.onMessage])
 
-    const message = {
+  const stopPolling = useCallback(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+    isPollingRef.current = false
+  }, [])
+
+  // Subscription management
+  const subscribe = useCallback((type: 'scan' | 'token', id: string) => {
+    send({
       type: 'subscribe',
-      scanId
-    }
+      [type === 'scan' ? 'scanId' : 'tokenId']: id,
+    })
+  }, [send])
 
-    wsRef.current.send(JSON.stringify(message))
-    console.log(`📡 Subscribed to scan: ${scanId}`)
-  }, [isConnected])
-
-  const unsubscribeFromScan = useCallback((scanId: string) => {
-    if (!isConnected || !wsRef.current) {
-      return
-    }
-
-    const message = {
+  const unsubscribe = useCallback((type: 'scan' | 'token', id: string) => {
+    send({
       type: 'unsubscribe',
-      scanId
-    }
+      [type === 'scan' ? 'scanId' : 'tokenId']: id,
+    })
+  }, [send])
 
-    wsRef.current.send(JSON.stringify(message))
-    console.log(`📡 Unsubscribed from scan: ${scanId}`)
-  }, [isConnected])
+  // Get connection stats
+  const getStats = useCallback(() => {
+    send({ type: 'get_stats' })
+  }, [send])
 
-  const handleMessage = useCallback((message: WebSocketMessage) => {
-    switch (message.type) {
-      case 'connection':
-        setClientId(message.scanId || null)
-        console.log('🔌 WebSocket connection established')
-        break
-
-      case 'subscription':
-        console.log(`📡 Subscription ${message.status}: ${message.scanId}`)
-        break
-
-      case 'scan_progress':
-        if (message.scanId && options.onScanProgress) {
-          const progress: ScanProgress = {
-            scanId: message.scanId,
-            status: message.status as any,
-            progress: message.progress || 0,
-            currentStep: message.currentStep || '',
-            estimatedTime: message.estimatedTime,
-            vulnerabilitiesFound: message.vulnerabilitiesFound || 0,
-            toolsCompleted: message.toolsCompleted || [],
-            currentTool: message.currentTool,
-            error: message.error
-          }
-          options.onScanProgress(progress)
-        }
-        break
-
-      case 'scan_complete':
-        if (message.scanId && message.results && options.onScanComplete) {
-          console.log('🔌 Scan completed, closing WebSocket connection')
-          options.onScanComplete(message.scanId, message.results)
-          // Close the connection gracefully since scan is done
-          if (wsRef.current) {
-            wsRef.current.close(1000, 'Scan completed')
-          }
-        }
-        break
-
-      case 'scan_error':
-        if (message.scanId && message.error && options.onScanError) {
-          console.log('🔌 Scan failed, closing WebSocket connection')
-          options.onScanError(message.scanId, message.error)
-          // Close the connection gracefully since scan failed
-          if (wsRef.current) {
-            wsRef.current.close(1000, 'Scan failed')
-          }
-        }
-        break
-
-      case 'error':
-        console.error('WebSocket error message:', message.message)
-        break
-
-      default:
-        console.warn('Unknown WebSocket message type:', message.type)
-    }
-  }, [options])
-
+  // Effect to manage connection lifecycle
   useEffect(() => {
-    connect()
-
-    return () => {
-      disconnect()
+    console.log('🔌 Initializing real-time connection system')
+    
+    // Try WebSocket first, fallback to polling
+    const initConnection = async () => {
+      try {
+        // Attempt WebSocket connection
+        connect()
+        
+        // Start polling as fallback
+        if (config.fallbackPolling && !isPollingRef.current) {
+          startPolling()
+        }
+      } catch (error) {
+        console.log('🔌 WebSocket failed, using polling only')
+        if (config.fallbackPolling && !isPollingRef.current) {
+          startPolling()
+        }
+      }
     }
-  }, [connect, disconnect])
+    
+    // Small delay to ensure backend is ready
+    const timeout = setTimeout(initConnection, 1000)
+    
+    return () => {
+      clearTimeout(timeout)
+      disconnect()
+      stopPolling()
+    }
+  }, []) // Empty dependency array to prevent infinite loops
 
   return {
-    isConnected,
-    clientId,
-    subscribeToScan,
-    unsubscribeFromScan,
+    // State
+    ...state,
+    
+    // Actions
     connect,
-    disconnect
+    disconnect,
+    send,
+    subscribe,
+    unsubscribe,
+    getStats,
+    
+    // Utilities
+    isReady: state.isConnected || isPollingRef.current, // Ready when WebSocket connected OR polling active
+    connectionQuality: state.latency 
+      ? state.latency < 100 ? 'excellent' 
+      : state.latency < 300 ? 'good'
+      : state.latency < 1000 ? 'fair'
+      : 'poor'
+      : 'good', // Default quality for polling
   }
 } 

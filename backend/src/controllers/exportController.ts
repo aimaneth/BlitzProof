@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ExportService } from '../services/exportService';
 import { EnhancedExportService } from '../services/enhancedExportService';
-import pool from '../config/database';
+import pool from '../config/postgres';
 import { ScanResult } from '../types/scan';
 
 const exportService = new ExportService();

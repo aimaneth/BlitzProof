@@ -4,11 +4,14 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
 import { createServer } from 'http'
+import path from 'path'
 import redisClient from './config/redis'
 import WebSocketService from './services/websocketService'
 import { initializeDatabase } from './config/init-db'
+import { BackgroundRefreshService } from './services/backgroundRefreshService'
 import { securityHeaders } from './middleware/auth'
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics'
+
 
 // Routes
 import authRoutes from './routes/auth'
@@ -20,6 +23,11 @@ import batchScanRoutes from './routes/batchScan'
 import remediationRoutes from './routes/remediation'
 import contactRoutes from './routes/contact'
 import blockNetRoutes from './routes/blockNet'
+import blitzProofRoutes from './routes/blitzProof'
+import tokenLogoRoutes from './routes/tokenLogos'
+import cachedTokenRoutes from './routes/cachedToken'
+import simpleTokenRoutes from './routes/simpleTokens'
+import priceDataRoutes from './routes/priceData'
 
 dotenv.config()
 
@@ -116,6 +124,9 @@ app.use(morgan('dev'))
 
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
+// Serve static files (uploaded logos)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+
 // Preflight handling
 app.options('*', cors(corsOptions))
 
@@ -143,7 +154,7 @@ app.get('/health/db', async (req, res) => {
       })
     }
 
-    const pool = require('./config/database').default
+    const pool = require('./config/postgres').default
     const result = await pool.query('SELECT NOW() as current_time, version() as db_version')
     
     // Check if key tables exist
@@ -196,6 +207,11 @@ app.use('/api/batch-scan', batchScanRoutes)
 app.use('/api/remediation', remediationRoutes)
 app.use('/api/contact', contactRoutes)
 app.use('/api/blocknet', blockNetRoutes)
+app.use('/api/cached', cachedTokenRoutes)
+app.use('/api/blitzproof', blitzProofRoutes)
+app.use('/api/blocknet/token-logos', tokenLogoRoutes)
+app.use('/api/simple-tokens', simpleTokenRoutes)
+app.use('/api/price-data', priceDataRoutes)
 
 // Initialize WebSocket service after server creation
 wsService = new WebSocketService(server)
@@ -238,6 +254,8 @@ async function startServer() {
       console.log('ℹ️ Some features may be limited without Redis')
     }
 
+
+
     // Initialize database (optional)
     let dbConnected = false
     try {
@@ -252,6 +270,15 @@ async function startServer() {
       const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error'
       console.warn('⚠️ Database initialization failed, running without database:', errorMessage)
       console.log('ℹ️ Some features may be limited without database')
+    }
+
+    // Initialize background refresh service
+    try {
+      console.log('🔄 Starting background refresh service...')
+      await BackgroundRefreshService.initialize(wsService)
+      console.log('✅ Background refresh service started')
+    } catch (error) {
+      console.warn('⚠️ Background refresh service failed to start:', error)
     }
 
     // Clear startup timeout

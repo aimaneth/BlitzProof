@@ -6,7 +6,7 @@ import { Vulnerability } from '../types/scan'
 import aiAnalysisService from './aiAnalysisService'
 import customRulesService from './customRulesService'
 import batchScanService from './batchScanService'
-import pool from '../config/database'
+import pool from '../config/postgres'
 import redisClient from '../config/redis'
 
 const execAsync = promisify(exec)
