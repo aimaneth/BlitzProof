@@ -35,7 +35,7 @@ interface SearchFilters {
   marketCapRange: [number, number]
   volumeRange: [number, number]
   change24hRange: [number, number]
-  sortBy: 'name' | 'price' | 'marketCap' | 'volume24h' | 'change24h' | 'score' | 'risk'
+  sortBy: 'name' | 'price' | 'marketCap' | 'volume24h' | 'change24h' | 'score' | 'riskLevel'
   sortOrder: 'asc' | 'desc'
 }
 
