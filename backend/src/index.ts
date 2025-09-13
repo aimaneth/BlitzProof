@@ -7,8 +7,8 @@ import { createServer } from 'http'
 import path from 'path'
 import redisClient from './config/redis'
 import WebSocketService from './services/websocketService'
-import { initializeDatabase } from './config/init-db'
-import { BackgroundRefreshService } from './services/backgroundRefreshService'
+import { connectToMongoDB } from './config/mongodb'
+import { MongoBackgroundRefreshService } from './services/mongoBackgroundRefreshService'
 import { securityHeaders } from './middleware/auth'
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics'
 
@@ -26,8 +26,8 @@ import blockNetRoutes from './routes/blockNet'
 import blitzProofRoutes from './routes/blitzProof'
 import tokenLogoRoutes from './routes/tokenLogos'
 import cachedTokenRoutes from './routes/cachedToken'
-import simpleTokenRoutes from './routes/simpleTokens'
-import priceDataRoutes from './routes/priceData'
+import mongoSimpleTokenRoutes from './routes/mongoSimpleTokens'
+import mongoPriceDataRoutes from './routes/mongoPriceData'
 import holderDataRoutes from './routes/holderData'
 
 dotenv.config()
@@ -211,8 +211,8 @@ app.use('/api/blocknet', blockNetRoutes)
 app.use('/api/cached', cachedTokenRoutes)
 app.use('/api/blitzproof', blitzProofRoutes)
 app.use('/api/blocknet/token-logos', tokenLogoRoutes)
-app.use('/api/simple-tokens', simpleTokenRoutes)
-app.use('/api/price-data', priceDataRoutes)
+app.use('/api/simple-tokens', mongoSimpleTokenRoutes)
+app.use('/api/price-data', mongoPriceDataRoutes)
 app.use('/api/holder-data', holderDataRoutes)
 
 // Initialize WebSocket service after server creation
@@ -258,29 +258,29 @@ async function startServer() {
 
 
 
-    // Initialize database (optional)
+    // Initialize MongoDB (optional)
     let dbConnected = false
     try {
-      if (process.env.DATABASE_URL) {
-        await initializeDatabase()
-        console.log('✅ Database initialized')
+      if (process.env.MONGODB_URI) {
+        await connectToMongoDB()
+        console.log('✅ MongoDB connected')
         dbConnected = true
       } else {
-        console.log('ℹ️ DATABASE_URL not set, running without database')
+        console.log('ℹ️ MONGODB_URI not set, running without database')
       }
     } catch (dbError) {
       const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error'
-      console.warn('⚠️ Database initialization failed, running without database:', errorMessage)
+      console.warn('⚠️ MongoDB connection failed, running without database:', errorMessage)
       console.log('ℹ️ Some features may be limited without database')
     }
 
-    // Initialize background refresh service
+    // Initialize MongoDB background refresh service
     try {
-      console.log('🔄 Starting background refresh service...')
-      await BackgroundRefreshService.initialize(wsService)
-      console.log('✅ Background refresh service started')
+      console.log('🔄 Starting MongoDB background refresh service...')
+      await MongoBackgroundRefreshService.initialize(wsService)
+      console.log('✅ MongoDB background refresh service started')
     } catch (error) {
-      console.warn('⚠️ Background refresh service failed to start:', error)
+      console.warn('⚠️ MongoDB background refresh service failed to start:', error)
     }
 
     // Clear startup timeout
