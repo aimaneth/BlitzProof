@@ -77,6 +77,20 @@ export class MongoTokenService {
     }
   }
 
+  // Get all tokens
+  async getAllTokens(): Promise<Token[]> {
+    try {
+      const db = await this.getDb()
+      const tokens = await db.collection('tokens').find({}).toArray()
+      
+      console.log(`✅ Retrieved ${tokens.length} tokens from MongoDB`)
+      return tokens
+    } catch (error) {
+      console.error('❌ Error getting all tokens:', error)
+      return []
+    }
+  }
+
   // Update token price data
   async updateTokenPrice(tokenId: string, priceData: {
     current_price?: number

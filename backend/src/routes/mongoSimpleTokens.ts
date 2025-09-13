@@ -6,6 +6,39 @@ const router = express.Router()
 // Add JSON parsing middleware
 router.use(express.json({ limit: '10mb' }))
 
+// Get all tokens (basic endpoint for admin)
+router.get('/', async (req, res) => {
+  try {
+    console.log('🔄 GET /api/simple-tokens - Fetching all tokens from MongoDB')
+    
+    const result = await mongoSimpleTokenService.getAllTokens()
+    
+    if (!result.success) {
+      console.error('❌ Failed to get tokens:', result.error)
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to get tokens',
+        details: 'MongoDB connection or query failed'
+      })
+    }
+
+    console.log(`✅ Successfully returned ${result.data?.length || 0} tokens`)
+    
+    res.json({
+      success: true,
+      tokens: result.data || [],
+      total: result.data?.length || 0
+    })
+  } catch (error) {
+    console.error('❌ Error in /api/simple-tokens:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
 // Get all tokens with price data
 router.get('/with-price', async (req, res) => {
   try {

@@ -79,6 +79,49 @@ export class MongoSimpleTokenService {
     }
   }
 
+  // Get all tokens (basic endpoint for admin)
+  async getAllTokens(): Promise<{ success: boolean; data?: SimpleToken[]; error?: string }> {
+    try {
+      console.log('🔄 Fetching all tokens from MongoDB...')
+      
+      const tokens = await mongoTokenService.getAllTokens()
+      
+      if (!tokens || tokens.length === 0) {
+        console.log('⚠️ No tokens found in MongoDB, initializing default tokens...')
+        await mongoTokenService.initializeDefaultTokens()
+        
+        // Try again after initialization
+        const retryTokens = await mongoTokenService.getAllTokens()
+        if (!retryTokens || retryTokens.length === 0) {
+          return {
+            success: false,
+            error: 'No tokens found even after initialization'
+          }
+        }
+        
+        return {
+          success: true,
+          data: retryTokens.map(token => this.mapToSimpleToken(token))
+        }
+      }
+      
+      const simpleTokens = tokens.map(token => this.mapToSimpleToken(token))
+      
+      console.log(`✅ Successfully fetched ${simpleTokens.length} tokens`)
+      
+      return {
+        success: true,
+        data: simpleTokens
+      }
+    } catch (error) {
+      console.error('❌ Error fetching all tokens:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
   // Get token by ID
   async getTokenById(tokenId: string): Promise<{ success: boolean; data?: SimpleToken; error?: string }> {
     try {
