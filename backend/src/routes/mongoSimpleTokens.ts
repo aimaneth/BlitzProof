@@ -26,8 +26,8 @@ router.get('/with-price', async (req, res) => {
     
     res.json({
       success: true,
-      data: result.data || [],
-      count: result.data?.length || 0
+      tokens: result.data || [],
+      total: result.data?.length || 0
     })
   } catch (error) {
     console.error('❌ Error in /api/simple-tokens/with-price:', error)
