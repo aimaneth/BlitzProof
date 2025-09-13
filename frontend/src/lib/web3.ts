@@ -41,6 +41,7 @@ export function createWeb3Config() {
     },
     ssr: false, // Disable SSR to prevent hydration issues
     storage: typeof window !== 'undefined' ? undefined : undefined, // Only use storage on client
+    reconnect: false, // Disable auto-reconnect to prevent hydration issues
   })
 
   return configInstance

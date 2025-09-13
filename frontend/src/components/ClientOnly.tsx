@@ -11,7 +11,12 @@ export default function ClientOnly({ children, fallback = null }: ClientOnlyProp
   const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
-    setHasMounted(true)
+    // Add a delay to ensure hydration is completely finished
+    const timer = setTimeout(() => {
+      setHasMounted(true)
+    }, 150)
+
+    return () => clearTimeout(timer)
   }, [])
 
   if (!hasMounted) {
