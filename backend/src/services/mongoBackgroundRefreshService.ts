@@ -90,7 +90,7 @@ export class MongoBackgroundRefreshService {
 
       // Send WebSocket update if available
       if (this.wsService) {
-        this.wsService.broadcast({
+        this.wsService.broadcastToAll({
           type: 'price_refresh_complete',
           timestamp: new Date().toISOString(),
           message: 'All token prices have been refreshed',
@@ -103,7 +103,7 @@ export class MongoBackgroundRefreshService {
       
       // Send error notification via WebSocket if available
       if (this.wsService) {
-        this.wsService.broadcast({
+        this.wsService.broadcastToAll({
           type: 'price_refresh_error',
           timestamp: new Date().toISOString(),
           error: error instanceof Error ? error.message : 'Unknown error'

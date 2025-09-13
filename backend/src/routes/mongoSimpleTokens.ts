@@ -62,7 +62,7 @@ router.get('/:tokenId', async (req, res) => {
       data: result.data
     })
   } catch (error) {
-    console.error(`❌ Error in /api/simple-tokens/${tokenId}:`, error)
+    console.error(`❌ Error in /api/simple-tokens/${req.params.tokenId}:`, error)
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -96,7 +96,7 @@ router.put('/:tokenId/price', async (req, res) => {
       message: 'Token price updated successfully'
     })
   } catch (error) {
-    console.error(`❌ Error in /api/simple-tokens/${tokenId}/price:`, error)
+    console.error(`❌ Error in /api/simple-tokens/${req.params.tokenId}/price:`, error)
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -130,7 +130,7 @@ router.put('/:tokenId/holders', async (req, res) => {
       message: 'Token holders updated successfully'
     })
   } catch (error) {
-    console.error(`❌ Error in /api/simple-tokens/${tokenId}/holders:`, error)
+    console.error(`❌ Error in /api/simple-tokens/${req.params.tokenId}/holders:`, error)
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -163,7 +163,7 @@ router.delete('/:tokenId/cache', async (req, res) => {
       message: 'Price cache cleared successfully'
     })
   } catch (error) {
-    console.error(`❌ Error in /api/simple-tokens/${tokenId}/cache:`, error)
+    console.error(`❌ Error in /api/simple-tokens/${req.params.tokenId}/cache:`, error)
     res.status(500).json({
       success: false,
       error: 'Internal server error',

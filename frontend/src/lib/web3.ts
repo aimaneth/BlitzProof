@@ -39,6 +39,8 @@ export function createWeb3Config() {
       [arbitrum.id]: http(),
       [optimism.id]: http(),
     },
+    ssr: false, // Disable SSR to prevent hydration issues
+    storage: typeof window !== 'undefined' ? undefined : undefined, // Only use storage on client
   })
 
   return configInstance

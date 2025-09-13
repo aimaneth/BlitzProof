@@ -54,12 +54,13 @@ export class MongoPriceDataService {
         }
       })
 
-      if (!response.data[tokenId]) {
+      const responseData = response.data as any
+      if (!responseData[tokenId]) {
         console.log(`⚠️ No CoinGecko data for ${tokenId}`)
         return null
       }
 
-      const data = response.data[tokenId]
+      const data = responseData[tokenId]
       
       console.log(`✅ CoinGecko data for ${tokenId}:`, {
         price: data.usd,
@@ -112,17 +113,18 @@ export class MongoPriceDataService {
         timeout: 10000
       })
 
-      if (!response.data.pairs || response.data.pairs.length === 0) {
+      const responseData = response.data as any
+      if (!responseData.pairs || responseData.pairs.length === 0) {
         console.log(`⚠️ No DexScreener pairs for ${tokenId}`)
         return null
       }
 
       // Filter pairs to find the most relevant one
-      let bestPair = response.data.pairs[0]
+      let bestPair = responseData.pairs[0]
       
       // For MYRC, look for Arbitrum pairs specifically
       if (tokenId === 'blox-myrc') {
-        const arbitrumPair = response.data.pairs.find((pair: any) => 
+        const arbitrumPair = responseData.pairs.find((pair: any) => 
           pair.chainId === 'arbitrum' && 
           (pair.baseToken.symbol === 'MYRC' || pair.quoteToken.symbol === 'MYRC')
         )
@@ -134,7 +136,7 @@ export class MongoPriceDataService {
       console.log(`✅ DexScreener data for ${tokenId}:`, {
         price: bestPair.priceUsd,
         liquidity: bestPair.liquidity?.usd,
-        pairs: response.data.pairs.length
+        pairs: responseData.pairs.length
       })
 
       return {
@@ -142,7 +144,7 @@ export class MongoPriceDataService {
         priceChange24h: this.safeParseFloat(bestPair.priceChange?.h24),
         marketCap: this.safeParseFloat(bestPair.fdv),
         volume24h: this.safeParseFloat(bestPair.volume?.h24),
-        pairsCount: response.data.pairs.length,
+        pairsCount: responseData.pairs.length,
         totalLiquidity: this.safeParseFloat(bestPair.liquidity?.usd),
         source: 'dexscreener',
         lastUpdated: new Date(),

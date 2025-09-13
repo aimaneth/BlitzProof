@@ -263,7 +263,7 @@ export class MongoTokenService {
             unique_id: 'bitcoin',
             name: 'Bitcoin',
             symbol: 'BTC',
-            contract_address: null,
+            contract_address: undefined,
             network: 'bitcoin'
           },
           {
@@ -271,7 +271,7 @@ export class MongoTokenService {
             unique_id: 'ethereum',
             name: 'Ethereum',
             symbol: 'ETH',
-            contract_address: null,
+            contract_address: undefined,
             network: 'ethereum'
           },
           {
@@ -279,7 +279,7 @@ export class MongoTokenService {
             unique_id: 'cardano',
             name: 'Cardano',
             symbol: 'ADA',
-            contract_address: null,
+            contract_address: undefined,
             network: 'cardano'
           },
           {
@@ -287,7 +287,7 @@ export class MongoTokenService {
             unique_id: 'dogecoin',
             name: 'Dogecoin',
             symbol: 'DOGE',
-            contract_address: null,
+            contract_address: undefined,
             network: 'dogecoin'
           },
           {
