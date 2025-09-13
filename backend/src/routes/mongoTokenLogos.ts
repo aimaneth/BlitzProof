@@ -3,7 +3,7 @@ import axios from 'axios';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { getDb } from '../config/mongodb';
+import { getMongoDB } from '../config/mongodb';
 
 const router = express.Router();
 
@@ -55,7 +55,7 @@ router.get('/:tokenId', async (req, res) => {
     const { tokenId } = req.params;
     console.log(`🔍 Looking for logo for token: ${tokenId}`);
 
-    const db = getDb();
+    const db = await getMongoDB();
     if (!db) {
       console.error('❌ MongoDB not connected');
       return res.status(500).json({ error: 'Database not connected' });
@@ -89,11 +89,11 @@ router.get('/:tokenId', async (req, res) => {
       if (response.status === 200) {
         console.log(`✅ Found logo from CoinGecko for ${tokenId}`);
         res.set('Content-Type', response.headers['content-type']);
-        response.data.pipe(res);
+        (response.data as any).pipe(res);
         return;
       }
     } catch (coingeckoError) {
-      console.log(`⚠️ CoinGecko failed for ${tokenId}:`, coingeckoError.message);
+      console.log(`⚠️ CoinGecko failed for ${tokenId}:`, (coingeckoError as Error).message);
     }
 
     // Try Trust Wallet
@@ -107,11 +107,11 @@ router.get('/:tokenId', async (req, res) => {
       if (response.status === 200) {
         console.log(`✅ Found logo from Trust Wallet for ${tokenId}`);
         res.set('Content-Type', response.headers['content-type']);
-        response.data.pipe(res);
+        (response.data as any).pipe(res);
         return;
       }
     } catch (trustWalletError) {
-      console.log(`⚠️ Trust Wallet failed for ${tokenId}:`, trustWalletError.message);
+      console.log(`⚠️ Trust Wallet failed for ${tokenId}:`, (trustWalletError as Error).message);
     }
 
     // Try Token Icons
@@ -125,11 +125,11 @@ router.get('/:tokenId', async (req, res) => {
       if (response.status === 200) {
         console.log(`✅ Found logo from Token Icons for ${tokenId}`);
         res.set('Content-Type', response.headers['content-type']);
-        response.data.pipe(res);
+        (response.data as any).pipe(res);
         return;
       }
     } catch (tokenIconsError) {
-      console.log(`⚠️ Token Icons failed for ${tokenId}:`, tokenIconsError.message);
+      console.log(`⚠️ Token Icons failed for ${tokenId}:`, (tokenIconsError as Error).message);
     }
 
     // If all external sources fail, return a default logo or 404
@@ -161,7 +161,7 @@ router.post('/upload/:tokenId', upload.single('logo'), async (req, res) => {
     console.log(`📤 Uploading logo for token: ${tokenId}`);
     console.log(`📁 Temporary file: ${req.file.filename}`);
 
-    const db = getDb();
+    const db = await getMongoDB();
     if (!db) {
       console.error('❌ MongoDB not connected');
       return res.status(500).json({ error: 'Database not connected' });
@@ -247,7 +247,7 @@ router.get('/proxy/:source/:tokenId', async (req, res) => {
     if (response.status === 200) {
       res.set('Content-Type', response.headers['content-type']);
       res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-      response.data.pipe(res);
+      (response.data as any).pipe(res);
     } else {
       res.status(404).json({ error: 'Logo not found' });
     }
@@ -264,7 +264,7 @@ router.get('/proxy/:source/:tokenId', async (req, res) => {
 // Get all token logos
 router.get('/', async (req, res) => {
   try {
-    const db = getDb();
+    const db = await getMongoDB();
     if (!db) {
       return res.status(500).json({ error: 'Database not connected' });
     }
@@ -273,7 +273,7 @@ router.get('/', async (req, res) => {
     
     res.json({
       success: true,
-      logos: logos.map(logo => ({
+      logos: logos.map((logo: any) => ({
         tokenId: logo.tokenId,
         logoPath: logo.logoPath,
         uploadedAt: logo.uploadedAt,
