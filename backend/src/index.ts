@@ -24,7 +24,7 @@ import remediationRoutes from './routes/remediation'
 import contactRoutes from './routes/contact'
 import blockNetRoutes from './routes/blockNet'
 import blitzProofRoutes from './routes/blitzProof'
-import tokenLogoRoutes from './routes/tokenLogos'
+import mongoTokenLogoRoutes from './routes/mongoTokenLogos'
 import cachedTokenRoutes from './routes/cachedToken'
 import mongoSimpleTokenRoutes from './routes/mongoSimpleTokens'
 import mongoPriceDataRoutes from './routes/mongoPriceData'
@@ -210,7 +210,7 @@ app.use('/api/contact', contactRoutes)
 app.use('/api/blocknet', blockNetRoutes)
 app.use('/api/cached', cachedTokenRoutes)
 app.use('/api/blitzproof', blitzProofRoutes)
-app.use('/api/blocknet/token-logos', tokenLogoRoutes)
+app.use('/api/blocknet/token-logos', mongoTokenLogoRoutes)
 app.use('/api/simple-tokens', mongoSimpleTokenRoutes)
 app.use('/api/price-data', mongoPriceDataRoutes)
 app.use('/api/holder-data', holderDataRoutes)
