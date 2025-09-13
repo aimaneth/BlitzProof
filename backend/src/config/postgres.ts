@@ -14,8 +14,8 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false
+  ssl: process.env.DATABASE_URL?.includes('render.com') || process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'
   } : false
 })
 

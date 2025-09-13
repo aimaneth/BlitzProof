@@ -7,8 +7,10 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
 
 // Create a function to get the config to avoid hydration issues
 export function createWeb3Config() {
-  // Use a static URL to avoid hydration mismatches
-  const appUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3002'
+  // Use the correct URL based on environment
+  const appUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : (process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3002')
   
   return createConfig({
     chains: [mainnet, polygon, arbitrum, optimism],
