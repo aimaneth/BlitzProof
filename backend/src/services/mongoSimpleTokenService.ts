@@ -58,7 +58,7 @@ export class MongoSimpleTokenService {
         
         return {
           success: true,
-          data: retryTokens.map(token => this.mapToSimpleToken(token))
+          data: retryTokens.map(token => this.mapTokenToSimpleToken(token))
         }
       }
 
@@ -101,11 +101,11 @@ export class MongoSimpleTokenService {
         
         return {
           success: true,
-          data: retryTokens.map(token => this.mapToSimpleToken(token))
+          data: retryTokens.map(token => this.mapTokenToSimpleToken(token))
         }
       }
       
-      const simpleTokens = tokens.map(token => this.mapToSimpleToken(token))
+      const simpleTokens = tokens.map(token => this.mapTokenToSimpleToken(token))
       
       console.log(`✅ Successfully fetched ${simpleTokens.length} tokens`)
       
@@ -231,6 +231,52 @@ export class MongoSimpleTokenService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       }
+    }
+  }
+
+  // Helper method to map Token to SimpleToken (for basic token data)
+  private mapTokenToSimpleToken(token: any): SimpleToken {
+    // Generate a simple ID from the unique_id
+    const id = token.unique_id || token.coin_gecko_id || 'unknown'
+
+    // Determine risk level based on various factors
+    const riskLevel = this.determineRiskLevel(token)
+    
+    // Calculate security score (simplified)
+    const securityScore = this.calculateSecurityScore(token)
+
+    return {
+      id,
+      uniqueId: token.unique_id || token.coin_gecko_id || 'unknown',
+      coinGeckoId: token.coin_gecko_id || '',
+      name: token.name || 'Unknown Token',
+      symbol: token.symbol || 'UNKNOWN',
+      description: token.description || '',
+      logoUrl: token.logo_url || '',
+      website: token.website || '',
+      twitter: token.twitter || '',
+      telegram: token.telegram || '',
+      discord: token.discord || '',
+      reddit: token.reddit || '',
+      github: token.github || '',
+      whitepaper: token.whitepaper || '',
+      contractAddress: token.contract_address || undefined,
+      network: token.network || 'ethereum',
+      securityScore: securityScore,
+      riskLevel: riskLevel,
+      auditStatus: token.audit_status || 'UNAUDITED',
+      auditLinks: token.audit_links || [],
+      liquidityScore: token.liquidity_score || 0,
+      holderCount: token.holder_count || 0,
+      marketCap: token.market_cap || 0,
+      volume24h: token.volume_24h || 0,
+      price: token.current_price || 0,
+      priceChange24h: token.price_change_24h || 0,
+      pairsCount: token.pairs_count || 0,
+      totalLiquidity: token.total_liquidity || 0,
+      source: token.source || 'manual',
+      lastUpdated: token.last_updated ? new Date(token.last_updated) : new Date(),
+      reliability: token.reliability || 0
     }
   }
 
