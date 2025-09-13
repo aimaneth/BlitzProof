@@ -4,6 +4,7 @@ import { AuthGuard } from '@/components/providers/auth-guard'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { Toaster } from 'sonner'
 import { usePathname } from 'next/navigation'
+import ClientOnly from '@/components/ClientOnly'
 
 export default function ClientRoot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -13,17 +14,19 @@ export default function ClientRoot({ children }: { children: React.ReactNode }) 
   const isProtectedRoute = protectedRoutes.some(route => pathname?.startsWith(route))
 
   return (
-    <Web3Provider>
-      <NotificationProvider>
-        {isProtectedRoute ? (
-          <AuthGuard>
-            {children}
-          </AuthGuard>
-        ) : (
-          children
-        )}
-        <Toaster position="top-right" />
-      </NotificationProvider>
-    </Web3Provider>
+    <ClientOnly>
+      <Web3Provider>
+        <NotificationProvider>
+          {isProtectedRoute ? (
+            <AuthGuard>
+              {children}
+            </AuthGuard>
+          ) : (
+            children
+          )}
+          <Toaster position="top-right" />
+        </NotificationProvider>
+      </Web3Provider>
+    </ClientOnly>
   )
 } 
