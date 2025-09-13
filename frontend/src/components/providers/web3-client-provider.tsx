@@ -5,14 +5,13 @@ import { WagmiProvider } from 'wagmi'
 import { createWeb3Config } from '@/lib/web3'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import '@rainbow-me/rainbowkit/styles.css'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 
 interface Web3ClientProviderProps {
   children: React.ReactNode
 }
 
 export function Web3ClientProvider({ children }: Web3ClientProviderProps) {
-  const [mounted, setMounted] = useState(false)
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -24,20 +23,6 @@ export function Web3ClientProvider({ children }: Web3ClientProviderProps) {
 
   // Use useMemo to create config only once and avoid hydration issues
   const config = useMemo(() => createWeb3Config(), [])
-
-  useEffect(() => {
-    // Small delay to ensure hydration is complete
-    const timer = setTimeout(() => {
-      setMounted(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  // Don't render Web3 providers until mounted to avoid hydration issues
-  if (!mounted) {
-    return <>{children}</>
-  }
 
   return (
     <WagmiProvider config={config}>
