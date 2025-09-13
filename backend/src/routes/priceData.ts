@@ -85,6 +85,31 @@ router.post('/:tokenId/refresh', async (req, res) => {
   }
 });
 
+// 🚀 AUTO-REFRESH ALL PRICES (PREVENT STALE DATA)
+// POST /api/price-data/auto-refresh
+router.post('/auto-refresh', async (req, res) => {
+  try {
+    console.log(`🚀 Starting auto-refresh of all prices...`)
+
+    // Run auto-refresh in background
+    priceService.autoRefreshAllPrices().catch(error => {
+      console.error('❌ Auto-refresh failed:', error)
+    })
+
+    res.json({
+      success: true,
+      message: 'Auto-refresh started - all prices will be updated with fresh data'
+    })
+
+  } catch (error) {
+    console.error('❌ Error starting auto-refresh:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
 // 🆕 BULK PRICE UPDATE
 // POST /api/price-data/bulk-refresh
 router.post('/bulk-refresh', async (req, res) => {

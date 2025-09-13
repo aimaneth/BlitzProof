@@ -45,7 +45,6 @@ import {
   CheckCircle2,
   ChevronRight,
   ExternalLink,
-  RefreshCw,
   Filter as FilterIcon,
   Grid,
   List,
@@ -161,7 +160,6 @@ interface TokenMetrics {
   priceChange24h: number
   volume24h: number
   liquidityUSD: number
-  holderCount: number
   transactionCount24h: number
   largeTransactions24h: number
   securityScore: number
@@ -180,15 +178,6 @@ interface DashboardData {
 
 
 
-// Helper function to clear cache (for refresh button)
-const clearTokensCache = () => {
-  try {
-    localStorage.removeItem('blocknet_tokens_data')
-    console.log('🗑️ Token cache cleared')
-  } catch (error) {
-    console.error('❌ Error clearing token cache:', error)
-  }
-}
 
 // Mock data for demonstration (using proper token configurations)
 const mockTokens: any[] = [];
@@ -260,13 +249,7 @@ const TableRowSkeleton = () => (
       <div className="h-4 bg-gray-700 rounded w-16"></div>
     </td>
     <td className="px-4 py-3">
-      <div className="h-4 bg-gray-700 rounded w-12"></div>
-    </td>
-    <td className="px-4 py-3">
       <div className="h-4 bg-gray-700 rounded w-16"></div>
-    </td>
-    <td className="px-4 py-3">
-      <div className="h-6 bg-gray-700 rounded w-16"></div>
     </td>
     <td className="px-4 py-3">
       <div className="h-4 bg-gray-700 rounded w-20"></div>
@@ -401,6 +384,64 @@ export default function BlockNetPage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Function to check if price data is stale (older than 5 minutes)
+  const isPriceStale = (lastUpdate: string) => {
+    if (!lastUpdate) return true
+    const lastUpdateTime = new Date(lastUpdate)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+    return lastUpdateTime < fiveMinutesAgo
+  }
+
+  // Function to refresh stale prices
+  const refreshStalePrices = async (tokens: any[]) => {
+    const staleTokens = tokens.filter(token => isPriceStale(token.lastUpdated))
+    
+    if (staleTokens.length > 0) {
+      console.log(`🔄 Refreshing prices for ${staleTokens.length} stale tokens...`)
+      console.log('Stale tokens:', staleTokens.map(t => ({ name: t.name, symbol: t.symbol, lastUpdated: t.lastUpdated })))
+      
+      // Refresh prices for stale tokens
+      const refreshPromises = staleTokens.map(async (token) => {
+        try {
+          console.log(`🔄 Refreshing ${token.name} (${token.coinGeckoId})...`)
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/price-data/${token.coinGeckoId}?refresh=true`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success) {
+              console.log(`✅ Refreshed price for ${token.name}: $${data.data.price}`)
+              return {
+                ...token,
+                price: data.data.price,
+                priceChange24h: data.data.priceChange24h,
+                marketCap: data.data.marketCap,
+                volume24h: data.data.volume24h,
+                lastUpdated: data.data.lastUpdated
+              }
+            } else {
+              console.warn(`⚠️ API returned success=false for ${token.name}`)
+            }
+          } else {
+            console.warn(`⚠️ API request failed for ${token.name}: ${response.status}`)
+          }
+        } catch (error) {
+          console.warn(`⚠️ Failed to refresh price for ${token.name}:`, error)
+        }
+        return token
+      })
+      
+      const refreshedTokens = await Promise.all(refreshPromises)
+      
+      // Update the tokens array with refreshed data
+      return tokens.map(token => {
+        const refreshed = refreshedTokens.find(refreshed => refreshed.id === token.id)
+        return refreshed || token
+      })
+    }
+    
+    return tokens
+  }
+
+
   // Fetch tokens using new simple token system with price data
   useEffect(() => {
     const fetchTokens = async () => {
@@ -413,7 +454,7 @@ export default function BlockNetPage() {
         
         if (response && response.success && response.tokens) {
           // Convert TokenWithPrice to TokenMetrics format for compatibility
-          const convertedTokens = response.tokens.map((token: any) => ({
+          let convertedTokens = response.tokens.map((token: any) => ({
             id: token.id,
             uniqueId: token.uniqueId, // Add uniqueId for logo lookup
             coinGeckoId: token.coinGeckoId,
@@ -428,17 +469,38 @@ export default function BlockNetPage() {
             priceChange24h: token.priceChange24h || 0,
             volume24h: token.volume24h || 0,
             liquidityUSD: 0,
-            holderCount: token.holderCount || 0,
             transactionCount24h: 0,
             largeTransactions24h: 0,
             securityScore: 85, // Default security score
             riskLevel: token.riskLevel,
             lastUpdated: token.lastPriceUpdate || token.updatedAt,
-            dexPairs: []
           }))
+          
+          // Check for stale prices and refresh them
+          convertedTokens = await refreshStalePrices(convertedTokens)
           
           console.log('✅ Fetched tokens:', convertedTokens.length)
           console.log('💰 Sample token data:', convertedTokens[0])
+          
+          // Debug: Log Ethereum and MYRC prices specifically
+          const ethereumToken = convertedTokens.find(token => token.symbol === 'ETH')
+          if (ethereumToken) {
+            console.log('🔍 Ethereum price debug:', {
+              rawPrice: ethereumToken.price,
+              formattedPrice: formatPrice(ethereumToken.price),
+              lastUpdated: ethereumToken.lastUpdated
+            })
+          }
+          
+          const myrcToken = convertedTokens.find(token => token.symbol === 'MYRC')
+          if (myrcToken) {
+            console.log('🔍 MYRC price debug:', {
+              rawPrice: myrcToken.price,
+              formattedPrice: formatPrice(myrcToken.price),
+              lastUpdated: myrcToken.lastUpdated,
+              originalTokenData: response.tokens.find(t => t.symbol === 'MYRC')
+            })
+          }
           
           setMonitoredTokens(convertedTokens)
           setUsingCachedData(false)
@@ -533,8 +595,15 @@ export default function BlockNetPage() {
   }
 
   const formatPrice = (price: number) => {
-    if (price >= 1000) return `$${price.toLocaleString()}`
-    return `$${price.toFixed(2)}`
+    if (!price || price === 0) return '$0.00'
+    
+    // Use Intl.NumberFormat for consistent formatting
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6
+    }).format(price)
   }
 
   const sortedTokens = [...monitoredTokens].sort((a, b) => {
@@ -772,18 +841,6 @@ export default function BlockNetPage() {
                 </Badge>
               </div>
               <div className="flex items-center gap-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-white/20 text-white hover:bg-white/10"
-                  onClick={() => {
-                    clearTokensCache()
-                    window.location.reload()
-                  }}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
                 <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
                   <FilterIcon className="h-4 w-4 mr-2" />
                   Filter
@@ -872,31 +929,25 @@ export default function BlockNetPage() {
                   <div className="bg-[#111213] rounded-lg border border-gray-800 overflow-hidden shadow-xl">
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-gray-900 border-b border-gray-800">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <thead className="bg-gray-900 border-b border-gray-800" style={{position: 'relative', zIndex: 1}}>
+                          <tr className="bg-gray-900 w-full" style={{width: '100%', minWidth: '100%'}}>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Project
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Security Score
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Price
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Market Cap
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Volume 24h
                             </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                              Holders
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                               Risk Level
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                              Actions
                             </th>
                           </tr>
                         </thead>
@@ -920,35 +971,27 @@ export default function BlockNetPage() {
               viewMode === 'list' ? (
                 /* List View - Compact Table */
                 <div className="bg-[#111213] rounded-lg border border-gray-800 overflow-visible shadow-xl">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-900 border-b border-gray-800">
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <div className="overflow-x-auto relative">
+                    <div className="absolute top-0 left-0 right-0 h-8 bg-gray-900 z-0"></div>
+                    <table className="w-full relative z-10">
+                      <thead className="bg-gray-900 border-b border-gray-800" style={{position: 'relative', zIndex: 1}}>
+                        <tr className="bg-gray-900 w-full" style={{width: '100%', minWidth: '100%'}}>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Project
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Security Score
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Price
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Market Cap
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Volume 24h
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Holders
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            DEX Pairs
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Details
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
                             Risk Level
                           </th>
                         </tr>
@@ -1014,28 +1057,6 @@ export default function BlockNetPage() {
                               </td>
                               <td className="px-3 py-2">
                                 <span className="text-white">{formatNumber(token.volume24h)}</span>
-                              </td>
-                              <td className="px-3 py-2">
-                                <span className="text-white">{token.holderCount.toLocaleString()}</span>
-                              </td>
-                              <td className="px-3 py-2">
-                                <div className="flex flex-col gap-0.5">
-                                  <div className="flex items-center gap-1">
-                                    <span className="text-white text-sm font-medium">
-                                      {token.dexPairs ? token.dexPairs.length : 0} pairs
-                                    </span>
-                                    {token.dexPairs && token.dexPairs.length > 0 && (
-                                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">
-                                        {token.dexPairs[0].dexId}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {token.dexPairs && token.dexPairs.length > 0 && (
-                                    <div className="text-xs text-gray-400">
-                                      ${formatNumber(token.dexPairs[0].liquidity?.usd || 0)} liquidity
-                                    </div>
-                                  )}
-                                </div>
                               </td>
                               <td className="px-3 py-2">
                                 <div className="flex flex-col gap-0.5">

@@ -78,6 +78,8 @@ export interface TokenWithPrice extends SimpleToken {
   priceChange24h?: number;
   marketCap?: number;
   volume24h?: number;
+  pairsCount?: number;
+  totalLiquidity?: number;
   lastPriceUpdate?: Date;
 }
 
@@ -747,7 +749,8 @@ export class SimpleTokenService {
       // Get cached price data first (fast)
       const cachedPrice = await priceService.getCachedPrice(token.coinGeckoId);
       
-      if (cachedPrice && cachedPrice.price > 0) {
+      // Check if cached data is valid (has price AND either market cap OR DEX pairs)
+      if (cachedPrice && cachedPrice.price > 0 && (cachedPrice.marketCap > 0 || cachedPrice.pairsCount > 0)) {
         // Return token with cached price data
         return {
           ...token,
@@ -755,6 +758,8 @@ export class SimpleTokenService {
           priceChange24h: cachedPrice.priceChange24h,
           marketCap: cachedPrice.marketCap,
           volume24h: cachedPrice.volume24h,
+          pairsCount: cachedPrice.pairsCount || 0,
+          totalLiquidity: cachedPrice.totalLiquidity || 0,
           lastPriceUpdate: cachedPrice.lastUpdated
         };
       }
@@ -769,6 +774,8 @@ export class SimpleTokenService {
         priceChange24h: freshPrice.priceChange24h,
         marketCap: freshPrice.marketCap,
         volume24h: freshPrice.volume24h,
+        pairsCount: freshPrice.pairsCount || 0,
+        totalLiquidity: freshPrice.totalLiquidity || 0,
         lastPriceUpdate: freshPrice.lastUpdated
       };
 
@@ -787,6 +794,8 @@ export class SimpleTokenService {
         priceChange24h: 0,
         marketCap: 0,
         volume24h: 0,
+        pairsCount: 0,
+        totalLiquidity: 0,
         lastPriceUpdate: new Date()
       };
     }

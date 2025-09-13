@@ -5,6 +5,7 @@ interface ExplorerConfig {
   baseUrl: string
   apiKey?: string
   apiKeyParam: string
+  chainId?: number // Optional chain ID for V2 API
 }
 
 interface ContractInfo {
@@ -51,9 +52,10 @@ class EtherscanService {
     },
     arbitrum: {
       name: 'Arbiscan',
-      baseUrl: 'https://api.arbiscan.io/api',
+      baseUrl: 'https://api.etherscan.io/v2/api',
       apiKeyParam: 'apikey',
-      apiKey: process.env.ARBISCAN_API_KEY
+      apiKey: process.env.ETHERSCAN_API_KEY,
+      chainId: 42161 // Arbitrum chain ID
     },
     optimism: {
       name: 'Optimistic Etherscan',
@@ -162,6 +164,11 @@ class EtherscanService {
     const requestParams = {
       ...params,
       [explorer.apiKeyParam]: explorer.apiKey || 'YourApiKeyToken' // Fallback for testing
+    }
+
+    // Add chain ID for V2 API (Arbitrum)
+    if (explorer.chainId) {
+      requestParams.chainid = explorer.chainId
     }
 
     try {
@@ -282,6 +289,111 @@ class EtherscanService {
 
   getNetworkInfo(network: string): ExplorerConfig | null {
     return this.explorers[network] || null
+  }
+
+  // 🔍 GET TOKEN HOLDER COUNT
+  async getTokenHolderCount(network: string, contractAddress: string): Promise<{
+    holderCount: number
+    topHolders: number
+    source: string
+    lastUpdated: Date
+  }> {
+    try {
+      // Validate address format
+      if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+        throw new Error('Invalid contract address format')
+      }
+
+      // Get token transfers to estimate REAL holders (FREE endpoint)
+      const response = await this.makeRequest(network, {
+        module: 'account',
+        action: 'tokentx',
+        contractaddress: contractAddress,
+        startblock: 0,
+        endblock: 99999999,
+        sort: 'desc'
+      })
+
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`)
+      }
+
+      const transfers = response.result || []
+      const uniqueAddresses = new Set()
+      
+      // Count unique addresses from all transfers
+      transfers.forEach((tx: any) => {
+        uniqueAddresses.add(tx.from)
+        uniqueAddresses.add(tx.to)
+      })
+
+      const holderCount = uniqueAddresses.size
+      console.log(`✅ REAL holder count from Etherscan: ${holderCount} holders (from ${transfers.length} transfers)`)
+
+      return {
+        holderCount: holderCount,
+        topHolders: Math.min(holderCount, 1000),
+        source: this.explorers[network].name,
+        lastUpdated: new Date()
+      }
+
+    } catch (error) {
+      console.warn(`⚠️ Failed to get holder count for ${contractAddress} on ${network}:`, error)
+      
+      // Return fallback data
+      return {
+        holderCount: 0,
+        topHolders: 0,
+        source: 'fallback',
+        lastUpdated: new Date()
+      }
+    }
+  }
+
+  // 🔍 GET TOKEN INFO (Name, Symbol, Decimals)
+  async getTokenInfo(network: string, contractAddress: string): Promise<{
+    name: string
+    symbol: string
+    decimals: number
+    totalSupply: string
+  }> {
+    try {
+      // Validate address format
+      if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress)) {
+        throw new Error('Invalid contract address format')
+      }
+
+      // Get token info
+      const response = await this.makeRequest(network, {
+        module: 'token',
+        action: 'tokeninfo',
+        contractaddress: contractAddress
+      })
+
+      if (response.status !== '1') {
+        throw new Error(`API Error: ${response.message}`)
+      }
+
+      const tokenInfo = response.result[0]
+      
+      return {
+        name: tokenInfo.tokenName || 'Unknown Token',
+        symbol: tokenInfo.symbol || 'UNKNOWN',
+        decimals: parseInt(tokenInfo.divisor) || 18,
+        totalSupply: tokenInfo.totalSupply || '0'
+      }
+
+    } catch (error) {
+      console.warn(`⚠️ Failed to get token info for ${contractAddress} on ${network}:`, error)
+      
+      // Return fallback data
+      return {
+        name: 'Unknown Token',
+        symbol: 'UNKNOWN',
+        decimals: 18,
+        totalSupply: '0'
+      }
+    }
   }
 }
 

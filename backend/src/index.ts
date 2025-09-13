@@ -28,6 +28,7 @@ import tokenLogoRoutes from './routes/tokenLogos'
 import cachedTokenRoutes from './routes/cachedToken'
 import simpleTokenRoutes from './routes/simpleTokens'
 import priceDataRoutes from './routes/priceData'
+import holderDataRoutes from './routes/holderData'
 
 dotenv.config()
 
@@ -212,6 +213,7 @@ app.use('/api/blitzproof', blitzProofRoutes)
 app.use('/api/blocknet/token-logos', tokenLogoRoutes)
 app.use('/api/simple-tokens', simpleTokenRoutes)
 app.use('/api/price-data', priceDataRoutes)
+app.use('/api/holder-data', holderDataRoutes)
 
 // Initialize WebSocket service after server creation
 wsService = new WebSocketService(server)
