@@ -81,6 +81,16 @@ export function useWeb3Modal() {
     const authAddress = walletAddress || address
     if (!authAddress) return
 
+    // Temporarily disable authentication due to backend issues
+    console.log('Authentication temporarily disabled due to backend issues')
+    console.log('Wallet connected:', authAddress)
+    
+    // Set as authenticated locally for now
+    setIsAuthenticated(true)
+    setError(null)
+    
+    // TODO: Re-enable authentication when backend is fixed
+    /*
     try {
       setIsLoading(true)
       setError(null)
@@ -119,6 +129,7 @@ export function useWeb3Modal() {
     } finally {
       setIsLoading(false)
     }
+    */
   }
 
   const handleDisconnect = () => {
