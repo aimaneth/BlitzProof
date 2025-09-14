@@ -80,6 +80,7 @@ interface TokenDetails {
     discord?: string;
     github?: string;
     reddit?: string;
+    whitepaper?: string;
   };
 }
 
@@ -149,12 +150,12 @@ export default function TokenDetailsPage() {
         securityScore: simpleToken.securityScore || undefined,
         socials: {
           website: simpleToken.website || '',
-          twitter: simpleToken.twitter || '',
-          telegram: simpleToken.telegram || '',
-          discord: simpleToken.discord || '',
-          github: simpleToken.github || '',
-          reddit: simpleToken.reddit || '',
-          whitepaper: simpleToken.whitepaper || ''
+          twitter: simpleToken.socials?.find(s => s.platform === 'twitter')?.url || '',
+          telegram: simpleToken.socials?.find(s => s.platform === 'telegram')?.url || '',
+          discord: simpleToken.socials?.find(s => s.platform === 'discord')?.url || '',
+          github: simpleToken.socials?.find(s => s.platform === 'github')?.url || '',
+          reddit: simpleToken.socials?.find(s => s.platform === 'reddit')?.url || '',
+          whitepaper: simpleToken.socials?.find(s => s.platform === 'whitepaper')?.url || ''
         }
       }
 
