@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { useHydrated } from "@/hooks/use-hydrated"
 import { apiService, ScanResult } from "@/lib/api"
 import { Layout } from "@/components/layout/layout"
@@ -179,7 +179,7 @@ const exampleContractsByNetwork: Record<string, { name: string; address: string;
 
 export default function ScannerPage() {
   // All hooks at the top!
-  const { isConnected, shortAddress } = useWallet()
+  const { isConnected, shortAddress } = useWeb3Modal()
   const { isTutorialOpen, openTutorial, closeTutorial } = useTutorial()
   const isHydrated = useHydrated()
   const [selectedNetwork, setSelectedNetwork] = useState("ethereum")

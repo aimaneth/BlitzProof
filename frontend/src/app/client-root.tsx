@@ -1,5 +1,5 @@
 'use client'
-import { Web3Provider } from '@/components/providers/web3-provider'
+import { Web3ModalProvider } from '@/components/providers/web3modal-provider'
 import { AuthGuard } from '@/components/providers/auth-guard'
 import { NotificationProvider } from '@/contexts/NotificationContext'
 import { Toaster } from 'sonner'
@@ -15,7 +15,7 @@ export default function ClientRoot({ children }: { children: React.ReactNode }) 
 
   return (
     <ClientOnly>
-      <Web3Provider>
+      <Web3ModalProvider>
         <NotificationProvider>
           {isProtectedRoute ? (
             <AuthGuard>
@@ -26,7 +26,7 @@ export default function ClientRoot({ children }: { children: React.ReactNode }) 
           )}
           <Toaster position="top-right" />
         </NotificationProvider>
-      </Web3Provider>
+      </Web3ModalProvider>
     </ClientOnly>
   )
 } 

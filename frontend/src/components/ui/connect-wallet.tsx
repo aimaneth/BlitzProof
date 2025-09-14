@@ -1,12 +1,13 @@
 "use client"
 
-// Removed RainbowKit ConnectButton to fix wagmi errors
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { Button } from "./button"
 import { Loader2, User, LogOut } from "lucide-react"
+// Removed AppKit import for now
 
 export function ConnectWallet() {
-  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWallet()
+  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWeb3Modal()
+  // Removed AppKit hook for now
 
   if (isLoading) {
     return (
@@ -42,7 +43,7 @@ export function ConnectWallet() {
   return (
     <Button 
       variant="outline" 
-      onClick={() => console.log('Connect wallet clicked - wagmi integration removed')}
+      onClick={() => console.log('Connect wallet clicked - Web3Modal integration in progress')}
       className="h-9 px-3 text-sm"
     >
       Connect Wallet

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { Shield } from 'lucide-react'
 import { ConnectWallet } from '@/components/ui/connect-wallet'
 
@@ -12,7 +12,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
-  const { isConnected } = useWallet()
+  const { isConnected } = useWeb3Modal()
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
 

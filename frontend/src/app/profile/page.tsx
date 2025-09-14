@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 
 import { Layout } from "@/components/layout/layout"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { apiService } from "@/lib/api"
 import { 
   User, 
@@ -50,7 +50,7 @@ interface ApiKey {
 }
 
 export default function ProfilePage() {
-  const { isConnected, isAuthenticated, shortAddress } = useWallet()
+  const { isConnected, isAuthenticated, shortAddress } = useWeb3Modal()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

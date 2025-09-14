@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Menu, X, User, LogOut, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { createPortal } from "react-dom"
 import { useHydrated } from "@/hooks/use-hydrated"
-// Removed wagmi/rainbowkit imports to fix build errors
+// Removed AppKit import for now
 import { Loader2 } from "lucide-react"
 
 // Navigation items that are always visible
@@ -36,9 +36,9 @@ function MobileMenu({
   onClose: () => void
   navigation: typeof publicNavigation
 }) {
-  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWallet()
+  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWeb3Modal()
   const isHydrated = useHydrated()
-  // Removed useConnectModal to fix wagmi errors
+  // Removed AppKit hook for now
 
   useEffect(() => {
     if (isOpen) {
@@ -55,8 +55,8 @@ function MobileMenu({
   // Custom mobile wallet component
   const MobileWalletConnect = () => {
     const handleConnect = () => {
-      // Removed openConnectModal to fix wagmi errors
-      console.log('Connect wallet clicked - wagmi integration removed')
+      // Use Web3Modal to open wallet connection
+      console.log('Connect wallet clicked - Web3Modal integration in progress')
     }
 
     if (!isHydrated) {
@@ -209,7 +209,7 @@ function MobileMenu({
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { isConnected, isAuthenticated } = useWallet()
+  const { isConnected, isAuthenticated } = useWeb3Modal()
   
   // Show authenticated navigation only when user is connected and authenticated
   const navigation = [

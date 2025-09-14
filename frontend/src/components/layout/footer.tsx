@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 
 export function Footer() {
-  const { isConnected, isAuthenticated } = useWallet()
+  const { isConnected, isAuthenticated } = useWeb3Modal()
   
   // Show authenticated links only when user is connected and authenticated
   const showAuthenticatedLinks = isConnected && isAuthenticated

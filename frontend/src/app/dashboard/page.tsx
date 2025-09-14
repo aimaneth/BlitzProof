@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ConnectWallet } from "@/components/ui/connect-wallet"
 import { Layout } from "@/components/layout/layout"
-import { useWallet } from "@/hooks/use-wallet"
+import { useWeb3Modal } from "@/hooks/use-web3modal"
 import { apiService, ScanHistory } from "@/lib/api"
 import { 
   Shield, 
@@ -49,7 +49,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { isConnected, isAuthenticated, shortAddress } = useWallet()
+  const { isConnected, isAuthenticated, shortAddress } = useWeb3Modal()
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | '90d'>('30d')
