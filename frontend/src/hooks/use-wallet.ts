@@ -5,41 +5,33 @@ import { useEffect, useState } from "react"
 import { apiService } from "@/lib/api"
 
 export function useWallet() {
-  // Always call hooks at the top level
+  // Always call hooks at the top level - no conditional calls
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [wagmiAvailable, setWagmiAvailable] = useState(false)
 
-  // Check if wagmi is properly configured
-  let config
-  let address, isConnected, balance, disconnect
-
+  // Always call wagmi hooks - they will throw if provider is not available
+  let config, account, balanceData, disconnectFn
+  
   try {
     config = useConfig()
-    const account = useAccount()
-    const balanceData = useBalance({ address: account.address })
-    const disconnectFn = useDisconnect()
-    
-    address = account.address
-    isConnected = account.isConnected
-    balance = balanceData.data
-    disconnect = disconnectFn.disconnect
-    
-    if (!wagmiAvailable) {
-      setWagmiAvailable(true)
-    }
-  } catch (error) {
-    // WagmiProvider not found, use safe defaults
-    address = undefined
-    isConnected = false
-    balance = undefined
-    disconnect = () => {}
-    
-    if (wagmiAvailable) {
-      setWagmiAvailable(false)
-    }
+    account = useAccount()
+    balanceData = useBalance({ address: account.address })
+    disconnectFn = useDisconnect()
+  } catch (wagmiError) {
+    // If wagmi hooks fail, we'll handle it in useEffect
+    config = null
+    account = null
+    balanceData = null
+    disconnectFn = null
   }
+
+  // Extract values safely
+  const address = account?.address
+  const isConnected = account?.isConnected || false
+  const balance = balanceData?.data
+  const disconnect = disconnectFn?.disconnect || (() => {})
 
   const shortAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -47,11 +39,17 @@ export function useWallet() {
 
   // Handle wallet connection and authentication
   useEffect(() => {
-    if (!wagmiAvailable) {
+    // Check if wagmi is available
+    const isWagmiAvailable = config !== null && account !== null
+    
+    if (!isWagmiAvailable) {
       setIsAuthenticated(false)
       setError('Web3 provider not available')
+      setWagmiAvailable(false)
       return
     }
+
+    setWagmiAvailable(true)
 
     if (isConnected && address) {
       handleAuthentication()
@@ -60,7 +58,7 @@ export function useWallet() {
       setError(null)
       localStorage.removeItem('auth_token')
     }
-  }, [isConnected, address, wagmiAvailable])
+  }, [isConnected, address, config, account])
 
   const handleAuthentication = async () => {
     if (!address || !wagmiAvailable) return
@@ -107,7 +105,7 @@ export function useWallet() {
   }
 
   // Return safe defaults if wagmi is not available
-  if (!wagmiAvailable) {
+  if (config === null || account === null) {
     return {
       address: undefined,
       isConnected: false,
