@@ -6,8 +6,7 @@ import { Loader2, User, LogOut } from "lucide-react"
 // Removed AppKit import for now
 
 export function ConnectWallet() {
-  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWeb3Modal()
-  // Removed AppKit hook for now
+  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect, connect } = useWeb3Modal()
 
   if (isLoading) {
     return (
@@ -43,7 +42,7 @@ export function ConnectWallet() {
   return (
     <Button 
       variant="outline" 
-      onClick={() => console.log('Connect wallet clicked - Web3Modal integration in progress')}
+      onClick={connect}
       className="h-9 px-3 text-sm"
     >
       Connect Wallet

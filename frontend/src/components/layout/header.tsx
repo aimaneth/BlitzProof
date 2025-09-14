@@ -36,7 +36,7 @@ function MobileMenu({
   onClose: () => void
   navigation: typeof publicNavigation
 }) {
-  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect } = useWeb3Modal()
+  const { isConnected, isAuthenticated, isLoading, shortAddress, disconnect, connect } = useWeb3Modal()
   const isHydrated = useHydrated()
   // Removed AppKit hook for now
 
@@ -55,8 +55,8 @@ function MobileMenu({
   // Custom mobile wallet component
   const MobileWalletConnect = () => {
     const handleConnect = () => {
-      // Use Web3Modal to open wallet connection
-      console.log('Connect wallet clicked - Web3Modal integration in progress')
+      // Connect wallet using our custom hook
+      connect()
     }
 
     if (!isHydrated) {

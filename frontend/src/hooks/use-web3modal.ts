@@ -15,15 +15,55 @@ export function useWeb3Modal() {
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : ""
 
-  // Handle authentication
+  // Check for existing wallet connection on mount
   useEffect(() => {
-    // For now, return safe defaults until Web3Modal is fully integrated
-    setIsAuthenticated(false)
-    setError('Web3Modal integration in progress')
+    checkWalletConnection()
   }, [])
 
-  const handleAuthentication = async () => {
-    if (!address) return
+  const checkWalletConnection = async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+        if (accounts.length > 0) {
+          setAddress(accounts[0])
+          setIsConnected(true)
+          handleAuthentication(accounts[0])
+        }
+      } catch (error) {
+        console.log('No wallet connected')
+      }
+    }
+  }
+
+  const connectWallet = async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        })
+        
+        if (accounts.length > 0) {
+          setAddress(accounts[0])
+          setIsConnected(true)
+          await handleAuthentication(accounts[0])
+        }
+      } catch (error) {
+        setError('Failed to connect wallet')
+        console.error('Wallet connection error:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    } else {
+      setError('MetaMask not installed')
+    }
+  }
+
+  const handleAuthentication = async (walletAddress?: string) => {
+    const authAddress = walletAddress || address
+    if (!authAddress) return
 
     try {
       setIsLoading(true)
@@ -42,7 +82,7 @@ export function useWeb3Modal() {
       }
 
       // Register new user
-      const response = await apiService.registerUser(address)
+      const response = await apiService.registerUser(authAddress)
       if (response.token) {
         localStorage.setItem('auth_token', response.token)
         setIsAuthenticated(true)
@@ -74,6 +114,7 @@ export function useWeb3Modal() {
     error,
     shortAddress,
     balance,
+    connect: connectWallet,
     disconnect: handleDisconnect,
   }
 }
