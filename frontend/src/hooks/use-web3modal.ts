@@ -25,9 +25,17 @@ export function useWeb3Modal() {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' })
         if (accounts.length > 0) {
+          console.log('Found existing wallet connection:', accounts[0])
           setAddress(accounts[0])
           setIsConnected(true)
-          handleAuthentication(accounts[0])
+          
+          // Try authentication but don't let it block the UI update
+          try {
+            await handleAuthentication(accounts[0])
+          } catch (authError) {
+            console.warn('Authentication failed for existing connection:', authError)
+            // Don't set error here - wallet is still connected
+          }
         }
       } catch (error) {
         console.log('No wallet connected')
@@ -46,9 +54,17 @@ export function useWeb3Modal() {
         })
         
         if (accounts.length > 0) {
+          console.log('Wallet connected:', accounts[0])
           setAddress(accounts[0])
           setIsConnected(true)
-          await handleAuthentication(accounts[0])
+          
+          // Try authentication but don't let it block the UI update
+          try {
+            await handleAuthentication(accounts[0])
+          } catch (authError) {
+            console.warn('Authentication failed, but wallet is connected:', authError)
+            // Don't set error here - wallet is still connected
+          }
         }
       } catch (error) {
         setError('Failed to connect wallet')
@@ -73,22 +89,30 @@ export function useWeb3Modal() {
       const existingToken = localStorage.getItem('auth_token')
       if (existingToken) {
         try {
+          console.log('Checking existing token...')
           await apiService.getProfile()
           setIsAuthenticated(true)
+          console.log('Authentication successful with existing token')
           return
         } catch {
+          console.log('Existing token invalid, removing...')
           localStorage.removeItem('auth_token')
         }
       }
 
       // Register new user
+      console.log('Registering new user with address:', authAddress)
       const response = await apiService.registerUser(authAddress)
+      console.log('Registration response:', response)
+      
       if (response.token) {
         localStorage.setItem('auth_token', response.token)
         setIsAuthenticated(true)
+        console.log('Authentication successful with new token')
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed'
+      console.error('Authentication error:', error)
       setError(errorMessage)
       setIsAuthenticated(false)
       localStorage.removeItem('auth_token')
