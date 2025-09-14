@@ -4,18 +4,42 @@ import { useAccount, useBalance, useDisconnect, useConfig } from "wagmi"
 import { useEffect, useState } from "react"
 import { apiService } from "@/lib/api"
 
+// Custom hook to safely use wagmi hooks
+function useWagmiHooks() {
+  const [isProviderReady, setIsProviderReady] = useState(false)
+  
+  // Always call hooks at the top level
+  const config = useConfig()
+  const account = useAccount()
+  const balanceData = useBalance({ address: account.address })
+  const disconnectFn = useDisconnect()
+
+  useEffect(() => {
+    // Check if provider is ready
+    if (config && account && balanceData && disconnectFn) {
+      setIsProviderReady(true)
+    } else {
+      setIsProviderReady(false)
+    }
+  }, [config, account, balanceData, disconnectFn])
+
+  return {
+    config,
+    account,
+    balanceData,
+    disconnectFn,
+    isProviderReady
+  }
+}
+
 export function useWallet() {
   // Always call hooks at the top level - no conditional calls
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [wagmiAvailable, setWagmiAvailable] = useState(false)
 
-  // Always call wagmi hooks - no try-catch, no conditions
-  const config = useConfig()
-  const account = useAccount()
-  const balanceData = useBalance({ address: account.address })
-  const disconnectFn = useDisconnect()
+  // Use our safe wagmi hooks
+  const { config, account, balanceData, disconnectFn, isProviderReady } = useWagmiHooks()
 
   // Extract values safely
   const address = account?.address
@@ -29,17 +53,11 @@ export function useWallet() {
 
   // Handle wallet connection and authentication
   useEffect(() => {
-    // Check if wagmi is available by checking if we have valid objects
-    const isWagmiAvailable = config && account && balanceData && disconnectFn
-    
-    if (!isWagmiAvailable) {
+    if (!isProviderReady) {
       setIsAuthenticated(false)
       setError('Web3 provider not available')
-      setWagmiAvailable(false)
       return
     }
-
-    setWagmiAvailable(true)
 
     if (isConnected && address) {
       handleAuthentication()
@@ -48,10 +66,10 @@ export function useWallet() {
       setError(null)
       localStorage.removeItem('auth_token')
     }
-  }, [isConnected, address, config, account, balanceData, disconnectFn])
+  }, [isConnected, address, isProviderReady])
 
   const handleAuthentication = async () => {
-    if (!address || !wagmiAvailable) return
+    if (!address || !isProviderReady) return
 
     try {
       setIsLoading(true)
@@ -89,13 +107,13 @@ export function useWallet() {
     localStorage.removeItem('auth_token')
     setIsAuthenticated(false)
     setError(null)
-    if (wagmiAvailable && disconnect) {
+    if (isProviderReady && disconnect) {
       disconnect()
     }
   }
 
   // Return safe defaults if wagmi is not available
-  if (!config || !account || !balanceData || !disconnectFn) {
+  if (!isProviderReady) {
     return {
       address: undefined,
       isConnected: false,
