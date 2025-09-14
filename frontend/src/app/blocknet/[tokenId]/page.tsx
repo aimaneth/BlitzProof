@@ -131,7 +131,7 @@ export default function TokenDetailsPage() {
         riskLevel: simpleToken.riskLevel,
         description: simpleToken.description || `${simpleToken.name} is a cryptocurrency token.`,
         website: simpleToken.website || '',
-        whitepaper: simpleToken.whitepaper || '',
+        whitepaper: simpleToken.socials?.find(s => s.platform === 'whitepaper')?.url || '',
         contractAddress: simpleToken.contractAddress || '0x0000000000000000000000000000000000000000',
         totalSupply: '0', // Not available in SimpleToken interface
         circulatingSupply: '0', // Not available in SimpleToken interface
