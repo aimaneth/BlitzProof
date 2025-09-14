@@ -553,7 +553,7 @@ export default function SecuritySidebar({
 
           {/* Social Links - Community */}
           {(() => {
-            const communityPlatforms = ['twitter', 'telegram', 'discord', 'reddit', 'linkedin', 'medium']
+            const communityPlatforms = ['twitter', 'telegram', 'discord', 'reddit', 'linkedin', 'medium', 'whitepaper']
             let validSocials: Array<[string, string]> = []
             
             // Handle both old object format and new array format

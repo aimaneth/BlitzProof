@@ -1302,12 +1302,18 @@ class ApiService {
     tokenId: string;
     logoUrl: string;
   }> {
+    // Extract tokenId from formData
+    const tokenId = formData.get('tokenId') as string;
+    if (!tokenId) {
+      throw new Error('Token ID is required for logo upload');
+    }
+    
     return this.request<{
       success: boolean;
       message: string;
       tokenId: string;
       logoUrl: string;
-    }>('/api/blocknet/token-logos', {
+    }>(`/api/blocknet/token-logos/upload/${tokenId}`, {
       method: 'POST',
       body: formData // Don't set Content-Type header for FormData
     });
@@ -1455,6 +1461,8 @@ export interface TokenWithPrice extends SimpleToken {
 // Get all tokens
 export const getAllTokens = async (): Promise<{ success: boolean; tokens: SimpleToken[]; total: number }> => {
   try {
+    console.log('🔍 API_BASE_URL:', API_BASE_URL);
+    console.log('🔍 Full URL:', `${API_BASE_URL}/api/simple-tokens`);
     const response = await fetch(`${API_BASE_URL}/api/simple-tokens`);
     const data = await response.json();
     return data;

@@ -78,9 +78,19 @@ router.get('/:tokenId', async (req, res) => {
     // If no uploaded logo, try to get from external sources
     console.log(`🔄 No uploaded logo found for ${tokenId}, trying external sources...`);
     
-    // Try CoinGecko first
+    // Try CoinGecko first (with proper token-specific URL)
     try {
-      const coingeckoUrl = `https://assets.coingecko.com/coins/images/1/large/bitcoin.png`;
+      // Map token IDs to their CoinGecko image IDs
+      const coingeckoImageMap: { [key: string]: string } = {
+        'bitcoin': '1',
+        'ethereum': '279',
+        'cardano': '975',
+        'dogecoin': '5',
+        'blox-myrc': '1' // fallback to bitcoin for now
+      };
+      
+      const imageId = coingeckoImageMap[tokenId] || '1'; // default to bitcoin
+      const coingeckoUrl = `https://assets.coingecko.com/coins/images/${imageId}/large/${tokenId}.png`;
       const response = await axios.get(coingeckoUrl, { 
         responseType: 'stream',
         timeout: 5000 
@@ -225,7 +235,16 @@ router.get('/proxy/:source/:tokenId', async (req, res) => {
 
     switch (source) {
       case 'coingecko':
-        logoUrl = `https://assets.coingecko.com/coins/images/1/large/bitcoin.png`;
+        // Map token IDs to their CoinGecko image IDs
+        const coingeckoImageMap: { [key: string]: string } = {
+          'bitcoin': '1',
+          'ethereum': '279',
+          'cardano': '975',
+          'dogecoin': '5',
+          'blox-myrc': '1' // fallback to bitcoin for now
+        };
+        const imageId = coingeckoImageMap[tokenId] || '1';
+        logoUrl = `https://assets.coingecko.com/coins/images/${imageId}/large/${tokenId}.png`;
         break;
       case 'trustwallet':
         logoUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${tokenId}/logo.png`;

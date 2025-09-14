@@ -32,6 +32,20 @@ export interface SimpleToken {
   source?: string
   lastUpdated?: Date
   reliability?: number
+  // New fields from admin form
+  category?: string
+  priority?: number
+  monitoringStrategy?: string
+  rank?: number
+  contractScore?: number
+  auditsCount?: number
+  // Complex data structures from frontend form
+  socials?: Array<{ platform: string; url: string }>
+  contracts?: Array<{ network: string; contractAddress: string }>
+  explorers?: Array<{ explorerName: string; explorerUrl: string; network: string }>
+  wallets?: Array<{ walletName: string; walletUrl: string; walletType: string }>
+  sourceCode?: Array<{ sourceType: string; sourceName: string; sourceUrl: string; network: string }>
+  tags?: string[]
 }
 
 export class MongoSimpleTokenService {
@@ -212,6 +226,228 @@ export class MongoSimpleTokenService {
     }
   }
 
+  // Add new token
+  async addToken(tokenData: Partial<SimpleToken>): Promise<{ success: boolean; data?: SimpleToken; error?: string; details?: string[] }> {
+    try {
+      console.log('🔄 Adding new token to MongoDB...')
+      
+      // Validate required fields
+      const errors: string[] = []
+      if (!tokenData.uniqueId) errors.push('uniqueId is required')
+      if (!tokenData.name) errors.push('name is required')
+      if (!tokenData.symbol) errors.push('symbol is required')
+      
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: 'Validation failed',
+          details: errors
+        }
+      }
+
+      // Check if token already exists
+      const existingToken = await mongoTokenService.getTokenById(tokenData.uniqueId!)
+      if (existingToken) {
+        return {
+          success: false,
+          error: 'Token with this uniqueId already exists',
+          details: ['A token with this uniqueId is already in the database']
+        }
+      }
+
+      // Extract social media links from socials array
+      const socials = tokenData.socials || []
+      const twitter = socials.find((s: any) => s.platform === 'twitter')?.url || ''
+      const telegram = socials.find((s: any) => s.platform === 'telegram')?.url || ''
+      const discord = socials.find((s: any) => s.platform === 'discord')?.url || ''
+      const reddit = socials.find((s: any) => s.platform === 'reddit')?.url || ''
+      const github = socials.find((s: any) => s.platform === 'github')?.url || ''
+      const whitepaper = socials.find((s: any) => s.platform === 'whitepaper')?.url || ''
+
+      // Extract contract address from contracts array (use first one)
+      const contracts = tokenData.contracts || []
+      const contractAddress = contracts.length > 0 ? contracts[0].contractAddress : ''
+
+      // Extract audit links from auditLinks array
+      const auditLinks = tokenData.auditLinks || []
+      const auditLinksArray = Array.isArray(auditLinks) 
+        ? auditLinks.map((audit: any) => audit.auditUrl || audit).filter((url: string) => url)
+        : []
+
+      // Map SimpleToken to Token format
+      const tokenToAdd = {
+        unique_id: tokenData.uniqueId,
+        coin_gecko_id: tokenData.coinGeckoId && tokenData.coinGeckoId.trim() ? tokenData.coinGeckoId : tokenData.uniqueId,
+        name: tokenData.name,
+        symbol: tokenData.symbol,
+        description: tokenData.description || '',
+        website: tokenData.website || '',
+        twitter: twitter,
+        telegram: telegram,
+        discord: discord,
+        reddit: reddit,
+        github: github,
+        whitepaper: whitepaper,
+        contract_address: contractAddress,
+        network: tokenData.network || '',
+        audit_status: tokenData.auditStatus || 'UNAUDITED',
+        audit_links: auditLinksArray,
+        // Additional fields from the new structure
+        category: tokenData.category || '',
+        priority: tokenData.priority || 50,
+        risk_level: tokenData.riskLevel || 'MEDIUM',
+        monitoring_strategy: tokenData.monitoringStrategy || 'REAL_TIME',
+        rank: tokenData.rank || 0,
+        holder_count: tokenData.holderCount || 0,
+        contract_score: tokenData.contractScore || 0,
+        audits_count: tokenData.auditsCount || 0,
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+
+      const success = await mongoTokenService.upsertToken(tokenToAdd)
+      
+      if (!success) {
+        return {
+          success: false,
+          error: 'Failed to add token to database'
+        }
+      }
+
+      // Get the added token
+      const addedToken = await mongoTokenService.getTokenById(tokenData.uniqueId!)
+      if (!addedToken) {
+        return {
+          success: false,
+          error: 'Token was added but could not be retrieved'
+        }
+      }
+
+      const simpleToken = this.mapTokenToSimpleToken(addedToken)
+      
+      console.log(`✅ Successfully added token: ${simpleToken.name}`)
+      
+      return {
+        success: true,
+        data: simpleToken
+      }
+    } catch (error) {
+      console.error('❌ Error adding token:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  // Update token
+  async updateToken(uniqueId: string, updates: Partial<SimpleToken>): Promise<{ success: boolean; data?: SimpleToken; error?: string; details?: string[] }> {
+    try {
+      console.log(`🔄 Updating token ${uniqueId} in MongoDB...`)
+      
+      // Check if token exists
+      const existingToken = await mongoTokenService.getTokenById(uniqueId)
+      if (!existingToken) {
+        return {
+          success: false,
+          error: 'Token not found',
+          details: ['No token found with the provided uniqueId']
+        }
+      }
+
+      // Map SimpleToken updates to Token format
+      const tokenUpdates: any = {
+        updated_at: new Date()
+      }
+
+      if (updates.name !== undefined) tokenUpdates.name = updates.name
+      if (updates.symbol !== undefined) tokenUpdates.symbol = updates.symbol
+      if (updates.description !== undefined) tokenUpdates.description = updates.description
+      if (updates.website !== undefined) tokenUpdates.website = updates.website
+      if (updates.twitter !== undefined) tokenUpdates.twitter = updates.twitter
+      if (updates.telegram !== undefined) tokenUpdates.telegram = updates.telegram
+      if (updates.discord !== undefined) tokenUpdates.discord = updates.discord
+      if (updates.reddit !== undefined) tokenUpdates.reddit = updates.reddit
+      if (updates.github !== undefined) tokenUpdates.github = updates.github
+      if (updates.whitepaper !== undefined) tokenUpdates.whitepaper = updates.whitepaper
+      if (updates.contractAddress !== undefined) tokenUpdates.contract_address = updates.contractAddress
+      if (updates.network !== undefined) tokenUpdates.network = updates.network
+      if (updates.coinGeckoId !== undefined) tokenUpdates.coin_gecko_id = updates.coinGeckoId
+      if (updates.auditStatus !== undefined) tokenUpdates.audit_status = updates.auditStatus
+      if (updates.auditLinks !== undefined) tokenUpdates.audit_links = updates.auditLinks
+
+      const success = await mongoTokenService.updateToken(uniqueId, tokenUpdates)
+      
+      if (!success) {
+        return {
+          success: false,
+          error: 'Failed to update token in database'
+        }
+      }
+
+      // Get the updated token
+      const updatedToken = await mongoTokenService.getTokenById(uniqueId)
+      if (!updatedToken) {
+        return {
+          success: false,
+          error: 'Token was updated but could not be retrieved'
+        }
+      }
+
+      const simpleToken = this.mapTokenToSimpleToken(updatedToken)
+      
+      console.log(`✅ Successfully updated token: ${simpleToken.name}`)
+      
+      return {
+        success: true,
+        data: simpleToken
+      }
+    } catch (error) {
+      console.error('❌ Error updating token:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
+  // Delete token
+  async deleteToken(uniqueId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log(`🔄 Deleting token ${uniqueId} from MongoDB...`)
+      
+      // Check if token exists
+      const existingToken = await mongoTokenService.getTokenById(uniqueId)
+      if (!existingToken) {
+        return {
+          success: false,
+          error: 'Token not found'
+        }
+      }
+
+      const success = await mongoTokenService.deleteToken(uniqueId)
+      
+      if (!success) {
+        return {
+          success: false,
+          error: 'Failed to delete token from database'
+        }
+      }
+      
+      console.log(`✅ Successfully deleted token: ${uniqueId}`)
+      
+      return {
+        success: true
+      }
+    } catch (error) {
+      console.error('❌ Error deleting token:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }
+  }
+
   // Clear price cache
   async clearPriceCache(tokenId: string): Promise<{ success: boolean; error?: string }> {
     try {
@@ -276,7 +512,14 @@ export class MongoSimpleTokenService {
       totalLiquidity: token.total_liquidity || 0,
       source: token.source || 'manual',
       lastUpdated: token.last_updated ? new Date(token.last_updated) : new Date(),
-      reliability: token.reliability || 0
+      reliability: token.reliability || 0,
+      // New fields from admin form
+      category: token.category || '',
+      priority: token.priority || 50,
+      monitoringStrategy: token.monitoring_strategy || 'REAL_TIME',
+      rank: token.rank || 0,
+      contractScore: token.contract_score || 0,
+      auditsCount: token.audits_count || 0
     }
   }
 
@@ -297,12 +540,21 @@ export class MongoSimpleTokenService {
       coinGeckoId: token.coin_gecko_id || '',
       name: token.name || '',
       symbol: token.symbol || '',
+      description: token.description || '',
+      logoUrl: '',
+      website: token.website || '',
+      twitter: token.twitter || '',
+      telegram: token.telegram || '',
+      discord: token.discord || '',
+      reddit: token.reddit || '',
+      github: token.github || '',
+      whitepaper: token.whitepaper || '',
       contractAddress: token.contract_address,
       network: token.network,
       securityScore,
       riskLevel,
-      auditStatus: 'UNAUDITED', // Default, can be updated later
-      auditLinks: [],
+      auditStatus: (token.audit_status as 'AUDITED' | 'UNAUDITED' | 'PENDING') || 'UNAUDITED',
+      auditLinks: token.audit_links || [],
       liquidityScore: token.totalLiquidity > 0 ? Math.min(100, (token.totalLiquidity / 1000000) * 10) : 0,
       holderCount: token.holder_count || 0,
       marketCap: token.marketCap,

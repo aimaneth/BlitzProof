@@ -514,11 +514,22 @@ export default function BlockNetPage() {
               const response = await fetch(`${apiBaseUrl}/api/blocknet/token-logos/${token.uniqueId}`)
               
               if (response.ok) {
-                const data = await response.json()
-                if (data.success && data.logoUrl) {
-                  const logoUrl = `${apiBaseUrl}${data.logoUrl}`
+                // Check if response is an image (not JSON)
+                const contentType = response.headers.get('content-type')
+                if (contentType && contentType.startsWith('image/')) {
+                  // Create object URL for the image blob
+                  const logoBlob = await response.blob()
+                  const logoUrl = URL.createObjectURL(logoBlob)
                   console.log(`✅ Uploaded logo loaded for ${token.name}: ${logoUrl}`)
                   return { tokenId: token.uniqueId, logoUrl }
+                } else {
+                  // Try to parse as JSON for metadata response
+                  const data = await response.json()
+                  if (data.success && data.logoUrl) {
+                    const logoUrl = `${apiBaseUrl}${data.logoUrl}`
+                    console.log(`✅ Uploaded logo loaded for ${token.name}: ${logoUrl}`)
+                    return { tokenId: token.uniqueId, logoUrl }
+                  }
                 }
               }
               

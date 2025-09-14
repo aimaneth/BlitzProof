@@ -25,19 +25,14 @@ export function Web3ClientProvider({ children }: Web3ClientProviderProps) {
   // Use useMemo to create config only once and avoid hydration issues
   const config = useMemo(() => createWeb3Config(), [])
 
-  // Prevent hydration issues by only rendering after mount with delay
+  // Prevent hydration issues by only rendering after mount
   useEffect(() => {
-    // Add a small delay to ensure hydration is completely finished
-    const timer = setTimeout(() => {
-      setMounted(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
+    setMounted(true)
   }, [])
 
   // Don't render Web3 providers until mounted to prevent hydration issues
   if (!mounted) {
-    return <>{children}</>
+    return <div suppressHydrationWarning>{children}</div>
   }
 
   return (

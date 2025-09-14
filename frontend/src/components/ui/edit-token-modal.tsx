@@ -167,13 +167,13 @@ export default function EditTokenModal({
     
     // URL validation for whitepaper (from socials array)
     const whitepaperSocial = editingToken?.socials?.find(s => s.platform === 'whitepaper')
-    if (whitepaperSocial?.url.trim() && !isValidUrl(whitepaperSocial.url.trim())) {
+    if (whitepaperSocial?.url?.trim() && !isValidUrl(whitepaperSocial.url.trim())) {
       errors.push('Whitepaper URL is invalid (must start with http:// or https://)')
     }
 
     // Social media URL validation
     const invalidSocials = editingToken?.socials
-      ?.filter(social => social.url.trim() && !isValidUrl(social.url.trim()))
+      ?.filter(social => social.url?.trim() && !isValidUrl(social.url.trim()))
       .map(social => `${social.platform} URL`) || []
     
     if (invalidSocials.length > 0) {
@@ -182,7 +182,7 @@ export default function EditTokenModal({
     
     // Explorer URL validation
     const invalidExplorers = editingToken?.explorers
-      ?.filter(explorer => explorer.explorerUrl.trim() && !isValidUrl(explorer.explorerUrl.trim()))
+      ?.filter(explorer => explorer.explorerUrl?.trim() && !isValidUrl(explorer.explorerUrl.trim()))
       .map(explorer => `${explorer.explorerName} URL`) || []
     
     if (invalidExplorers.length > 0) {
@@ -191,7 +191,7 @@ export default function EditTokenModal({
     
     // Wallet URL validation
     const invalidWallets = editingToken?.wallets
-      ?.filter(wallet => wallet.walletUrl.trim() && !isValidUrl(wallet.walletUrl.trim()))
+      ?.filter(wallet => wallet.walletUrl?.trim() && !isValidUrl(wallet.walletUrl.trim()))
       .map(wallet => `${wallet.walletName} URL`) || []
     
     if (invalidWallets.length > 0) {
@@ -200,7 +200,7 @@ export default function EditTokenModal({
     
     // Contract address validation
     const invalidContracts = editingToken?.contracts
-      ?.filter(contract => contract.contractAddress.trim() && !isValidContractAddress(contract.contractAddress.trim()))
+      ?.filter(contract => contract.contractAddress?.trim() && !isValidContractAddress(contract.contractAddress.trim()))
       .map(contract => `${contract.network} contract`) || []
     
     if (invalidContracts.length > 0) {
@@ -281,17 +281,17 @@ export default function EditTokenModal({
         contractScore: editingToken.contractScore || undefined,
         auditsCount: editingToken.auditsCount || undefined,
         // Social media links
-        socials: editingToken.socials?.filter(social => social.url.trim()) || undefined,
+        socials: editingToken.socials?.filter(social => social.url?.trim()) || undefined,
         // Contract addresses
-        contracts: editingToken.contracts?.filter(contract => contract.contractAddress.trim()) || undefined,
+        contracts: editingToken.contracts?.filter(contract => contract.contractAddress?.trim()) || undefined,
         // Explorer links
-        explorers: editingToken.explorers?.filter(explorer => explorer.explorerUrl.trim()) || undefined,
+        explorers: editingToken.explorers?.filter(explorer => explorer.explorerUrl?.trim()) || undefined,
         // Wallet links
         wallets: editingToken.wallets?.filter(wallet => wallet.isActive) || undefined,
         // Source code links
-        sourceCode: editingToken.sourceCode?.filter(source => source.sourceUrl.trim()) || undefined,
+        sourceCode: editingToken.sourceCode?.filter(source => source.sourceUrl?.trim()) || undefined,
         // Audit links
-        auditLinks: editingToken.auditLinks?.filter(audit => audit.auditUrl.trim()) || undefined,
+        auditLinks: editingToken.auditLinks?.filter(audit => audit.auditUrl?.trim()) || undefined,
         // Tags
         tags: editingToken.tags?.filter(tag => tag.trim()) || undefined,
       }

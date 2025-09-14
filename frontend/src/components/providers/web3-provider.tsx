@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
 
 interface Web3ProviderProps {
   children: React.ReactNode
@@ -16,6 +17,16 @@ const Web3ClientProvider = dynamic(
 )
 
 export function Web3Provider({ children }: Web3ProviderProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div suppressHydrationWarning>{children}</div>
+  }
+
   return (
     <Web3ClientProvider>
       {children}

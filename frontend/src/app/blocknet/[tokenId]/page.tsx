@@ -44,6 +44,7 @@ interface TokenDetails {
   riskLevel: string;
   description: string;
   website: string;
+  whitepaper: string;
   contractAddress: string;
   totalSupply?: string;
   circulatingSupply?: string;
@@ -130,6 +131,7 @@ export default function TokenDetailsPage() {
         riskLevel: simpleToken.riskLevel,
         description: simpleToken.description || `${simpleToken.name} is a cryptocurrency token.`,
         website: simpleToken.website || '',
+        whitepaper: simpleToken.whitepaper || '',
         contractAddress: simpleToken.contractAddress || '0x0000000000000000000000000000000000000000',
         totalSupply: '0', // Not available in SimpleToken interface
         circulatingSupply: '0', // Not available in SimpleToken interface
@@ -145,14 +147,15 @@ export default function TokenDetailsPage() {
         auditLinks: simpleToken.auditLinks || [],
         sourceCode: simpleToken.sourceCode || [],
         securityScore: simpleToken.securityScore || undefined,
-        socials: Array.isArray(simpleToken.socials) 
-          ? simpleToken.socials.reduce((acc: any, social: any) => {
-              if (social.platform && social.url) {
-                acc[social.platform] = social.url
-              }
-              return acc
-            }, {})
-          : simpleToken.socials || {}
+        socials: {
+          website: simpleToken.website || '',
+          twitter: simpleToken.twitter || '',
+          telegram: simpleToken.telegram || '',
+          discord: simpleToken.discord || '',
+          github: simpleToken.github || '',
+          reddit: simpleToken.reddit || '',
+          whitepaper: simpleToken.whitepaper || ''
+        }
       }
 
         setToken(tokenDetails)
@@ -177,23 +180,34 @@ export default function TokenDetailsPage() {
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
         const logoResponse = await fetch(`${apiBaseUrl}/api/blocknet/token-logos/${simpleToken.uniqueId}`)
         if (logoResponse.ok) {
-          const logoData = await logoResponse.json()
-          if (logoData.success && logoData.logoUrl) {
-            // Fetch the actual image using the logoUrl from the response
-            const imageResponse = await fetch(`${apiBaseUrl}${logoData.logoUrl}`)
-            if (imageResponse.ok) {
-              const logoBlob = await imageResponse.blob()
-              const logoUrl = URL.createObjectURL(logoBlob)
-              setLogoUrl(logoUrl)
+          // Check if response is an image (not JSON)
+          const contentType = logoResponse.headers.get('content-type')
+          if (contentType && contentType.startsWith('image/')) {
+            // Create object URL for the image blob
+            const logoBlob = await logoResponse.blob()
+            const logoUrl = URL.createObjectURL(logoBlob)
+            setLogoUrl(logoUrl)
+            console.log(`✅ Logo loaded for ${simpleToken.name}: ${logoUrl}`)
+          } else {
+            // Try to parse as JSON for metadata response
+            const logoData = await logoResponse.json()
+            if (logoData.success && logoData.logoUrl) {
+              // Fetch the actual image using the logoUrl from the response
+              const imageResponse = await fetch(`${apiBaseUrl}${logoData.logoUrl}`)
+              if (imageResponse.ok) {
+                const logoBlob = await imageResponse.blob()
+                const logoUrl = URL.createObjectURL(logoBlob)
+                setLogoUrl(logoUrl)
+              } else {
+                setLogoUrl('/token-logo/base.png')
+                console.log(`❌ Failed to fetch image for ${simpleToken.name} (${simpleToken.uniqueId})`)
+              }
             } else {
               setLogoUrl('/token-logo/base.png')
-              console.log(`❌ Failed to fetch image for ${simpleToken.name} (${simpleToken.uniqueId})`)
+              console.log(`❌ No logo for ${simpleToken.name} (${simpleToken.uniqueId})`)
             }
-          } else {
-            setLogoUrl('/token-logo/base.png')
-            console.log(`❌ No logo for ${simpleToken.name} (${simpleToken.uniqueId})`)
           }
-      } else {
+        } else {
           setLogoUrl('/token-logo/base.png')
           console.log(`❌ No logo for ${simpleToken.name} (${simpleToken.uniqueId})`)
         }
@@ -898,22 +912,48 @@ export default function TokenDetailsPage() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pt-0 space-y-2">
-                         <div className="flex justify-between text-sm">
-                           <span className="text-gray-400">Twitter</span>
-                           <span className="text-white font-medium">25.4K</span>
-                        </div>
-                         <div className="flex justify-between text-sm">
-                           <span className="text-gray-400">Telegram</span>
-                           <span className="text-white font-medium">12.8K</span>
-                        </div>
-                         <div className="flex justify-between text-sm">
-                           <span className="text-gray-400">Discord</span>
-                           <span className="text-white font-medium">8.9K</span>
-                          </div>
-                         <div className="flex justify-between text-sm">
-                           <span className="text-gray-400">Reddit</span>
-                           <span className="text-white font-medium">5.2K</span>
-                        </div>
+                         {token?.socials?.website && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Website</span>
+                             <a href={token.socials.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Visit</a>
+                           </div>
+                         )}
+                         {token?.socials?.twitter && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Twitter</span>
+                             <a href={token.socials.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Follow</a>
+                           </div>
+                         )}
+                         {token?.socials?.telegram && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Telegram</span>
+                             <a href={token.socials.telegram} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Join</a>
+                           </div>
+                         )}
+                         {token?.socials?.discord && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Discord</span>
+                             <a href={token.socials.discord} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Join</a>
+                           </div>
+                         )}
+                         {token?.socials?.reddit && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Reddit</span>
+                             <a href={token.socials.reddit} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Visit</a>
+                           </div>
+                         )}
+                         {token?.socials?.github && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">GitHub</span>
+                             <a href={token.socials.github} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">View</a>
+                           </div>
+                         )}
+                         {token?.whitepaper && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Whitepaper</span>
+                             <a href={token.whitepaper} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">Read</a>
+                           </div>
+                         )}
                       </CardContent>
                     </Card>
 
@@ -995,6 +1035,35 @@ export default function TokenDetailsPage() {
                            <span className="text-gray-400">Mentions (24h)</span>
                            <span className="text-white font-medium">1.2K</span>
                         </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-[#111213] border-gray-800">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-white flex items-center gap-2 text-sm">
+                           <Info className="h-4 w-4 text-blue-400" />
+                           Token Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0 space-y-3">
+                         {token?.description && (
+                           <div>
+                             <span className="text-gray-400 text-sm block mb-2">Description</span>
+                             <p className="text-white text-sm leading-relaxed">{token.description}</p>
+                           </div>
+                         )}
+                         {token?.contractAddress && token.contractAddress !== '0x0000000000000000000000000000000000000000' && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Contract Address</span>
+                             <span className="text-white font-mono text-xs">{token.contractAddress}</span>
+                           </div>
+                         )}
+                         {token?.network && (
+                           <div className="flex justify-between text-sm">
+                             <span className="text-gray-400">Network</span>
+                             <span className="text-white font-medium capitalize">{token.network}</span>
+                           </div>
+                         )}
                       </CardContent>
                     </Card>
                   </div>
@@ -1616,11 +1685,22 @@ export default function TokenDetailsPage() {
                audits: token?.auditsCount?.toString() || '0',
                tags: token?.tags || [],
                network: token?.network || '',
-               contracts: token?.contracts || [],
+               contracts: token?.contractAddress && token.contractAddress !== '0x0000000000000000000000000000000000000000' ? [{
+                 network: token.network || 'ethereum',
+                 contractAddress: token.contractAddress
+               }] : [],
                explorers: token?.explorers || [],
                wallets: token?.wallets || [],
-               auditLinks: token?.auditLinks || [],
-               sourceCode: token?.sourceCode || [],
+               auditLinks: token?.auditLinks ? token.auditLinks.map((link: string) => ({
+                 auditName: 'Audit Report',
+                 auditUrl: link,
+                 auditType: 'security'
+               })) : [],
+               sourceCode: token?.socials?.github ? [{
+                 sourceName: 'GitHub',
+                 sourceUrl: token.socials.github,
+                 sourceType: 'github'
+               }] : [],
                socials: token?.socials || {},
                description: token?.description || '',
               verification: {
