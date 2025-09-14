@@ -5,30 +5,41 @@ import { useEffect, useState } from "react"
 import { apiService } from "@/lib/api"
 
 export function useWallet() {
-  // Check if wagmi is properly configured
-  let config
-  try {
-    config = useConfig()
-  } catch (error) {
-    // WagmiProvider not found, return safe defaults
-    return {
-      address: undefined,
-      isConnected: false,
-      isAuthenticated: false,
-      isLoading: false,
-      error: 'Web3 provider not available',
-      shortAddress: '',
-      balance: undefined,
-      disconnect: () => {},
-    }
-  }
-
-  const { address, isConnected } = useAccount()
-  const { data: balance } = useBalance({ address })
-  const { disconnect } = useDisconnect()
+  // Always call hooks at the top level
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [wagmiAvailable, setWagmiAvailable] = useState(false)
+
+  // Check if wagmi is properly configured
+  let config
+  let address, isConnected, balance, disconnect
+
+  try {
+    config = useConfig()
+    const account = useAccount()
+    const balanceData = useBalance({ address: account.address })
+    const disconnectFn = useDisconnect()
+    
+    address = account.address
+    isConnected = account.isConnected
+    balance = balanceData.data
+    disconnect = disconnectFn.disconnect
+    
+    if (!wagmiAvailable) {
+      setWagmiAvailable(true)
+    }
+  } catch (error) {
+    // WagmiProvider not found, use safe defaults
+    address = undefined
+    isConnected = false
+    balance = undefined
+    disconnect = () => {}
+    
+    if (wagmiAvailable) {
+      setWagmiAvailable(false)
+    }
+  }
 
   const shortAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -36,6 +47,12 @@ export function useWallet() {
 
   // Handle wallet connection and authentication
   useEffect(() => {
+    if (!wagmiAvailable) {
+      setIsAuthenticated(false)
+      setError('Web3 provider not available')
+      return
+    }
+
     if (isConnected && address) {
       handleAuthentication()
     } else {
@@ -43,10 +60,10 @@ export function useWallet() {
       setError(null)
       localStorage.removeItem('auth_token')
     }
-  }, [isConnected, address])
+  }, [isConnected, address, wagmiAvailable])
 
   const handleAuthentication = async () => {
-    if (!address) return
+    if (!address || !wagmiAvailable) return
 
     try {
       setIsLoading(true)
@@ -84,7 +101,23 @@ export function useWallet() {
     localStorage.removeItem('auth_token')
     setIsAuthenticated(false)
     setError(null)
-    disconnect()
+    if (wagmiAvailable && disconnect) {
+      disconnect()
+    }
+  }
+
+  // Return safe defaults if wagmi is not available
+  if (!wagmiAvailable) {
+    return {
+      address: undefined,
+      isConnected: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: 'Web3 provider not available',
+      shortAddress: '',
+      balance: undefined,
+      disconnect: () => {},
+    }
   }
 
   return {
