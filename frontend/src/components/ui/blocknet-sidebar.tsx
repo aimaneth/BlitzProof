@@ -67,7 +67,7 @@ export default function BlockNetSidebar({
    }
 
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-48'} bg-[#111213] border-r border-gray-800 flex flex-col h-full overflow-y-auto transition-all duration-300`}>
+    <div className={`${isCollapsed ? 'w-16' : 'w-full'} bg-[#111213] border-r border-gray-800 flex flex-col h-full overflow-y-auto transition-all duration-300`}>
       {/* Branding */}
       <div className="px-4 pt-4 pb-2 border-b border-gray-800">
                  <button

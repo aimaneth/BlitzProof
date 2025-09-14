@@ -59,7 +59,7 @@ export default function MobileNav({
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden bg-[#0F1011] border-b border-gray-800 sticky top-0 z-40">
+      <div className="md:hidden bg-[#0F1011] border-b border-gray-800 sticky top-0 z-40 -mb-px">
         <div className="flex items-center justify-between h-16 px-4">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -234,8 +234,6 @@ export default function MobileNav({
         </div>
       </div>
 
-      {/* Bottom Spacer for Mobile */}
-      <div className="md:hidden h-16" />
     </>
   )
 }

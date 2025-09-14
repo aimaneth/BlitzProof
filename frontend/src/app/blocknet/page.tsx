@@ -710,9 +710,9 @@ export default function BlockNetPage() {
         />
       )}
 
-      <div className="flex">
+      <div className="flex min-h-screen">
         {/* Left Sidebar - Desktop Only */}
-        <div className="hidden md:flex md:w-64 md:flex-shrink-0">
+        <div className="hidden md:flex md:w-48 md:flex-shrink-0">
           <BlockNetSidebar
             activeSection={activeSection}
             activeSubSection={activeSubSection}
@@ -722,11 +722,11 @@ export default function BlockNetPage() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col">
           {/* Banner and Header - Full Width */}
           <div className="w-full">
             {/* Announcement Banner */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-b border-blue-500/30 px-6 py-2">
+            <div className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 border-b border-blue-500/30 px-4 md:px-6 py-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -838,7 +838,7 @@ export default function BlockNetPage() {
           </div>
 
           {/* Main Content Layout */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex">
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
               {/* Top Bar - Desktop Only */}
@@ -1293,7 +1293,7 @@ export default function BlockNetPage() {
                 <ActivityFeed />
               </div>
             </div>
-        </div>
+          </div>
       </div>
       </div>
 
