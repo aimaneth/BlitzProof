@@ -12,7 +12,7 @@ const Web3ClientProvider = dynamic(
   () => import('./web3-client-provider').then(mod => ({ default: mod.Web3ClientProvider })),
   {
     ssr: false,
-    loading: () => null,
+    loading: () => <div suppressHydrationWarning>{children}</div>,
   }
 )
 
@@ -20,13 +20,15 @@ export function Web3Provider({ children }: Web3ProviderProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    // Add a small delay to ensure proper hydration
+    const timer = setTimeout(() => {
+      setMounted(true)
+    }, 100)
+
+    return () => clearTimeout(timer)
   }, [])
 
-  if (!mounted) {
-    return <div suppressHydrationWarning>{children}</div>
-  }
-
+  // Always render children, but Web3ClientProvider will handle its own mounting
   return (
     <Web3ClientProvider>
       {children}

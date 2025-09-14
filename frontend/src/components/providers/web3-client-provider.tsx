@@ -27,7 +27,12 @@ export function Web3ClientProvider({ children }: Web3ClientProviderProps) {
 
   // Prevent hydration issues by only rendering after mount
   useEffect(() => {
-    setMounted(true)
+    // Add a small delay to ensure proper hydration
+    const timer = setTimeout(() => {
+      setMounted(true)
+    }, 150)
+
+    return () => clearTimeout(timer)
   }, [])
 
   // Don't render Web3 providers until mounted to prevent hydration issues

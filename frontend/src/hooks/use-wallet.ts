@@ -1,10 +1,28 @@
 'use client'
 
-import { useAccount, useBalance, useDisconnect } from "wagmi"
+import { useAccount, useBalance, useDisconnect, useConfig } from "wagmi"
 import { useEffect, useState } from "react"
 import { apiService } from "@/lib/api"
 
 export function useWallet() {
+  // Check if wagmi is properly configured
+  let config
+  try {
+    config = useConfig()
+  } catch (error) {
+    // WagmiProvider not found, return safe defaults
+    return {
+      address: undefined,
+      isConnected: false,
+      isAuthenticated: false,
+      isLoading: false,
+      error: 'Web3 provider not available',
+      shortAddress: '',
+      balance: undefined,
+      disconnect: () => {},
+    }
+  }
+
   const { address, isConnected } = useAccount()
   const { data: balance } = useBalance({ address })
   const { disconnect } = useDisconnect()
