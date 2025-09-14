@@ -697,7 +697,7 @@ export default function BlockNetPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#0D0E0E] via-[#0F1011] to-[#0D0E0E] flex overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0D0E0E] via-[#0F1011] to-[#0D0E0E]">
       {/* Mobile Navigation */}
       {isMobile && (
         <MobileNav
@@ -710,18 +710,19 @@ export default function BlockNetPage() {
         />
       )}
 
-      {/* Left Sidebar - Full Height (Desktop Only) */}
-      <div className="hidden md:flex">
-        <BlockNetSidebar
-          activeSection={activeSection}
-          activeSubSection={activeSubSection}
-          onSectionChange={setActiveSection}
-          onSubSectionChange={(subSection) => setActiveSubSection(subSection as any)}
-        />
-      </div>
+      <div className="flex">
+        {/* Left Sidebar - Desktop Only */}
+        <div className="hidden md:flex md:w-64 md:flex-shrink-0">
+          <BlockNetSidebar
+            activeSection={activeSection}
+            activeSubSection={activeSubSection}
+            onSectionChange={setActiveSection}
+            onSubSectionChange={(subSection) => setActiveSubSection(subSection as any)}
+          />
+        </div>
 
-        {/* Right Content Area */}
-        <div className="flex-1 flex flex-col md:ml-0">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen">
           {/* Banner and Header - Full Width */}
           <div className="w-full">
             {/* Announcement Banner */}
@@ -769,8 +770,8 @@ export default function BlockNetPage() {
 
 
 
-            {/* Header */}
-            <div className="bg-[#0F1011] border-b border-gray-800">
+            {/* Header - Desktop Only */}
+            <div className="hidden md:block bg-[#0F1011] border-b border-gray-800">
               <div className="flex items-center justify-between h-16 px-6">
                 {/* Search Bar */}
                 <div className="hidden md:flex items-center">
@@ -837,11 +838,11 @@ export default function BlockNetPage() {
           </div>
 
           {/* Main Content Layout */}
-          <div className="flex flex-1 h-full">
+          <div className="flex-1 flex flex-col">
             {/* Main Content */}
-            <div className="flex-1 flex flex-col h-full">
-              {/* Top Bar */}
-              <div className="bg-[#0F1011] border-b border-gray-800 px-6 py-4 flex-shrink-0">
+            <div className="flex-1 flex flex-col">
+              {/* Top Bar - Desktop Only */}
+              <div className="hidden md:block bg-[#0F1011] border-b border-gray-800 px-6 py-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-xl font-semibold text-white capitalize">
@@ -879,12 +880,12 @@ export default function BlockNetPage() {
           </div>
 
                       {/* Content Area */}
-            <div className="flex-1 p-6 overflow-y-auto">
-              {/* Header with controls - always visible */}
-              <div className="flex items-center justify-between mb-6">
+            <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+              {/* Header with controls - responsive */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-white">Token Monitoring</h1>
-                  <p className="text-slate-400 mt-1">Real-time security analysis and market data</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-white">Token Monitoring</h1>
+                  <p className="text-slate-400 mt-1 text-sm md:text-base">Real-time security analysis and market data</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
@@ -980,29 +981,101 @@ export default function BlockNetPage() {
                 )
               ) : (
               viewMode === 'list' ? (
-                /* List View - Compact Table */
-                <div className="bg-[#111213] rounded-lg border border-gray-800 overflow-visible shadow-xl">
+                /* Mobile Card View for List Mode */
+                isMobile ? (
+                  <div className="space-y-4">
+                    {sortedTokens.map((token, index) => {
+                      const grade = getSecurityGrade(token.securityScore)
+                      return (
+                        <Card key={token.address || `${token.symbol}-${index}`} className="bg-[#111213] border-gray-800 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => handleTokenClick(token)}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full overflow-hidden">
+                                  <img 
+                                    src={tokenLogos[token.uniqueId] || '/token-logo/base.png'} 
+                                    alt={`${token.name} logo`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement
+                                      target.style.display = 'none'
+                                      target.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-full flex items-center justify-center"><span class="text-primary font-semibold text-sm">${token.symbol.charAt(0)}</span></div>`
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-white font-medium">{token.name}</span>
+                                  </div>
+                                  <p className="text-slate-400 text-sm">{token.symbol}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <SemicircleProgress 
+                                  score={token.securityScore} 
+                                  size={40} 
+                                  strokeWidth={3}
+                                />
+                                <Badge className={`px-2 py-1 text-xs ${
+                                  grade.grade === 'A' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                  grade.grade === 'B' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                                  grade.grade === 'C' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                  'bg-red-500/20 text-red-400 border-red-500/30'
+                                }`}>
+                                  {grade.grade}
+                                </Badge>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-gray-400">Price:</span>
+                                <div className="text-white font-medium">{formatPrice(token.price)}</div>
+                                <div className={`flex items-center gap-1 text-xs ${
+                                  token.priceChange24h >= 0 ? 'text-green-500' : 'text-red-500'
+                                }`}>
+                                  {token.priceChange24h >= 0 ? (
+                                    <TrendingUpIcon className="h-3 w-3" />
+                                  ) : (
+                                    <TrendingDown className="h-3 w-3" />
+                                  )}
+                                  {Math.abs(token.priceChange24h).toFixed(2)}%
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-gray-400">Market Cap:</span>
+                                <div className="text-white font-medium">{formatNumber(token.marketCap)}</div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  /* Desktop List View - Compact Table */
+                  <div className="bg-[#111213] rounded-lg border border-gray-800 overflow-hidden shadow-xl">
                   <div className="overflow-x-auto relative">
                     <div className="absolute top-0 left-0 right-0 h-8 bg-gray-900 z-0"></div>
                     <table className="w-full relative z-10">
                       <thead className="bg-gray-900 border-b border-gray-800" style={{position: 'relative', zIndex: 1}}>
                         <tr className="bg-gray-900 w-full" style={{width: '100%', minWidth: '100%'}}>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[200px]">
                             Project
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[120px]">
                             Security Score
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[100px]">
                             Price
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[120px] hidden md:table-cell">
                             Market Cap
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[120px] hidden lg:table-cell">
                             Volume 24h
                           </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900">
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-900 min-w-[100px]">
                             Risk Level
                           </th>
                         </tr>
@@ -1063,10 +1136,10 @@ export default function BlockNetPage() {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-3 py-2">
+                              <td className="px-3 py-2 hidden md:table-cell">
                                 <span className="text-white">{formatNumber(token.marketCap)}</span>
                               </td>
-                              <td className="px-3 py-2">
+                              <td className="px-3 py-2 hidden lg:table-cell">
                                 <span className="text-white">{formatNumber(token.volume24h)}</span>
                               </td>
                               <td className="px-3 py-2">
@@ -1097,6 +1170,7 @@ export default function BlockNetPage() {
                     </table>
                   </div>
                 </div>
+                )
               ) : (
                 /* Grid View */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1213,16 +1287,15 @@ export default function BlockNetPage() {
             </div>
             </div>
 
-            {/* Right Sidebar - Activity Feed */}
-            <div className="w-80 bg-[#111213] border-l border-gray-800 flex flex-col h-full overflow-y-auto">
+            {/* Right Sidebar - Activity Feed (Desktop Only) */}
+            <div className="hidden lg:flex w-80 bg-[#111213] border-l border-gray-800 flex-col h-full overflow-y-auto">
               <div className="p-4">
                 <ActivityFeed />
               </div>
             </div>
         </div>
       </div>
-
-
+      </div>
 
       {/* Authentication Modal */}
       {showAuthModal && (
