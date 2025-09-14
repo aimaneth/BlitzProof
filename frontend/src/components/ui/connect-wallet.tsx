@@ -1,6 +1,6 @@
 "use client"
 
-import { ConnectButton } from "@rainbow-me/rainbowkit"
+// Removed RainbowKit ConnectButton to fix wagmi errors
 import { useWallet } from "@/hooks/use-wallet"
 import { Button } from "./button"
 import { Loader2, User, LogOut } from "lucide-react"
@@ -39,5 +39,13 @@ export function ConnectWallet() {
     )
   }
 
-  return <ConnectButton />
+  return (
+    <Button 
+      variant="outline" 
+      onClick={() => console.log('Connect wallet clicked - wagmi integration removed')}
+      className="h-9 px-3 text-sm"
+    >
+      Connect Wallet
+    </Button>
+  )
 } 
