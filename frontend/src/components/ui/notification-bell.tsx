@@ -112,10 +112,6 @@ export default function NotificationBell() {
           </Badge>
         )}
 
-        {/* Connection Status Indicator */}
-        <div className="absolute -bottom-1 -right-1">
-          {getConnectionStatusIcon()}
-        </div>
       </Button>
 
       {/* Notification Dropdown */}

@@ -511,26 +511,35 @@ export default function BlockNetPage() {
               console.log(`🔍 Loading uploaded logo for ${token.name} (${token.uniqueId})`)
               // Only fetch uploaded logos from database, no external sources
               const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-              const response = await fetch(`${apiBaseUrl}/api/blocknet/token-logos/${token.uniqueId}`)
+              const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/${token.uniqueId}`
+              console.log(`🌐 Fetching logo from: ${logoUrl}`)
+              
+              const response = await fetch(logoUrl)
+              console.log(`📡 Logo response status: ${response.status} ${response.statusText}`)
               
               if (response.ok) {
                 // Check if response is an image (not JSON)
                 const contentType = response.headers.get('content-type')
+                console.log(`📄 Logo content type: ${contentType}`)
+                
                 if (contentType && contentType.startsWith('image/')) {
                   // Create object URL for the image blob
                   const logoBlob = await response.blob()
-                  const logoUrl = URL.createObjectURL(logoBlob)
-                  console.log(`✅ Uploaded logo loaded for ${token.name}: ${logoUrl}`)
-                  return { tokenId: token.uniqueId, logoUrl }
+                  const objectUrl = URL.createObjectURL(logoBlob)
+                  console.log(`✅ Uploaded logo loaded for ${token.name}: ${objectUrl}`)
+                  return { tokenId: token.uniqueId, logoUrl: objectUrl }
                 } else {
                   // Try to parse as JSON for metadata response
                   const data = await response.json()
+                  console.log(`📋 Logo metadata response:`, data)
                   if (data.success && data.logoUrl) {
-                    const logoUrl = `${apiBaseUrl}${data.logoUrl}`
-                    console.log(`✅ Uploaded logo loaded for ${token.name}: ${logoUrl}`)
-                    return { tokenId: token.uniqueId, logoUrl }
+                    const fullLogoUrl = `${apiBaseUrl}${data.logoUrl}`
+                    console.log(`✅ Uploaded logo loaded for ${token.name}: ${fullLogoUrl}`)
+                    return { tokenId: token.uniqueId, logoUrl: fullLogoUrl }
                   }
                 }
+              } else {
+                console.log(`❌ Logo fetch failed: ${response.status} ${response.statusText}`)
               }
               
               // No uploaded logo found, use default
@@ -733,9 +742,6 @@ export default function BlockNetPage() {
                   <span className="text-white text-sm font-medium">
                     🚀 New Feature: Real-time threat detection now available for all monitored tokens
                   </span>
-                  <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30 text-xs">
-                    Live
-                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <button className="text-gray-400 hover:text-white text-sm transition-colors">
@@ -780,7 +786,6 @@ export default function BlockNetPage() {
 
                 {/* Auth Section */}
                 <div className="flex items-center gap-4">
-                  <ConnectionStatus className="text-xs" />
                   <NotificationBell />
                   {isAuthenticated ? (
                     <div className="relative">
