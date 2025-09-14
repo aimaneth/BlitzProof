@@ -1,8 +1,5 @@
 'use client'
 
-import { WagmiProvider } from 'wagmi'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { wagmiConfig, queryClient } from '@/lib/web3modal'
 import { useEffect, useState } from 'react'
 
 interface Web3ModalProviderProps {
@@ -20,11 +17,7 @@ export function Web3ModalProvider({ children }: Web3ModalProviderProps) {
     return <>{children}</>
   }
 
-  return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
+  // For now, just return children without WagmiProvider to avoid errors
+  // Web3Modal integration will be completed later
+  return <>{children}</>
 }

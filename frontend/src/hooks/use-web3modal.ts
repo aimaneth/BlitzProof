@@ -1,6 +1,5 @@
 'use client'
 
-import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi'
 import { useEffect, useState } from 'react'
 import { apiService } from '@/lib/api'
 
@@ -8,11 +7,9 @@ export function useWeb3Modal() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Wagmi hooks
-  const { address, isConnected } = useAccount()
-  const { disconnect } = useDisconnect()
-  const { data: balance } = useBalance({ address })
+  const [address, setAddress] = useState<string | undefined>(undefined)
+  const [isConnected, setIsConnected] = useState(false)
+  const [balance, setBalance] = useState<any>(undefined)
 
   const shortAddress = address 
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -20,14 +17,10 @@ export function useWeb3Modal() {
 
   // Handle authentication
   useEffect(() => {
-    if (isConnected && address) {
-      handleAuthentication()
-    } else {
-      setIsAuthenticated(false)
-      setError(null)
-      localStorage.removeItem('auth_token')
-    }
-  }, [isConnected, address])
+    // For now, return safe defaults until Web3Modal is fully integrated
+    setIsAuthenticated(false)
+    setError('Web3Modal integration in progress')
+  }, [])
 
   const handleAuthentication = async () => {
     if (!address) return
@@ -68,7 +61,9 @@ export function useWeb3Modal() {
     localStorage.removeItem('auth_token')
     setIsAuthenticated(false)
     setError(null)
-    disconnect()
+    setAddress(undefined)
+    setIsConnected(false)
+    setBalance(undefined)
   }
 
   return {
