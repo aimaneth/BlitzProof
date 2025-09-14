@@ -11,21 +11,11 @@ export function useWallet() {
   const [error, setError] = useState<string | null>(null)
   const [wagmiAvailable, setWagmiAvailable] = useState(false)
 
-  // Always call wagmi hooks - they will throw if provider is not available
-  let config, account, balanceData, disconnectFn
-  
-  try {
-    config = useConfig()
-    account = useAccount()
-    balanceData = useBalance({ address: account.address })
-    disconnectFn = useDisconnect()
-  } catch (wagmiError) {
-    // If wagmi hooks fail, we'll handle it in useEffect
-    config = null
-    account = null
-    balanceData = null
-    disconnectFn = null
-  }
+  // Always call wagmi hooks - no try-catch, no conditions
+  const config = useConfig()
+  const account = useAccount()
+  const balanceData = useBalance({ address: account.address })
+  const disconnectFn = useDisconnect()
 
   // Extract values safely
   const address = account?.address
@@ -39,8 +29,8 @@ export function useWallet() {
 
   // Handle wallet connection and authentication
   useEffect(() => {
-    // Check if wagmi is available
-    const isWagmiAvailable = config !== null && account !== null
+    // Check if wagmi is available by checking if we have valid objects
+    const isWagmiAvailable = config && account && balanceData && disconnectFn
     
     if (!isWagmiAvailable) {
       setIsAuthenticated(false)
@@ -58,7 +48,7 @@ export function useWallet() {
       setError(null)
       localStorage.removeItem('auth_token')
     }
-  }, [isConnected, address, config, account])
+  }, [isConnected, address, config, account, balanceData, disconnectFn])
 
   const handleAuthentication = async () => {
     if (!address || !wagmiAvailable) return
@@ -105,7 +95,7 @@ export function useWallet() {
   }
 
   // Return safe defaults if wagmi is not available
-  if (config === null || account === null) {
+  if (!config || !account || !balanceData || !disconnectFn) {
     return {
       address: undefined,
       isConnected: false,

@@ -12,7 +12,7 @@ const Web3ClientProvider = dynamic(
   () => import('./web3-client-provider').then(mod => ({ default: mod.Web3ClientProvider })),
   {
     ssr: false,
-    loading: () => <div suppressHydrationWarning>{children}</div>,
+    loading: () => null,
   }
 )
 
