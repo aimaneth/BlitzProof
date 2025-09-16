@@ -349,7 +349,7 @@ export default function BlitzProofAdminPage() {
         try {
           console.log(`🔍 Loading uploaded logo for ${token.name} (${token.uniqueId})`)
           // Only fetch uploaded logos from database, no external sources
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'
           const response = await fetch(`${apiBaseUrl}/api/blocknet/token-logos/${token.uniqueId}`)
           
           if (response.ok) {

@@ -60,7 +60,7 @@ export function RealTimeProgress({ scanId, isVisible, onComplete, onError }: Rea
       } else {
         // In development, use localhost
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const host = process.env.NEXT_PUBLIC_API_URL || 'localhost:4000'
+        const host = process.env.NEXT_PUBLIC_API_URL || 'localhost:4001'
         // Remove https:// prefix if present
         const cleanHost = host.replace(/^https?:\/\//, '')
         wsUrl = `${protocol}//${cleanHost}`

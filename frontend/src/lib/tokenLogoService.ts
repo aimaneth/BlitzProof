@@ -16,7 +16,7 @@ export class TokenLogoService {
     {
       name: 'CoinGecko',
       getLogoUrl: (tokenId: string) => {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
         return `${apiBaseUrl}/api/blocknet/token-logos/proxy/coingecko/${tokenId}`;
       },
       priority: 2
@@ -27,7 +27,7 @@ export class TokenLogoService {
       getLogoUrl: (tokenId: string, symbol?: string, address?: string) => {
         // Only use TrustWallet if we have a valid contract address
         if (address && address.startsWith('0x') && address.length === 42) {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
           return `${apiBaseUrl}/api/blocknet/token-logos/proxy/trustwallet/${tokenId}?address=${address}`;
         }
         // Skip TrustWallet for non-contract tokens (like Bitcoin, Cardano)
@@ -40,7 +40,7 @@ export class TokenLogoService {
       name: 'TokenIcons',
       getLogoUrl: (tokenId: string, symbol?: string) => {
         if (symbol) {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
           return `${apiBaseUrl}/api/blocknet/token-logos/proxy/tokenicons/${tokenId}?symbol=${symbol}`;
         }
         return '/token-logo/base.png';
@@ -260,7 +260,7 @@ export class TokenLogoService {
     // SECOND: For known tokens, try external sources
     const coinGeckoId = this.coinGeckoImageIds[cleanTokenId.toLowerCase()];
     if (coinGeckoId && coinGeckoId !== 'custom') {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/coingecko/${cleanTokenId}`;
       console.log(`🔄 Using CoinGecko proxy for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -269,7 +269,7 @@ export class TokenLogoService {
 
     // THIRD: Try Trust Wallet for ERC20 tokens with contract addresses
     if (address && address.startsWith('0x') && address.length === 42) {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/trustwallet/${cleanTokenId}?address=${address}`;
       console.log(`🔄 Using TrustWallet proxy for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -278,7 +278,7 @@ export class TokenLogoService {
 
     // FOURTH: Try TokenIcons for tokens with symbols
     if (symbol) {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/tokenicons/${cleanTokenId}?symbol=${symbol}`;
       console.log(`🔄 Using TokenIcons proxy for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -357,7 +357,7 @@ export class TokenLogoService {
     // SECOND: For known tokens, try external sources
     const coinGeckoId = this.coinGeckoImageIds[cleanTokenId.toLowerCase()];
     if (coinGeckoId && coinGeckoId !== 'custom') {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/coingecko/${cleanTokenId}`;
       console.log(`🔄 Using CoinGecko proxy (sync) for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -366,7 +366,7 @@ export class TokenLogoService {
 
     // THIRD: Try Trust Wallet for ERC20 tokens with contract addresses
     if (address && address.startsWith('0x') && address.length === 42) {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/trustwallet/${cleanTokenId}?address=${address}`;
       console.log(`🔄 Using TrustWallet proxy (sync) for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -375,7 +375,7 @@ export class TokenLogoService {
 
     // FOURTH: Try TokenIcons for tokens with symbols
     if (symbol) {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/proxy/tokenicons/${cleanTokenId}?symbol=${symbol}`;
       console.log(`🔄 Using TokenIcons proxy (sync) for ${cleanTokenId}`);
       this.cacheLogo(cleanTokenId, logoUrl);
@@ -394,7 +394,7 @@ export class TokenLogoService {
    */
   private async getUploadedLogoUrl(tokenId: string): Promise<string | null> {
     try {
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
       // Remove cache buster to allow proper caching
       const url = `${apiBaseUrl}/api/blocknet/token-logos/${tokenId}`;
       console.log(`🔍 Making logo request for ${tokenId}: ${url}`);
@@ -429,7 +429,7 @@ export class TokenLogoService {
    */
   private getUploadedLogoUrlSync(tokenId: string): string | null {
     // For sync version, we'll return a constructed URL that the async method will validate
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
     const constructedUrl = `${apiBaseUrl}/api/blocknet/token-logos/uploads/token-logos/${tokenId}.png`;
     
     // Check if we have this in cache already

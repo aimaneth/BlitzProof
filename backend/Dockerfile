@@ -91,7 +91,7 @@ RUN npm prune --production
 RUN mkdir -p uploads tools
 
 # Expose port
-EXPOSE 4000
+EXPOSE 4001
 
 # Start the application
 CMD ["npm", "start"]

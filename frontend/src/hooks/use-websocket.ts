@@ -32,7 +32,7 @@ interface UseWebSocketOptions {
 const DEFAULT_OPTIONS: UseWebSocketOptions = {
   url: process.env.NODE_ENV === 'production' 
     ? 'wss://blitzproof-backend.onrender.com' 
-    : 'ws://localhost:4000',
+    : 'ws://localhost:4001',
   autoReconnect: true, // Re-enabled with proper limits
   maxReconnectAttempts: 2, // Limited attempts
   reconnectInterval: 3000,

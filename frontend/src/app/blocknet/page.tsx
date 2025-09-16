@@ -404,7 +404,7 @@ export default function BlockNetPage() {
       const refreshPromises = staleTokens.map(async (token) => {
         try {
           console.log(`🔄 Refreshing ${token.name} (${token.coinGeckoId})...`)
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/price-data/${token.coinGeckoId}?refresh=true`)
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'}/api/price-data/${token.coinGeckoId}?refresh=true`)
           if (response.ok) {
             const data = await response.json()
             if (data.success) {
@@ -510,8 +510,11 @@ export default function BlockNetPage() {
             try {
               console.log(`🔍 Loading uploaded logo for ${token.name} (${token.uniqueId})`)
               // Only fetch uploaded logos from database, no external sources
-              const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+              const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'
               const logoUrl = `${apiBaseUrl}/api/blocknet/token-logos/${token.uniqueId}`
+              console.log(`🌐 Environment: ${process.env.NODE_ENV}`)
+              console.log(`🌐 API URL from env: ${process.env.NEXT_PUBLIC_API_URL}`)
+              console.log(`🌐 Final API Base URL: ${apiBaseUrl}`)
               console.log(`🌐 Fetching logo from: ${logoUrl}`)
               
               const response = await fetch(logoUrl)
@@ -559,6 +562,8 @@ export default function BlockNetPage() {
           
           setTokenLogos(logoMap)
           console.log('✅ Loaded logos for', Object.keys(logoMap).length, 'tokens')
+          console.log('📋 Logo map:', logoMap)
+          console.log('📋 Token uniqueIds:', convertedTokens.map(t => ({ name: t.name, uniqueId: t.uniqueId })))
         } else {
           console.log('⚠️ No tokens in response')
           setMonitoredTokens([])
@@ -1001,7 +1006,9 @@ export default function BlockNetPage() {
                                     src={tokenLogos[token.uniqueId] || '/token-logo/base.png'} 
                                     alt={`${token.name} logo`}
                                     className="w-full h-full object-cover"
+                                    onLoad={() => console.log(`🖼️ Mobile image loaded for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)}
                                     onError={(e) => {
+                                      console.log(`❌ Mobile image failed to load for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)
                                       const target = e.target as HTMLImageElement
                                       target.style.display = 'none'
                                       target.parentElement!.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-full flex items-center justify-center"><span class="text-primary font-semibold text-sm">${token.symbol.charAt(0)}</span></div>`
@@ -1101,7 +1108,9 @@ export default function BlockNetPage() {
                                       src={tokenLogos[token.uniqueId] || '/token-logo/base.png'} 
                                       alt={`${token.name} logo`}
                                       className="w-full h-full object-cover"
+                                      onLoad={() => console.log(`🖼️ Image loaded for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)}
                                       onError={(e) => {
+                                        console.log(`❌ Image failed to load for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)
                                         // Fallback to text if image fails to load
                                         const target = e.target as HTMLImageElement
                                         target.style.display = 'none'
@@ -1216,7 +1225,9 @@ export default function BlockNetPage() {
                                   src={tokenLogos[token.uniqueId] || '/token-logo/base.png'} 
                                   alt={`${token.name} logo`}
                                   className="w-full h-full object-cover"
+                                  onLoad={() => console.log(`🖼️ Grid image loaded for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)}
                                   onError={(e) => {
+                                    console.log(`❌ Grid image failed to load for ${token.name}: ${tokenLogos[token.uniqueId] || '/token-logo/base.png'}`)
                                     // Fallback to text if image fails to load
                                     const target = e.target as HTMLImageElement
                                     target.style.display = 'none'

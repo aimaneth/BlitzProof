@@ -178,7 +178,7 @@ export default function TokenDetailsPage() {
       // Load logo from database
       try {
         console.log(`🔍 Loading uploaded logo for ${simpleToken.name} (${simpleToken.uniqueId})`)
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'
         const logoResponse = await fetch(`${apiBaseUrl}/api/blocknet/token-logos/${simpleToken.uniqueId}`)
         if (logoResponse.ok) {
           // Check if response is an image (not JSON)

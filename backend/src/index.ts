@@ -286,7 +286,7 @@ async function startServer() {
     // Clear startup timeout
     clearTimeout(startupTimeout)
 
-    const PORT = process.env.PORT || 4000
+    const PORT = process.env.PORT || 4001
     server.listen(PORT, () => {
       console.log(`🚀 Backend API running on port ${PORT}`)
       console.log(`📊 Health check: http://localhost:${PORT}/health`)
