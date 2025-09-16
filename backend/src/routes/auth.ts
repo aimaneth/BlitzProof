@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser, getProfile } from '../controllers/authController'
+import { registerUser, loginUser, getProfile } from '../controllers/authController'
 import { authenticateToken } from '../middleware/auth'
 
 const router = express.Router()
@@ -8,6 +8,7 @@ const router = express.Router()
 router.use(express.json({ limit: '50mb' }))
 
 router.post('/register', registerUser)
+router.post('/login', loginUser)
 router.get('/profile', authenticateToken, getProfile)
 
 export default router 

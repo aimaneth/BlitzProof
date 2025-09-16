@@ -61,7 +61,8 @@ import {
   Menu,
   X,
   Grid3X3,
-  ArrowUpDown
+  ArrowUpDown,
+  Loader2
 } from 'lucide-react'
 import { apiService, getAllTokens, getAllTokensWithPrice } from '@/lib/api'
 import NotificationBell from '@/components/ui/notification-bell'
@@ -74,6 +75,7 @@ import BlockNetSidebar from '@/components/ui/blocknet-sidebar'
 
 import { useWebSocket } from '@/hooks/use-websocket'
 import ConnectionStatus from '@/components/ui/connection-status'
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 interface TokenMonitor {
   id: string
@@ -279,21 +281,15 @@ export default function BlockNetPage() {
   const [sortBy, setSortBy] = useState<string>('securityScore')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
-  // Authentication states
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
-  const [authForm, setAuthForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  })
-  const [user, setUser] = useState<any>(null)
+  // Authentication states - using NextAuth
+  const { data: session, status } = useSession()
+  const isAuthenticated = !!session
+  const isLoading = status === 'loading'
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   // WebSocket for real-time updates
-  const { isConnected, connectionStatus, subscribe, unsubscribe, lastMessage } = useWebSocket({
+  const { isConnected: wsConnected, connectionStatus, subscribe, unsubscribe, lastMessage } = useWebSocket({
     onMessage: useCallback((message: any) => {
       console.log('📡 Received WebSocket message:', message)
       
@@ -315,7 +311,7 @@ export default function BlockNetPage() {
 
   // Subscribe to token updates when tokens are loaded
   useEffect(() => {
-    if (isConnected && monitoredTokens.length > 0) {
+    if (wsConnected && monitoredTokens.length > 0) {
       monitoredTokens.forEach(token => {
         subscribe('token', token.id || token.tokenId)
       })
@@ -326,7 +322,7 @@ export default function BlockNetPage() {
         })
       }
     }
-  }, [isConnected, monitoredTokens, subscribe, unsubscribe])
+  }, [wsConnected, monitoredTokens, subscribe, unsubscribe])
 
   // Fetch dashboard data
   useEffect(() => {
@@ -647,55 +643,13 @@ export default function BlockNetPage() {
     }
   })
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (authMode === 'signup' && authForm.password !== authForm.confirmPassword) {
-      alert('Passwords do not match')
-      return
-    }
-
-    try {
-      // Mock authentication - replace with real API call
-      if (authMode === 'signin') {
-        // Simulate sign in
-        const mockUser = {
-          id: '1',
-          email: authForm.email,
-          name: 'John Doe',
-          avatar: null
-        }
-        setUser(mockUser)
-        setIsAuthenticated(true)
-        setShowAuthModal(false)
-        setAuthForm({ email: '', password: '', confirmPassword: '' })
-      } else {
-        // Simulate sign up
-        const mockUser = {
-          id: '1',
-          email: authForm.email,
-          name: 'John Doe',
-          avatar: null
-        }
-        setUser(mockUser)
-        setIsAuthenticated(true)
-        setShowAuthModal(false)
-        setAuthForm({ email: '', password: '', confirmPassword: '' })
-      }
-    } catch (error) {
-      console.error('Authentication error:', error)
-    }
-  }
-
   const handleSignOut = () => {
-    setUser(null)
-    setIsAuthenticated(false)
+    signOut()
     setShowUserMenu(false)
   }
 
   const handleSignIn = () => {
-    setShowAuthModal(true)
-    setAuthMode('signin')
+    signIn()
   }
 
   const handleTokenClick = (token: TokenMetrics) => {
@@ -718,7 +672,6 @@ export default function BlockNetPage() {
           activeSection={activeSection}
           onSectionChange={setActiveSection}
           isAuthenticated={isAuthenticated}
-          user={user}
           onSignIn={handleSignIn}
           onSignOut={handleSignOut}
         />
@@ -801,7 +754,7 @@ export default function BlockNetPage() {
                         <div className="w-8 h-8 bg-blue-600/20 rounded-full flex items-center justify-center">
                           <User className="h-4 w-4" />
                         </div>
-                        <span className="hidden sm:block">{user?.name}</span>
+                        <span className="hidden sm:block">{session?.user?.name || session?.user?.email || 'User'}</span>
                         <ChevronRight className={`h-4 w-4 transition-transform ${showUserMenu ? 'rotate-90' : ''}`} />
                       </button>
                       
@@ -809,7 +762,7 @@ export default function BlockNetPage() {
                         <div className="absolute right-0 mt-2 w-48 bg-black border border-gray-700 rounded-lg shadow-lg">
                           <div className="py-2">
                             <div className="px-4 py-2 text-sm text-gray-400 border-b border-gray-700">
-                              {user?.email}
+                              {session?.user?.email}
                             </div>
                                                     <button className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
                           Dashboard
@@ -835,11 +788,21 @@ export default function BlockNetPage() {
                     </div>
                   ) : (
                     <Button
-                      onClick={() => setShowAuthModal(true)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={handleSignIn}
+                      disabled={isLoading}
+                      className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                     >
-                      <LogIn className="h-4 w-4 mr-2" />
-                      Sign In
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="h-4 w-4 mr-2" />
+                          Sign In
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
@@ -1314,76 +1277,6 @@ export default function BlockNetPage() {
       </div>
 
       {/* Authentication Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#111213] border border-gray-700 rounded-lg p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">
-                {authMode === 'signin' ? 'Sign In' : 'Sign Up'}
-              </h2>
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAuth} className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-300 mb-1 block">Email</label>
-                <Input
-                  type="email"
-                  value={authForm.email}
-                  onChange={(e) => setAuthForm({...authForm, email: e.target.value})}
-                  className="bg-gray-900 border-gray-700 text-white"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-gray-300 mb-1 block">Password</label>
-                <Input
-                  type="password"
-                  value={authForm.password}
-                  onChange={(e) => setAuthForm({...authForm, password: e.target.value})}
-                  className="bg-gray-900 border-gray-700 text-white"
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
-
-              {authMode === 'signup' && (
-                <div>
-                  <label className="text-sm text-gray-300 mb-1 block">Confirm Password</label>
-                  <Input
-                    type="password"
-                    value={authForm.confirmPassword}
-                    onChange={(e) => setAuthForm({...authForm, confirmPassword: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                    placeholder="Confirm your password"
-                    required
-                  />
-                </div>
-              )}
-
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                {authMode === 'signin' ? 'Sign In' : 'Sign Up'}
-              </Button>
-            </form>
-
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
-                className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
-              >
-                {authMode === 'signin' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
